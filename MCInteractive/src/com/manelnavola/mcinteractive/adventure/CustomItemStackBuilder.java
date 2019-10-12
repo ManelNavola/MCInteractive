@@ -1,0 +1,64 @@
+package com.manelnavola.mcinteractive.adventure;
+
+import java.util.Map.Entry;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
+
+public class CustomItemStackBuilder<T extends CustomItemStackBuilder<T>> extends ItemStackBuilder<T>  {
+	
+	private int uses = 1;
+	
+	public CustomItemStackBuilder(ItemStack is) {
+		super(is);
+		String lastLine = lore.get(lore.size() - 1);
+		String leftText = ChatColor.stripColor(lastLine).split("/")[0];
+		if (leftText.equals("Single use")) {
+			uses = 1;
+		} else {
+			uses = Integer.parseInt(leftText);
+		}
+		lore.remove(lore.size() - 1);
+	}
+	
+	public CustomItemStackBuilder(Material m) {
+		super(m);
+	}
+
+	public T uses(int n) {
+		uses = n;
+		return self();
+	}
+	
+	@Override
+	public ItemStack build() {
+		ItemStack is = new ItemStack(material);
+		is.setAmount(amount);
+		
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName(name);
+		if (uses > 1) {
+			lore.add(ChatColor.GOLD + "" + uses + "/" + uses + " uses");
+		} else {
+			lore.add(ChatColor.GOLD + "Single use");
+		}
+		im.setLore(lore);
+		for(Entry<Enchantment, Integer> p : enchants.entrySet()) {
+			im.addEnchant(p.getKey(), p.getValue(), true);
+		}
+		for (ItemFlag flag : itemFlags) {
+			im.addItemFlags(flag);
+		}
+		
+		is.setItemMeta(im);
+		
+		return is;
+	}
+
+}

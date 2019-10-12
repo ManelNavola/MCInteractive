@@ -1,0 +1,69 @@
+package com.manelnavola.mcinteractive.adventure.customitems;
+
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
+
+import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
+import com.manelnavola.mcinteractive.adventure.CustomItemStackBuilder;
+
+public class Eggscelent extends CustomItem {
+	
+	private int[] spawns = new int[] {2, 4, 8};
+	private EntityType[] passive = new EntityType[] {EntityType.CHICKEN,
+			EntityType.COW,
+			EntityType.MUSHROOM_COW,
+			EntityType.PIG,
+			EntityType.RABBIT};
+	
+	public Eggscelent() {
+		super(new CustomItemFlag[] {CustomItemFlag.PROJECTILE, CustomItemFlag.DISPENSES, CustomItemFlag.RIGHT_CLICK});
+		ItemStack uncommon = new CustomItemStackBuilder<>(Material.EGG)
+				.name("Eggscelent")
+				.lore("Throw to spawn 4 random farm animals!")
+				.addEnchantEffect()
+				.build();
+		ItemStack common = new CustomItemStackBuilder<>(uncommon)
+				.newLore("Throw to spawn 2 random farm animals!")
+				.build();
+		ItemStack rare = new CustomItemStackBuilder<>(uncommon)
+				.newLore("Throw to spawn 8 random farm animals!")
+				.build();
+		setRarities(common, uncommon, rare, null);
+	}
+	
+	@Override
+	public void onPlayerInteract(Player p, CustomItemInfo cii) {
+		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_SNOW_GOLEM_SHOOT, 1F, 1F);
+		Egg e = p.launchProjectile(Egg.class);
+		registerEntity(e, cii.getTier());
+	}
+	
+	@Override
+	public void onProjectileHit(Entity proj, Block b, Entity e, int tier) {
+		Location l = proj.getLocation();
+		int amount = spawns[tier];
+		double angle = Math.random()*2*Math.PI;
+		for (int i = 0; i < amount; i++) {
+			Entity ent = l.getWorld().spawnEntity(l, passive[(int)(Math.random()*passive.length)]);
+			ent.setVelocity(new Vector(Math.cos(angle)/4F, 0.1, Math.sin(angle)/4F));
+			l.getWorld().playSound(l, Sound.BLOCK_BEACON_POWER_SELECT, 1F, 2F);
+			angle += (2*Math.PI)/amount;
+		}
+	}
+	
+	@Override
+	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {
+		Egg e = l.getWorld().spawn(l, Egg.class);
+		e.setVelocity(dir);
+		registerEntity(e, cii.getTier());
+	}
+	
+}

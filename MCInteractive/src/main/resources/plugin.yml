@@ -1,0 +1,31 @@
+name: MCInteractive
+description: Making Minecraft Twitch-Interactive!
+version: 0.1
+author: Manel Navola
+
+main: com.manelnavola.mcinteractive.Main
+load: POSTWORLD
+api-version: 1.13
+
+commands:
+   mci:
+      description: List all Minecraft Interactive commands
+      usage: "/<command>"
+   mci listen:
+      description: Starts listen anonymously to a Twitch channel
+      usage: "/<command> [channelName]"
+   mci leave:
+      description: Stops listening to the connected Twitch channel
+      usage: "/<command>"
+   mci startvote:
+      description: Starts a custom vote
+      usage: "/<command> [description] [voteTime] [option1] [option2] [option3]..."
+   mci endvote:
+      description: Forces current vote to end
+      usage: "/<command>"
+   mci cancelvote:
+      description: Cancels and invalidates the current vote
+      usage: "/<command>"
+   mci config:
+      description: Shows chat configuration GUI
+      usage: "/<command>"
