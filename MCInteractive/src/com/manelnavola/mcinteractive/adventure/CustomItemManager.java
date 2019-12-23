@@ -74,8 +74,8 @@ public class CustomItemManager {
 		register(new FireWand());
 		register(new Eggscelent());
 		register(new BunnyHop());
-		register(new SuperFuel());
-		register(new Freezer());*/
+		register(new SuperFuel());*/
+		register(new Freezer());
 		register(new Smelter());
 		
 		subGift = new SubGift();
@@ -337,6 +337,10 @@ public class CustomItemManager {
 				}
 			}
 		}
+	}
+
+	public static void onEntityShootBow(Player player, Entity projectile, CustomItemInfo cii) {
+		cii.getCustomItem().registerEntity(projectile, cii.getTier());
 	}
 
 	/*public static void onEntityMount(Player p, Entity mount) {

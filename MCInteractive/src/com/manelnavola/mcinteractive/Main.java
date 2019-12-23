@@ -1,12 +1,14 @@
 package com.manelnavola.mcinteractive;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Furnace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,6 +17,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -25,6 +28,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,6 +48,8 @@ import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
 public class Main extends JavaPlugin implements Listener {
 	
 	public static Plugin plugin;
+	
+	private static HashMap<Player, Integer> lastArrowSlot = new HashMap<>();
 
 	@Override
 	public void onEnable() {
@@ -150,6 +156,20 @@ public class Main extends JavaPlugin implements Listener {
 	        	}
 	        }
 		}
+		
+		// Find first arrow itemStack
+		Player p = e.getPlayer();
+		if (p.getInventory().getItemInOffHand() != null && p.getInventory().getItemInOffHand().getType() == Material.ARROW) {
+			lastArrowSlot.put(p, -1); 
+		} else {
+			for (int i = 0; i < p.getInventory().getSize(); i++) {
+				ItemStack is = p.getInventory().getItem(i);
+				if (is != null && is.getType() == Material.ARROW) {
+					lastArrowSlot.put(p, i);
+					break;
+				}
+			}
+		}
     }
 	
 	@EventHandler(priority=EventPriority.HIGH)
@@ -157,6 +177,25 @@ public class Main extends JavaPlugin implements Listener {
 		Entity ent = e.getEgg();
 		if (ent.hasMetadata("MCI")) {
 			e.setHatching(false);
+		}
+	}
+	
+	@EventHandler(priority=EventPriority.HIGH)
+	public void onEntityShootBow(EntityShootBowEvent e) {
+		if (e.getEntityType() != EntityType.PLAYER) return;
+		Player player = (Player) e.getEntity();
+		if (lastArrowSlot.containsKey(player)) {
+			int slot = lastArrowSlot.get(player);
+			ItemStack is;
+			if (slot == -1) {
+				is = player.getInventory().getItemInOffHand();
+			} else {
+				is = player.getInventory().getItem(slot);
+			}
+			CustomItemInfo cii = new CustomItemInfo(is);
+			if (cii.isValid() && !cii.isEnchant()) {
+				CustomItemManager.onEntityShootBow(player, e.getProjectile(), cii);
+			}
 		}
 	}
 	
@@ -185,6 +224,7 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerQuitEvent(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
+		lastArrowSlot.remove(p);
 		if (ConnectionManager.isConnected(p)) {
 			ConnectionManager.leave(p);
 		}
