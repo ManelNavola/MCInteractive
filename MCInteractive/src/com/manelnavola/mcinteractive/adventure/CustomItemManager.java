@@ -8,6 +8,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -16,9 +17,12 @@ import org.bukkit.block.Furnace;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,6 +32,7 @@ import org.bukkit.util.Vector;
 
 import com.manelnavola.mcinteractive.adventure.customitems.*;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemFlag;
+import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -42,6 +47,7 @@ public class CustomItemManager {
 	private static Map<String, CustomItem> entityHits;
 	private static Map<String, CustomItem> blockDispenses;
 	private static Map<String, CustomItem> burns;
+	private static Map<String, CustomItem> breaks;
 	private static Map<String, CustomItem> rightClicks;
 	//private static Map<String, CustomItem> mounts;
 	
@@ -54,6 +60,7 @@ public class CustomItemManager {
 		entityHits = new HashMap<>();
 		blockDispenses = new HashMap<>();
 		burns = new HashMap<>();
+		breaks = new HashMap<>();
 		rightClicks = new HashMap<>();
 		//mounts = new HashMap<>();
 		customItemTierList = new HashMap<>();
@@ -63,11 +70,13 @@ public class CustomItemManager {
 			customItemTierList.put(i, new ArrayList<>());
 		}
 		
-		register(new ThrowableStone());
+		/*register(new ThrowableStone());
 		register(new FireWand());
 		register(new Eggscelent());
 		register(new BunnyHop());
 		register(new SuperFuel());
+		register(new Freezer());*/
+		register(new Smelter());
 		
 		subGift = new SubGift();
 		setFlags(subGift);
@@ -88,6 +97,9 @@ public class CustomItemManager {
 		}
 		if (ci.hasFlag(CustomItemFlag.BURNS)) {
 			burns.put(ci.getClass().getName(), ci);
+		}
+		if (ci.hasFlag(CustomItemFlag.BLOCK_BREAK)) {
+			breaks.put(ci.getClass().getName(), ci);
 		}
 		/*if (ci.hasFlag(CustomItemFlag.ENTITY_MOUNT)) {
 			mounts.put(ci.getClass().getName(), ci);
@@ -143,6 +155,9 @@ public class CustomItemManager {
 		String lastLore = ChatColor.stripColor(lore.get(lore.size() - 1));
 		int amount = 1;
 		int maxUses = 1;
+		if (cii.getCustomItem() instanceof CustomEnchant) {
+			return item;
+		}
 		if (!lastLore.equals("Single use")) {
 			maxUses = Integer.parseInt(lastLore.split("/")[1].split(" ")[0]);
 			amount = Integer.parseInt(lastLore.split("/")[0]);
@@ -267,9 +282,61 @@ public class CustomItemManager {
 			cii.getCustomItem().onBurn(f, e, cii);
 		}
 	}
+	
+	public static void onBlockBreak(CustomItemInfo cii, Player player, BlockBreakEvent e) {
+		if (breaks.containsKey(cii.getClassName())) {
+			cii.getCustomItem().onBlockBreak(player, e, cii);
+		}
+	}
 
 	public static List<CustomItem> getCustomItems() {
 		return customItemList;
+	}
+
+	public static void checkCustomEnchant(PrepareAnvilEvent e) {
+		AnvilInventory anvilInv = (AnvilInventory) e.getInventory();
+		ItemStack[] itemsInAnvil = anvilInv.getContents();
+		ItemStack toEnchant = itemsInAnvil[0];
+		ItemStack result = e.getResult();
+		
+		if (new CustomItemInfo(toEnchant).isValid()) {
+			e.getResult().setType(Material.AIR);
+			e.setResult(null);
+			Bukkit.getScheduler().runTaskLater(getPlugin(), new Runnable() {
+				@Override
+				public void run() {
+					if (e.getResult() != null) {
+						e.getResult().setType(Material.AIR);
+					}
+					e.setResult(null);
+				}
+			}, 1L);
+			return;
+		}
+		
+		if (toEnchant != null && toEnchant.getType() != Material.AIR && toEnchant.getEnchantments().isEmpty()) {
+			if (result == null || result.getType() == Material.AIR) {
+				CustomItemInfo cii = new CustomItemInfo(itemsInAnvil[1]);
+				if (cii.isValid() && cii.isEnchant()) {
+					if (cii.getCustomEnchant().isCompatible(toEnchant.getType())) {
+						String newEnchantLore = cii.getItemStack().getItemMeta().getDisplayName();
+						newEnchantLore = CustomEnchant.CUSTOM_PREFIX + newEnchantLore;
+						anvilInv.setRepairCost(5 * cii.getTier() + 5);
+						Bukkit.getScheduler().runTaskLater(getPlugin(), new Runnable() {
+							@Override
+							public void run() {
+								anvilInv.setRepairCost(5 * cii.getTier() + 5);
+							}
+						}, 1L);
+						newEnchantLore = newEnchantLore.substring(0, newEnchantLore.lastIndexOf('[') - 1);
+						e.setResult(new ItemStackBuilder<>(toEnchant)
+								.newLore(newEnchantLore)
+								.addEnchantEffect()
+								.build());
+					}
+				}
+			}
+		}
 	}
 
 	/*public static void onEntityMount(Player p, Entity mount) {

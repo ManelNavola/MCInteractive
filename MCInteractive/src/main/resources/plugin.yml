@@ -29,3 +29,5 @@ commands:
    mci config:
       description: Shows chat configuration GUI
       usage: "/<command>"
+   mci reward:
+      description: I hope I don't forget to remove this

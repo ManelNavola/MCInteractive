@@ -12,11 +12,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -89,7 +92,7 @@ public class Main extends JavaPlugin implements Listener {
 		f.setCookTimeTotal((short) 200);
 		f.update();
 		CustomItemInfo cii = new CustomItemInfo(f.getInventory().getFuel());
-		if (cii.isValid()) {
+		if (cii.isValid() && !cii.isEnchant()) {
 			CustomItemManager.onFurnaceBurn(cii, f, e);
 		}
     }
@@ -97,7 +100,7 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority=EventPriority.HIGH)
 	public void onBlockDispense(BlockDispenseEvent e) {
 		CustomItemInfo cii = new CustomItemInfo(e.getItem());
-		if (cii.isValid() && e.getBlock().getType() == Material.DISPENSER) {
+		if (cii.isValid() && !cii.isEnchant() && e.getBlock().getType() == Material.DISPENSER) {
 			CustomItemManager.onBlockDispense(cii, e);
 		}
 	}
@@ -108,7 +111,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (damager instanceof Player) {
 			Player playerDamager = (Player) damager;
 			CustomItemInfo cii = new CustomItemInfo(playerDamager.getInventory().getItemInMainHand());
-			if (cii.isValid()) {
+			if (cii.isValid() && !cii.isEnchant()) {
 				CustomItemManager.onEntityDamageByEntity(cii, playerDamager, e.getEntity());
 			}
 		}
@@ -124,15 +127,20 @@ public class Main extends JavaPlugin implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
-		if (e.getView().getTitle().equals(ConfigGUI.getTitle())) {
+		if (e.getView() != null && e.getView().getTitle().equals(ConfigGUI.getTitle())) {
 			ConfigGUI.click(e);
 		}
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
+	public void onPrepareAnvil(PrepareAnvilEvent e) {
+		CustomItemManager.checkCustomEnchant(e);
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerInteract(PlayerInteractEvent e) {
 		CustomItemInfo cii = new CustomItemInfo(e.getItem());
-		if (cii.isValid()) {
+		if (cii.isValid() && !cii.isEnchant()) {
 			if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 	        	CustomItemManager.onPlayerInteract(cii, e.getPlayer(), e);
 	        } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -151,6 +159,15 @@ public class Main extends JavaPlugin implements Listener {
 			e.setHatching(false);
 		}
 	}
+	
+	@EventHandler
+    public void onBlockBreak(BlockBreakEvent e) {
+		Player player = (Player) e.getPlayer();
+		CustomItemInfo cii = new CustomItemInfo(player.getInventory().getItemInMainHand());
+		if (cii.isValid() && !cii.isEnchant()) {
+			CustomItemManager.onBlockBreak(cii, player, e);
+		}
+    }
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerJoinEvent(PlayerJoinEvent e) {

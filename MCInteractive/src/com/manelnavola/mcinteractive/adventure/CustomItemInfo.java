@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.manelnavola.mcinteractive.adventure.customitems.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 
 public class CustomItemInfo {
@@ -18,6 +19,7 @@ public class CustomItemInfo {
 	private int tier;
 	private int uses;
 	private boolean singleUse = false;
+	private boolean enchant = false;
 	
 	public CustomItemInfo(ItemStack item) {
 		valid = false;
@@ -27,29 +29,26 @@ public class CustomItemInfo {
 		if (!im.hasLore()) return;
 		// and lore
 		List<String> lore = im.getLore();
-		String lastLore = ChatColor.stripColor(lore.get(lore.size() - 1));
-		if (lastLore.equals("Single use") || lastLore.endsWith("uses")) {
+		String lastLoreRaw = lore.get(lore.size() - 1);
+		String lastLore = ChatColor.stripColor(lastLoreRaw);
+		if (lastLore.equals("Single use") || lastLore.endsWith("uses") || lastLore.equals("Enchantment")) {
 			// It is a custom item
 			String displayName = ChatColor.stripColor(im.getDisplayName());
-			String itemName = displayName.substring(displayName.indexOf(' ') + 1, displayName.indexOf('[') - 1);
-			String tierText = displayName.substring(displayName.indexOf('[') + 1, displayName.indexOf(']'));
+			String itemName = displayName.substring(displayName.indexOf(' ') + 1, displayName.lastIndexOf('[') - 1);
+			String tierText = displayName.substring(displayName.lastIndexOf('[') + 1, displayName.lastIndexOf(']'));
 			if (!displayName.contains("'s")) {
-				itemName = displayName.substring(0, displayName.indexOf('[') - 1);
+				itemName = displayName.substring(0, displayName.lastIndexOf('[') - 1);
 			}
 			int l_tier = 0;
 			switch(tierText) {
 			case "Uncommon":
-				l_tier = 1;
-				break;
+				l_tier = 1; break;
 			case "Rare":
-				l_tier = 2;
-				break;
+				l_tier = 2; break;
 			case "Legendary":
-				l_tier = 3;
-				break;
+				l_tier = 3; break;
 			case "Stackable":
-				l_tier = 0;
-				break;
+				l_tier = 0; break;
 			}
 			if (itemName.equals("sub gift")) {
 				customItem = CustomItemManager.getSubGift();
@@ -62,13 +61,40 @@ public class CustomItemInfo {
 			className = customItem.getClass().getName();
 			customItemStack = item;
 			
-			if (!lastLore.equals("Single use")) {
-				uses = Integer.parseInt(lastLore.split("/")[0]);
-			} else {
+			if (lastLore.equals("Single use")) {
 				singleUse = true;
 				uses = 1;
+			} else if (lastLore.equals("Enchantment")) {
+				enchant = true;
+				uses = 0;
+			} else {
+				uses = Integer.parseInt(lastLore.split("/")[0]);
 			}
+			
 			tier = l_tier;
+		} else {
+			// Check hidden enchantment
+			if (lastLoreRaw.startsWith(CustomEnchant.CUSTOM_PREFIX)) {
+				customItem = CustomItemManager.getCustomItemByName(
+						lastLore.substring(lastLore.indexOf(' ') + 1)
+						);
+				if (customItem == null) return;
+				valid = true;
+				enchant = false;
+				className = customItem.getClass().getName();
+				customItemStack = item;
+				uses = 0;
+				tier = 0;
+				
+				String strippedLastLore = lastLore.substring(lastLore.indexOf(' ') + 1);
+				for (int i = 0; i < 4; i++) {
+					if (customItem.getRarity(i) != null &&
+							ChatColor.stripColor(customItem.getRarity(i).getItemMeta().getDisplayName())
+							.equals(strippedLastLore)) {
+						tier = i; break;
+					}
+				}
+			}
 		}
 	}
 	
@@ -89,11 +115,18 @@ public class CustomItemInfo {
 	
 	public boolean isValid() { return valid; }
 	
+	public boolean isEnchant() { return enchant; }
 	public boolean isSingleUse() { return singleUse; }
 	public String getClassName() { return className; }
 	public int getTier() { return tier; }
 	public int getUses() { return uses; }
 	public CustomItem getCustomItem() { return customItem; }
+	public CustomEnchant getCustomEnchant() {
+		if (enchant) {
+			return (CustomEnchant) customItem;
+		}
+		return null;
+	}
 	public ItemStack getItemStack() { return customItemStack; }
 	
 }

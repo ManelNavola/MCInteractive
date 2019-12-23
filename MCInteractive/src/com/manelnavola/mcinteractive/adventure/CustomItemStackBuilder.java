@@ -21,6 +21,8 @@ public class CustomItemStackBuilder<T extends CustomItemStackBuilder<T>> extends
 		String leftText = ChatColor.stripColor(lastLine).split("/")[0];
 		if (leftText.equals("Single use")) {
 			uses = 1;
+		} else if (leftText.equals("Enchantment")) {
+			uses = 0;
 		} else {
 			uses = Integer.parseInt(leftText);
 		}
@@ -45,8 +47,10 @@ public class CustomItemStackBuilder<T extends CustomItemStackBuilder<T>> extends
 		im.setDisplayName(name);
 		if (uses > 1) {
 			lore.add(ChatColor.GOLD + "" + uses + "/" + uses + " uses");
-		} else {
+		} else if (uses == 1) {
 			lore.add(ChatColor.GOLD + "Single use");
+		} else if (uses == 0) {
+			lore.add(ChatColor.GOLD + "Enchantment");
 		}
 		im.setLore(lore);
 		for(Entry<Enchantment, Integer> p : enchants.entrySet()) {

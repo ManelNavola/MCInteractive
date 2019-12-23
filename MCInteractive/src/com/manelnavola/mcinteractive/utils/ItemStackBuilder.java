@@ -30,7 +30,9 @@ public class ItemStackBuilder<T extends ItemStackBuilder<T>> {
 		ItemMeta im = is.getItemMeta();
 		name = im.getDisplayName();
 		material = is.getType();
-		lore = im.getLore();
+		if (im.getLore() != null) {
+			lore = im.getLore();
+		}
 		amount = is.getAmount();
 		for (Entry<Enchantment, Integer> kp : im.getEnchants().entrySet()) {
 			enchants.put(kp.getKey(), kp.getValue());

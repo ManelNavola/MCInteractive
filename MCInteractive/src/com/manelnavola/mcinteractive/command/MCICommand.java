@@ -9,10 +9,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.chat.VoteManager;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
+import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -64,10 +66,28 @@ public class MCICommand implements CommandExecutor {
 			return cancelVote(sender, args);
 		case "config":
 			return config(sender, args);
+		case "reward":
+			return reward(sender, args);
 		}
 		
 		MessageSender.error(sender, "Only operators can execute this command!");
 
+		return false;
+	}
+	
+	private boolean reward(CommandSender sender, String[] args) {
+		if (!(sender instanceof Player)) {
+			return false;
+		}
+		
+		if (args.length > 1) {
+			int months = Integer.parseInt(args[1]);
+			List<Player> pl = new ArrayList<Player>();
+			pl.add((Player) sender);
+			RewardManager.process(pl, months, SubPlan.LEVEL_1, "<command>");
+			return true;
+		}
+		
 		return false;
 	}
 	

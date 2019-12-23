@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Furnace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -20,7 +21,7 @@ import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 public abstract class CustomItem {
 	
 	public enum CustomItemFlag {
-	    PROJECTILE(0), RIGHT_CLICK(1), ENTITY_HIT(2), DISPENSES(3), BURNS(4), ENTITY_MOUNT(5);
+	    PROJECTILE(0), RIGHT_CLICK(1), ENTITY_HIT(2), DISPENSES(3), BURNS(4), ENTITY_MOUNT(5), BLOCK_BREAK(6);
 
 	    private final int value;
 	    private CustomItemFlag(int value) {
@@ -45,6 +46,7 @@ public abstract class CustomItem {
 	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {}
 	public void onBurn(Furnace f, FurnaceBurnEvent e, CustomItemInfo cii) {}
 	public void onEntityMount(Player p, Entity mount, int parseInt) {}
+	public void onBlockBreak(Player player, BlockBreakEvent e, CustomItemInfo cii) {}
 	
 	public boolean hasFlag(CustomItemFlag f) {
 		return flags[f.value];

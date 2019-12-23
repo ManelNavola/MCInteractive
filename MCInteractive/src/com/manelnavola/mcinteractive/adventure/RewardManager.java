@@ -2,6 +2,7 @@ package com.manelnavola.mcinteractive.adventure;
 
 import java.util.List;
 
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,6 +23,8 @@ public class RewardManager {
 			tier = 2;
 		}
 		
+		gifterNickname = gifterNickname.replace(' ', '_');
+		
 		if (months >= 12) { tier++; }
 		if (months >= 24) { tier++; }
 		if (months >= 32) { tier++; }
@@ -37,6 +40,10 @@ public class RewardManager {
 	
 	public static ItemStack giftRandomCustomItem(Player p, String gifterNickname, int t) {
 		List<CustomItem> cil = CustomItemManager.getCustomItemTiers(t);
+		if (cil.isEmpty()) {
+			p.playSound(p.getLocation(), Sound.BLOCK_GRAVEL_BREAK, 1, 1);
+			return null;
+		}
 		int rand = (int)(Math.random()*cil.size());
 		CustomItem ci = cil.get(rand);
 		if (p != null) {
