@@ -21,7 +21,6 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -81,6 +80,7 @@ public class Main extends JavaPlugin implements Listener {
 	public void onDisable() {
 		PlayerManager.dispose();
 		ConnectionManager.dispose();
+		CustomItemManager.dispose();
 	}
 	
 	/*@EventHandler(priority=EventPriority.MONITOR)

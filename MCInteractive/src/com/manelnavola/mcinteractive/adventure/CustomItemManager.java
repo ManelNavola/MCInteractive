@@ -28,8 +28,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import com.manelnavola.mcinteractive.adventure.customenchants.*;
 import com.manelnavola.mcinteractive.adventure.customitems.*;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemFlag;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
@@ -40,6 +42,10 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 public class CustomItemManager {
 	
 	private static Plugin plugin;
+	private static BukkitTask customTrails;
+	private static Map<Entity, CustomTrail> customTrailMap;
+	private static List<Entity> customTrailMaptoRemove = new ArrayList<Entity>();
+	
 	private static List<CustomItem> customItemList;
 	private static CustomItem subGift;
 	private static Map<String, CustomItem> customItemDisplayNameMap;
@@ -49,6 +55,7 @@ public class CustomItemManager {
 	private static Map<String, CustomItem> burns;
 	private static Map<String, CustomItem> breaks;
 	private static Map<String, CustomItem> rightClicks;
+	private static Map<String, CustomItem> shoots;
 	//private static Map<String, CustomItem> mounts;
 	
 	private static Map<Integer, List<CustomItem>> customItemTierList;
@@ -65,21 +72,41 @@ public class CustomItemManager {
 		//mounts = new HashMap<>();
 		customItemTierList = new HashMap<>();
 		customItemDisplayNameMap = new HashMap<>();
+		customTrailMap = new HashMap<>();
+		shoots = new HashMap<>();
 		
 		for (int i = 0; i < 4; i++) {
 			customItemTierList.put(i, new ArrayList<>());
 		}
 		
-		/*register(new ThrowableStone());
-		register(new FireWand());
-		register(new Eggscelent());
-		register(new BunnyHop());
-		register(new SuperFuel());*/
+		register(new ThrowableStone());
+		//register(new FireWand());
+		//register(new Eggscelent());
+		//register(new BunnyHop());
+		//register(new SuperFuel());
 		register(new Freezer());
 		register(new Smelter());
 		
 		subGift = new SubGift();
 		setFlags(subGift);
+		
+		customTrails = Bukkit.getScheduler().runTaskTimer(plg, new Runnable() {
+			@Override
+			public void run() {
+				customTrailMaptoRemove.clear();
+				for (Map.Entry<Entity, CustomTrail> en : customTrailMap.entrySet()) {
+					Entity e = en.getKey();
+					if (e.isDead() || en.getValue().timeDue()) {
+						customTrailMaptoRemove.add(e);
+					} else {
+						en.getValue().showParticleEffect(e.getLocation());
+					}
+				}
+				for (Entity e : customTrailMaptoRemove) {
+					customTrailMap.remove(e);
+				}
+			}
+		}, 0L, 2L);
 	}
 	
 	private static void setFlags(CustomItem ci) {
@@ -101,9 +128,16 @@ public class CustomItemManager {
 		if (ci.hasFlag(CustomItemFlag.BLOCK_BREAK)) {
 			breaks.put(ci.getClass().getName(), ci);
 		}
+		if (ci.hasFlag(CustomItemFlag.SHOOT_BOW)) {
+			shoots.put(ci.getClass().getName(), ci);
+		}
 		/*if (ci.hasFlag(CustomItemFlag.ENTITY_MOUNT)) {
 			mounts.put(ci.getClass().getName(), ci);
 		}*/
+	}
+	
+	public static void registerTrail(Entity e, CustomTrail ct) {
+		customTrailMap.put(e, ct);
 	}
 	
 	public static CustomItem getCustomItemByName(String s) {
@@ -201,11 +235,12 @@ public class CustomItemManager {
 		return item;
 	}
 
-	public static void onProjectileHit(MetadataValue mv, Entity ent, Block block, Entity entity) {
+	public static void onProjectileHit(MetadataValue mv, Entity proj, Block block, Entity entity) {
 		String s = mv.asString();
 		CustomItem ci = projectiles.get(s.split("/")[0]);
 		if (ci != null) {
-			ci.onProjectileHit(ent, block, entity, Integer.parseInt(s.split("/")[1]));
+			customTrailMap.remove(proj);
+			ci.onProjectileHit(proj, block, entity, Integer.parseInt(s.split("/")[1]));
 		}
 	}
 
@@ -339,8 +374,14 @@ public class CustomItemManager {
 		}
 	}
 
-	public static void onEntityShootBow(Player player, Entity projectile, CustomItemInfo cii) {
-		cii.getCustomItem().registerEntity(projectile, cii.getTier());
+	public static void onEntityShootBow(Player player, Entity proj, CustomItemInfo cii) {
+		if (shoots.containsKey(cii.getClassName())) {
+			cii.getCustomItem().onEntityShootBow(player, proj, cii);
+		}
+	}
+
+	public static void dispose() {
+		if (customTrails != null) customTrails.cancel();
 	}
 
 	/*public static void onEntityMount(Player p, Entity mount) {

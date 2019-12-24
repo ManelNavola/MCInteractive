@@ -17,11 +17,13 @@ import org.bukkit.util.Vector;
 
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
+import com.manelnavola.mcinteractive.adventure.CustomTrail;
 
 public abstract class CustomItem {
 	
 	public enum CustomItemFlag {
-	    PROJECTILE(0), RIGHT_CLICK(1), ENTITY_HIT(2), DISPENSES(3), BURNS(4), ENTITY_MOUNT(5), BLOCK_BREAK(6);
+	    PROJECTILE(0), RIGHT_CLICK(1), ENTITY_HIT(2), DISPENSES(3), BURNS(4),
+	    ENTITY_MOUNT(5), BLOCK_BREAK(6), SHOOT_BOW(7);
 
 	    private final int value;
 	    private CustomItemFlag(int value) {
@@ -41,12 +43,13 @@ public abstract class CustomItem {
 	
 	public void onPlayerInteract(Player p, CustomItemInfo cii) {}
 	
-	public void onProjectileHit(Entity ent, Block block, Entity entity, int tier) {}
+	public void onProjectileHit(Entity proj, Block block, Entity entity, int tier) {}
 	public void onEntityDamageByEntity(Player playerDamager, Entity e, CustomItemInfo cii) {}
 	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {}
 	public void onBurn(Furnace f, FurnaceBurnEvent e, CustomItemInfo cii) {}
 	public void onEntityMount(Player p, Entity mount, int parseInt) {}
 	public void onBlockBreak(Player player, BlockBreakEvent e, CustomItemInfo cii) {}
+	public void onEntityShootBow(Player player, Entity projectile, CustomItemInfo cii) {}
 	
 	public boolean hasFlag(CustomItemFlag f) {
 		return flags[f.value];
@@ -61,6 +64,10 @@ public abstract class CustomItem {
 	
 	public void registerEntity(Entity e, int tier) {
 		e.setMetadata("MCI", new FixedMetadataValue(CustomItemManager.getPlugin(), this.getClass().getName() + "/" + tier));
+	}
+	
+	public void registerTrail(Entity e, CustomTrail ct) {
+		CustomItemManager.registerTrail(e, ct);
 	}
 	
 	public ItemStack getRarity(int tier) {

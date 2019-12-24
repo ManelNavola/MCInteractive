@@ -1,10 +1,11 @@
-package com.manelnavola.mcinteractive.adventure.customitems;
+package com.manelnavola.mcinteractive.adventure.customenchants;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import com.manelnavola.mcinteractive.adventure.CustomItemStackBuilder;
+import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 
 public class CustomEnchant extends CustomItem {
 	
@@ -28,8 +29,8 @@ public class CustomEnchant extends CustomItem {
 		}
 	}
 	
-	protected boolean quickChance(int max) {
-		return Math.random() < (1.0/max);
+	protected boolean quickChance(double d) {
+		return Math.random() < (d/100.0);
 	}
 	
 	protected ItemStack getEnchantedBook(String name, String description) {

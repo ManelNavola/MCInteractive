@@ -2,6 +2,7 @@ package com.manelnavola.mcinteractive.adventure.customitems;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Egg;
@@ -13,6 +14,7 @@ import org.bukkit.util.Vector;
 
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemStackBuilder;
+import com.manelnavola.mcinteractive.adventure.CustomTrail;
 
 public class Eggscelent extends CustomItem {
 	
@@ -22,6 +24,7 @@ public class Eggscelent extends CustomItem {
 			EntityType.MUSHROOM_COW,
 			EntityType.PIG,
 			EntityType.RABBIT};
+	private static CustomTrail trail = new CustomTrail(Particle.SPELL_WITCH, 1, 0);
 	
 	public Eggscelent() {
 		super(new CustomItemFlag[] {CustomItemFlag.PROJECTILE, CustomItemFlag.DISPENSES, CustomItemFlag.RIGHT_CLICK});
@@ -44,6 +47,7 @@ public class Eggscelent extends CustomItem {
 		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_SNOW_GOLEM_SHOOT, 1F, 1F);
 		Egg e = p.launchProjectile(Egg.class);
 		registerEntity(e, cii.getTier());
+		registerTrail(e, trail);
 	}
 	
 	@Override
@@ -64,6 +68,7 @@ public class Eggscelent extends CustomItem {
 		Egg e = l.getWorld().spawn(l, Egg.class);
 		e.setVelocity(dir);
 		registerEntity(e, cii.getTier());
+		registerTrail(e, trail);
 	}
 	
 }

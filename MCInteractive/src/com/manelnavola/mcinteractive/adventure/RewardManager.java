@@ -2,6 +2,7 @@ package com.manelnavola.mcinteractive.adventure;
 
 import java.util.List;
 
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +43,8 @@ public class RewardManager {
 		List<CustomItem> cil = CustomItemManager.getCustomItemTiers(t);
 		if (cil.isEmpty()) {
 			p.playSound(p.getLocation(), Sound.BLOCK_GRAVEL_BREAK, 1, 1);
+			p.getLocation().getWorld().spawnParticle(Particle.SMOKE_NORMAL, 
+					p.getLocation().add(0, 1, 0), 5, 0, 0, 0, 0.2);
 			return null;
 		}
 		int rand = (int)(Math.random()*cil.size());

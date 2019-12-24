@@ -2,6 +2,7 @@ package com.manelnavola.mcinteractive.adventure.customitems;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -10,9 +11,12 @@ import org.bukkit.util.Vector;
 
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemStackBuilder;
+import com.manelnavola.mcinteractive.adventure.CustomTrail;
 
 public class FireWand extends CustomItem {
-
+	
+	private static CustomTrail trail = new CustomTrail(Particle.FLAME, 1, 0.2);
+	
 	public FireWand() {
 		super(new CustomItemFlag[] {CustomItemFlag.DISPENSES, CustomItemFlag.RIGHT_CLICK});
 		ItemStack uncommon = new CustomItemStackBuilder<>(Material.STICK)
@@ -31,6 +35,7 @@ public class FireWand extends CustomItem {
 	}
 	
 	private void fixFireball(Fireball f, int tier) {
+		registerTrail(f, trail);
 		if (tier == 0) {
 			f.setIsIncendiary(false);
 			f.setYield(2F);
