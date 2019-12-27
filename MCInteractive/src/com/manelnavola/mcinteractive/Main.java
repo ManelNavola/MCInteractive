@@ -1,9 +1,6 @@
 package com.manelnavola.mcinteractive;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Furnace;
@@ -33,8 +30,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
-import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.chat.VoteManager;
+import com.manelnavola.mcinteractive.command.CommandValidator;
 import com.manelnavola.mcinteractive.command.MCICommand;
 import com.manelnavola.mcinteractive.command.MCITabCompleter;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
@@ -42,7 +39,6 @@ import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.Log;
-import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
 
 public class Main extends JavaPlugin implements Listener {
 	
@@ -63,14 +59,17 @@ public class Main extends JavaPlugin implements Listener {
 		CustomItemManager.init(this);
 		ConnectionManager.init(this);
 		VoteManager.init(this);
+		CommandValidator.init(this);
 		
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			PlayerManager.playerJoin(p);
+			CommandValidator.addPlayer(p);
 		}
 		
 		// Register commands
-		this.getCommand("mci").setExecutor(new MCICommand());
-		this.getCommand("mci").setTabCompleter(new MCITabCompleter(this));
+		MCICommand mcic = new MCICommand();
+		this.getCommand("mci").setExecutor(mcic);
+		this.getCommand("mci").setTabCompleter(new MCITabCompleter(mcic));
 		
 		// Nice!
 		Log.nice("Enabled MCInteractive successfully!");
@@ -81,16 +80,8 @@ public class Main extends JavaPlugin implements Listener {
 		PlayerManager.dispose();
 		ConnectionManager.dispose();
 		CustomItemManager.dispose();
+		CommandValidator.dispose();
 	}
-	
-	/*@EventHandler(priority=EventPriority.MONITOR)
-	public void onEntityMount(EntityMountEvent e) {
-		if (e.getEntity() instanceof Player) {
-			if (ChatColor.stripColor(e.getMount().getCustomName()).startsWith("MCI46193762")) {
-				CustomItemManager.onEntityMount((Player) e.getEntity(), e.getMount());
-			}
-		}
-	}*/
 	
 	@EventHandler(priority=EventPriority.HIGH)
     public void onFurnaceBurn(FurnaceBurnEvent e) {
@@ -133,8 +124,11 @@ public class Main extends JavaPlugin implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
-		if (e.getView() != null && e.getView().getTitle().equals(ConfigGUI.getTitle())) {
-			ConfigGUI.click(e);
+		if (e.getView() != null) {
+			if (e.getView().getTitle().equals(ConfigGUI.getTitle()))
+				ConfigGUI.click(e);
+			if (e.getView().getTitle().equals(ConfigGUI.getGlobalTitle()))
+				ConfigGUI.clickGlobal(e);
 		}
 	}
 	
@@ -159,7 +153,8 @@ public class Main extends JavaPlugin implements Listener {
 		
 		// Find first arrow itemStack
 		Player p = e.getPlayer();
-		if (p.getInventory().getItemInOffHand() != null && p.getInventory().getItemInOffHand().getType() == Material.ARROW) {
+		if (p.getInventory().getItemInOffHand() != null
+				&& p.getInventory().getItemInOffHand().getType() == Material.ARROW) {
 			lastArrowSlot.put(p, -1); 
 		} else {
 			for (int i = 0; i < p.getInventory().getSize(); i++) {
@@ -212,12 +207,7 @@ public class Main extends JavaPlugin implements Listener {
 	public void onPlayerJoinEvent(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
 		PlayerManager.playerJoin(p);
-		List<Player> thisPlayer = new ArrayList<>();
-		thisPlayer.add(p);
-		RewardManager.process(thisPlayer, 8, SubPlan.LEVEL_1, "antonio");
-		RewardManager.process(thisPlayer, 8, SubPlan.LEVEL_2, "antonio");
-		RewardManager.process(thisPlayer, 8, SubPlan.LEVEL_3, "antonio");
-		RewardManager.process(thisPlayer, 14, SubPlan.LEVEL_3, "antonio");
+		CommandValidator.addPlayer(p);
 		PlayerManager.updateInventory(p);
 	}
 	
@@ -229,6 +219,7 @@ public class Main extends JavaPlugin implements Listener {
 			ConnectionManager.leave(p);
 		}
 		PlayerManager.playerQuit(e.getPlayer());
+		CommandValidator.removePlayer(p);
 	}
 	
 }

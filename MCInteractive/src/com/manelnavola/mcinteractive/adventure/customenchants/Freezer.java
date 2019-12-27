@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -35,11 +36,19 @@ public class Freezer extends CustomEnchant {
 	
 	@Override
 	public void onProjectileHit(Entity proj, Block b, Entity e, int tier) {
-		freeze(e, tier);
+		if (e == null) {
+			if (b != null) {
+				proj.getWorld().spawnParticle(Particle.SMOKE_NORMAL,
+						proj.getLocation(), 3, 0.2, 0, 0.2, 0.05);
+			}
+			proj.remove();
+		} else {
+			freeze(e, tier);
+		}
 	}
 	
 	@Override
-	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {
+	public void onBlockDispense(Dispenser d, Location l, Vector dir, CustomItemInfo cii) {
 		Arrow a = l.getWorld().spawn(l, Arrow.class);
 		a.setVelocity(dir);
 		if (checkChance()) return;
@@ -69,13 +78,13 @@ public class Freezer extends CustomEnchant {
 					Sound.BLOCK_GLASS_BREAK, 1, 0.8F);
 			switch(tier) {
 			case 1:
-				le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 2*20, 3, false));
+				le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 3*20, 4, false));
 				break;
 			case 2:
-				le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 2*20, 10, false));
+				le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 3*20, 10, false));
 				break;
 			case 3:
-				le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5*20, 10, false));
+				le.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 6*20, 10, false));
 				break;
 			}
 		}

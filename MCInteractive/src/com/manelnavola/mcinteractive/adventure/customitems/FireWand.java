@@ -4,8 +4,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -52,7 +54,7 @@ public class FireWand extends CustomItem {
 	}
 	
 	@Override
-	public void onPlayerInteract(Player p, CustomItemInfo cii) {
+	public void onPlayerInteract(Player p, PlayerInteractEvent ev, CustomItemInfo cii) {
 		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1F, 1F);
 		Fireball f = p.launchProjectile(Fireball.class);
 		f.setShooter(p);
@@ -60,7 +62,7 @@ public class FireWand extends CustomItem {
 	}
 	
 	@Override
-	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {
+	public void onBlockDispense(Dispenser d, Location l, Vector dir, CustomItemInfo cii) {
 		l.setDirection(dir);
 		Fireball f = l.getWorld().spawn(l, Fireball.class);
 		f.setVelocity(dir);

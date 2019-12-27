@@ -1,7 +1,6 @@
 package com.manelnavola.mcinteractive.adventure.customitems;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
@@ -19,7 +18,7 @@ public class SuperFuel extends CustomItemStackable {
 				.name("Super Fuel")
 				.amount(10)
 				.lore("Instantly smelt or cook!")
-				.lore(ChatColor.GRAY + "Stackable")
+				.stackable()
 				.addEnchantEffect()
 				.build();
 		setRarities(common, null, null, null);

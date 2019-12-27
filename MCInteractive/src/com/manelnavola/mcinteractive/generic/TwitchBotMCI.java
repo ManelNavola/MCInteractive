@@ -88,8 +88,6 @@ public class TwitchBotMCI extends TwitchBotX {
 				leaveChannel(ch);
 				channelPlayers.remove(ch);
 			}
-		} else {
-			Log.error("Bot hasn't joined " + ch + " channel!");
 		}
 	}
 	

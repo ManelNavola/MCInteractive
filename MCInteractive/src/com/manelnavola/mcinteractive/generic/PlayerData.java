@@ -26,7 +26,13 @@ public class PlayerData extends PlayerManager {
 		}
 	}
 	
-	public boolean getConfig(String config) { return configMap.get(config); }
+	public boolean getConfig(String config) {
+		Boolean b = PlayerManager.getLock(config);
+		if (b != null) {
+			return b.booleanValue();
+		}
+		return configMap.get(config);
+	}
 	public void setConfig(String config, boolean value) { configMap.put(config, value); }
 	
 	public void save() {

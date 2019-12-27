@@ -21,19 +21,23 @@ public class VoteManager {
 		plugin = plg;
 	}
 
-	public static void createPlayerVote(Player p, String desc, float duration, List<String> options) {
-		if (playerVotes.containsKey(p)) {
+	public static void createPlayerVote(Player p, int duration, List<String> options) {
+		if (isActive(p)) {
 			MessageSender.error(p, "A vote is already operative!");
 		} else {
+			if (ConnectionManager.getPlayerConnection(p) == null) {
+				MessageSender.error(p, "You must be connected to a channel!");
+				return;
+			}
 			List<Player> pl = new ArrayList<>();
 			pl.add(p);
 			playerVotes.put(p, new Vote(plugin, ConnectionManager.getPlayerConnection(p).getChannel(),
-					desc, duration, options, pl));
+					duration, options, pl));
 		}
 	}
 
 	public static void cancelVote(Player p) {
-		if (playerVotes.containsKey(p)) {
+		if (isActive(p)) {
 			playerVotes.get(p).dispose();
 		} else {
 			MessageSender.error(p, "There is no currently running vote!");
@@ -41,7 +45,7 @@ public class VoteManager {
 	}
 
 	public static void endVote(Player p) {
-		if (playerVotes.containsKey(p)) {
+		if (isActive(p)) {
 			playerVotes.get(p).finish();
 		} else {
 			MessageSender.error(p, "There is no currently running vote!");

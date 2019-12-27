@@ -10,7 +10,7 @@ import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 public class CustomEnchant extends CustomItem {
 	
 	public enum CustomEnchantFlag {
-	    SWORD(0), ARROW(1), PICKAXE(2);
+	    SWORD(0), ARROW(1), PICKAXE(2), HOE(3);
 
 	    private final int value;
 	    private CustomEnchantFlag(int value) {
@@ -43,11 +43,13 @@ public class CustomEnchant extends CustomItem {
 	}
 	
 	public boolean isCompatible(Material m) {
-		if (m.name().contains("PICKAXE") && compatibleEnchantsFlags[CustomEnchantFlag.PICKAXE.value])
-			return true;
 		if (m.name().contains("SWORD") && compatibleEnchantsFlags[CustomEnchantFlag.SWORD.value])
 			return true;
+		if (m.name().contains("PICKAXE") && compatibleEnchantsFlags[CustomEnchantFlag.PICKAXE.value])
+			return true;
 		if (m == Material.ARROW && compatibleEnchantsFlags[CustomEnchantFlag.ARROW.value])
+			return true;
+		if (m.name().contains("HOE") && compatibleEnchantsFlags[CustomEnchantFlag.HOE.value])
 			return true;
 		return false;
 	}

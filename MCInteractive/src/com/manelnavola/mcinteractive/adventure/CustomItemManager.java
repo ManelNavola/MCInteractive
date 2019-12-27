@@ -34,6 +34,7 @@ import org.bukkit.util.Vector;
 import com.manelnavola.mcinteractive.adventure.customenchants.*;
 import com.manelnavola.mcinteractive.adventure.customitems.*;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemFlag;
+import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemType;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
 
 import net.md_5.bungee.api.ChatMessageType;
@@ -69,7 +70,6 @@ public class CustomItemManager {
 		burns = new HashMap<>();
 		breaks = new HashMap<>();
 		rightClicks = new HashMap<>();
-		//mounts = new HashMap<>();
 		customItemTierList = new HashMap<>();
 		customItemDisplayNameMap = new HashMap<>();
 		customTrailMap = new HashMap<>();
@@ -79,13 +79,14 @@ public class CustomItemManager {
 			customItemTierList.put(i, new ArrayList<>());
 		}
 		
-		register(new ThrowableStone());
+		//register(new Rock());
 		//register(new FireWand());
 		//register(new Eggscelent());
 		//register(new BunnyHop());
 		//register(new SuperFuel());
 		register(new Freezer());
 		register(new Smelter());
+		register(new Planter());
 		
 		subGift = new SubGift();
 		setFlags(subGift);
@@ -131,9 +132,6 @@ public class CustomItemManager {
 		if (ci.hasFlag(CustomItemFlag.SHOOT_BOW)) {
 			shoots.put(ci.getClass().getName(), ci);
 		}
-		/*if (ci.hasFlag(CustomItemFlag.ENTITY_MOUNT)) {
-			mounts.put(ci.getClass().getName(), ci);
-		}*/
 	}
 	
 	public static void registerTrail(Entity e, CustomTrail ct) {
@@ -172,10 +170,10 @@ public class CustomItemManager {
 				if (cii.getClassName().equals(SubGift.class.getName())) {
 					CustomItem ci = getSubGift();
 					p.getInventory().remove(cii.getItemStack());
-					ci.onPlayerInteract(p, cii);
+					ci.onPlayerInteract(p, e, cii);
 				} else {
 					registerUse(cii, p.getInventory(), p);
-					cii.getCustomItem().onPlayerInteract(p, cii);
+					cii.getCustomItem().onPlayerInteract(p, e, cii);
 				}
 				e.setCancelled(true);
 			}
@@ -189,10 +187,17 @@ public class CustomItemManager {
 		String lastLore = ChatColor.stripColor(lore.get(lore.size() - 1));
 		int amount = 1;
 		int maxUses = 1;
-		if (cii.getCustomItem() instanceof CustomEnchant) {
+		if (cii.isEnchant()) {
 			return item;
+		} else if (cii.getCustomItem() instanceof CustomEnchant) {
+			if (item.getAmount() == 1) {
+				return null;
+			} else {
+				item.setAmount(item.getAmount() - 1);
+				return item;
+			}
 		}
-		if (!lastLore.equals("Single use")) {
+		if (!lastLore.equals(CustomItemType.SINGLE_USE.getName())) {
 			maxUses = Integer.parseInt(lastLore.split("/")[1].split(" ")[0]);
 			amount = Integer.parseInt(lastLore.split("/")[0]);
 		}
@@ -200,7 +205,7 @@ public class CustomItemManager {
 			// Delete
 			if (item.getAmount() > 1) {
 				item.setAmount(item.getAmount() - 1);
-				if (!lastLore.equals("Single use")) {
+				if (!lastLore.equals(CustomItemType.SINGLE_USE.getName())) {
 					lore.remove(lore.size() - 1);
 					lore.add(ChatColor.GOLD + "" + maxUses + "/" + maxUses + " uses");
 					im.setLore(lore);
@@ -283,7 +288,7 @@ public class CustomItemManager {
 			Location bl = d.getLocation().add(new Vector(0.5F, 0.5F, 0.5F));
 			Directional dir = (Directional) d.getBlockData();
 			Vector vDir = getVectorFromFace(dir.getFacing());
-			cii.getCustomItem().onBlockDispense(bl.add(vDir), vDir, cii);
+			cii.getCustomItem().onBlockDispense(d, bl.add(vDir), vDir, cii);
 			
 			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				@Override
@@ -383,12 +388,4 @@ public class CustomItemManager {
 	public static void dispose() {
 		if (customTrails != null) customTrails.cancel();
 	}
-
-	/*public static void onEntityMount(Player p, Entity mount) {
-		String cn = ChatColor.stripColor(mount.getCustomName());
-		CustomItem ci = mounts.get(cn.split("/")[1]);
-		if (ci != null) {
-			ci.onEntityMount(p, mount, Integer.parseInt(cn.split("/")[2]));
-		}
-	}*/
 }

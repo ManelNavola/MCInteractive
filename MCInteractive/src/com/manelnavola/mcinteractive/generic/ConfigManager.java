@@ -10,10 +10,10 @@ import org.bukkit.Material;
 public class ConfigManager {
 	
 	private static Map<String, String> nameToID;
-	private static Map<String, List<Config>> commandPairs;
+	private static List<ConfigContainer> configContainers;
 	
 	public static void init() {
-		commandPairs = new HashMap<>();
+		configContainers = new ArrayList<>();
 		nameToID = new HashMap<>();
 		List<Config> list;
 		
@@ -27,13 +27,13 @@ public class ConfigManager {
 				true, Material.DIAMOND), list);
 		register(new Config("Show notices", "Displays important Twitch events as Minecraft titles", "noticetitle",
 				true, Material.OAK_SIGN), list);
-		commandPairs.put("Chat", list);
+		configContainers.add(new ConfigContainer("Chat", list));
 		
 		// Adventure
 		list = new ArrayList<Config>();
 		register(new Config("Sub rewards", "Enables chest rewards from subscriptions", "subgifts",
 				true, Material.BARREL), list);
-		commandPairs.put("Adventure", list);
+		configContainers.add(new ConfigContainer("Adventure", list));
 	}
 	
 	public static void register(Config c, List<Config> cl) {
@@ -45,21 +45,36 @@ public class ConfigManager {
 		return nameToID.get(name);
 	}
 	
-	public static Map<String, List<Config>> getCommandPairs() {
-		return commandPairs;
+	public static List<ConfigContainer> getConfigContainers() {
+		return configContainers;
 	}
 	
 	public static Map<String, Boolean> getDefaults() {
 		Map<String, Boolean> map = new HashMap<>();
 		
-		for (List<Config> l : commandPairs.values()) {
-			for (Config c : l) {
+		for (ConfigContainer cc : configContainers) {
+			for (Config c : cc.getConfigs()) {
 				map.put(c.getID(), c.getDefault());
 			}
 		}
 		
 		return map;
 	}
+}
+
+class ConfigContainer {
+	
+	private String name;
+	private List<Config> configs;
+	
+	public ConfigContainer(String n, List<Config> l) {
+		name = n;
+		configs = l;
+	}
+	
+	public String getName() { return name; }
+	public List<Config> getConfigs() { return configs; }
+	
 }
 
 class Config {

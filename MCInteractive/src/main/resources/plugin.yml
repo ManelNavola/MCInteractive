@@ -10,24 +10,108 @@ api-version: 1.13
 commands:
    mci:
       description: List all Minecraft Interactive commands
-      usage: "/<command>"
-   mci listen:
-      description: Starts listen anonymously to a Twitch channel
-      usage: "/<command> [channelName]"
-   mci leave:
+      usage: "/mci"
+      permission: mci.info
+      permission-message: You do not have permission to run this command!
+   mci channel:
+      description: Lists channel commands
+      usage: "/mci channel"
+      permission: mci.channel.info
+      permission-message: You do not have permission to run this command!
+   mci channel listen:
+      description: Starts listening anonymously to a Twitch channel
+      usage: "/mci channel listen [channelName]"
+      permission: mci.channel.issue
+      permission-message: You do not have permission to run this command!
+   mci channel leave:
       description: Stops listening to the connected Twitch channel
-      usage: "/<command>"
-   mci startvote:
+      usage: "/mci channel leave"
+      permission: mci.channel.issue
+      permission-message: You do not have permission to run this command!
+   mci vote:
+      description: Lists vote commands
+      usage: "/mci vote"
+      permission: mci.vote.info
+      permission-message: You do not have permission to run this command!
+   mci vote start:
       description: Starts a custom vote
-      usage: "/<command> [description] [voteTime] [option1] [option2] [option3]..."
-   mci endvote:
+      usage: "/mci vote start [voteTime] [option1] [option2] <option3..6>"
+      permission: mci.vote.issue
+      permission-message: You do not have permission to run this command!
+   mci vote end:
       description: Forces current vote to end
-      usage: "/<command>"
-   mci cancelvote:
+      usage: "/mci vote end"
+      permission: mci.vote.issue
+      permission-message: You do not have permission to run this command!
+   mci vote cancel:
       description: Cancels and invalidates the current vote
-      usage: "/<command>"
+      usage: "/mci vote cancel"
+      permission: mci.vote.cancel
+      permission-message: You do not have permission to run this command!
+   mci globalconfig:
+      description: Shows global configuration GUI
+      usage: "/mci globalconfig"
+      permission: mci.globalconfig
+      permission-message: You do not have permission to run this command!
    mci config:
       description: Shows chat configuration GUI
-      usage: "/<command>"
-   mci reward:
-      description: I hope I don't forget to remove this
+      usage: "/mci config"
+      permission: mci.config
+      permission-message: You do not have permission to run this command!
+   mci gift:
+      description: Gifts a subscription reward to a player
+      usage: "/mci gift [common|uncommon|rare|legendary] <player>"
+      permission: mci.gift
+      permission-message: You do not have permission to run this command!
+    
+permissions:
+   mci.*:
+      description: Gives access to all MCI commands
+      children:
+         mci.info: true
+         mci.channel: true
+         mci.vote.*: true
+         mci.config: true
+         mci.globalconfig: true
+         mci.gift: true
+      default: op
+   mci.info:
+      description: Allows you to list MCI commands
+      default: true
+   mci.channel.*:
+      description: Gives access to all MCI channel commands
+      default: true
+      children:
+         mci.channel.info: true
+         mci.channel.issue: true
+   mci.channel.info:
+      description: Allows you to list MCI channel commands
+      default: true
+   mci.channel.issue:
+      description: Allows you to listen and leave Twitch channels
+      default: true
+   mci.vote.*:
+      description: Gives access to all voting commands
+      children:
+         mci.vote.issue: true
+         mci.vote.cancel: true
+         mci.vote.info: true
+      default: op
+   mci.vote.info:
+      description: Allows you to list MCI vote commands
+      default: true
+   mci.vote.issue:
+      description: Allows you to start and end Twitch votes
+      default: true
+   mci.vote.cancel:
+      description: Allows you to cancel a Twitch vote
+      default: op
+   mci.config:
+      description: Allows you to change your personal MCI configuration
+      default: true
+   mci.globalconfig:
+      description: Allows you to set the global configuration for MCI
+      default: op
+   mci.gift:
+      description: Allows you to freely gift subscription rewards to other players or yourself
+      default: op

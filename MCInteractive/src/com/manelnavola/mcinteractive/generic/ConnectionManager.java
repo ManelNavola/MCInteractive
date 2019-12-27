@@ -83,7 +83,7 @@ public final class ConnectionManager {
 			}
 		} else {
 			// Warn, player is not connected
-			Log.warn("Attempting to disconnect player from a non-existant bot connection!");
+			MessageSender.warn(p, "You are not connected to any channel!");
 		}
 	}
 	

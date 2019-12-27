@@ -50,7 +50,7 @@ public class Vote {
 	private int winnerData[];
 	private Map<TwitchUser, Integer> userChoice = new HashMap<>();
 	
-	public Vote(Plugin plg, String ch, String description, float vt, List<String> opt, List<Player> pl) {
+	public Vote(Plugin plg, String ch, float vt, List<String> opt, List<Player> pl) {
 		plugin = plg;
 		channelName = ch;
 		voteTime = (long) (vt*1000.0);
@@ -58,7 +58,7 @@ public class Vote {
 		playerList = pl;
 		
 		// Broadcast voting notice
-		sendTitle(ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Vote", ChatColor.GREEN + description,
+		sendTitle(ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Vote", ChatColor.GREEN + "in Twitch chat!",
 				basicDuration[0], basicDuration[1], basicDuration[2]);
 		
 		delayedTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {

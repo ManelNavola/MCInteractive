@@ -3,8 +3,10 @@ package com.manelnavola.mcinteractive.adventure.customitems;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -79,7 +81,7 @@ public class SubGift extends CustomItem {
 	}
 	
 	@Override
-	public void onPlayerInteract(Player p, CustomItemInfo cii) {
+	public void onPlayerInteract(Player p, PlayerInteractEvent ev, CustomItemInfo cii) {
 		int tier = cii.getTier();
 		String gifterName = ChatColor.stripColor(cii.getItemStack().getItemMeta().getDisplayName()).split("'")[0];
 		RewardManager.giftRandomCustomItem(p, gifterName, getRandomTier(tier));
@@ -87,7 +89,7 @@ public class SubGift extends CustomItem {
 	}
 	
 	@Override
-	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {
+	public void onBlockDispense(Dispenser d, Location l, Vector dir, CustomItemInfo cii) {
 		int tier = cii.getTier();
 		String gifterName = ChatColor.stripColor(cii.getItemStack().getItemMeta().getDisplayName()).split("'")[0];
 		ItemStack is = RewardManager.giftRandomCustomItem(null, gifterName, getRandomTier(tier));

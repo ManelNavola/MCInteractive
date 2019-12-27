@@ -79,7 +79,11 @@ public class ItemStackBuilder<T extends ItemStackBuilder<T>> {
 	}
 	
 	public T addEnchantEffect() {
-		enchants.put(Enchantment.DURABILITY, 1);
+		if (material == Material.ARROW) {
+			enchants.put(Enchantment.DURABILITY, 1);
+		} else {
+			enchants.put(Enchantment.ARROW_INFINITE, 1);
+		}
 		itemFlags.add(ItemFlag.HIDE_ENCHANTS);
 		return self();
 	}

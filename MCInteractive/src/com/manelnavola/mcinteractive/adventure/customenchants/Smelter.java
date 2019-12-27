@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -60,29 +61,34 @@ public class Smelter extends CustomEnchant {
 		}
 		
 		if (smeltBlock(hitBlock, tier, new ItemStack(Material.DIAMOND_PICKAXE))) {
-			proj.remove();
+			proj.getWorld().spawnParticle(Particle.FLAME,
+					hitBlock.getLocation().add(0.5, 0.5, 0.5), 4, 0.5, 0.5, 0.5, 0.1);
+		} else {
+			proj.getWorld().spawnParticle(Particle.SMOKE_NORMAL,
+					proj.getLocation(), 3, 0.2, 0, 0.2, 0.05);
 		}
+		proj.remove();
 	}
 	
 	@Override
 	public void onEntityShootBow(Player player, Entity proj, CustomItemInfo cii) {
 		if (cii.getTier() == 2) {
-			if (!quickChance(25)) return;
+			if (!quickChance(50)) return;
 		} else {
-			if (!quickChance(12.5)) return;
+			if (!quickChance(25)) return;
 		}
 		registerEntity(proj, cii.getTier());
 		registerTrail(proj, trail);
 	}
 	
 	@Override
-	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {
+	public void onBlockDispense(Dispenser d, Location l, Vector dir, CustomItemInfo cii) {
 		Arrow a = l.getWorld().spawn(l, Arrow.class);
 		a.setVelocity(dir);
 		if (cii.getTier() == 2) {
-			if (!quickChance(25)) return;
+			if (!quickChance(50)) return;
 		} else {
-			if (!quickChance(12.5)) return;
+			if (!quickChance(25)) return;
 		}
 		registerEntity(a, cii.getTier());
 		registerTrail(a, trail);

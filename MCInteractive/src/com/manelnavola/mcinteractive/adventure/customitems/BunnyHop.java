@@ -4,9 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -31,7 +33,7 @@ public class BunnyHop extends CustomItem {
 	}
 	
 	@Override
-	public void onPlayerInteract(Player p, CustomItemInfo cii) {
+	public void onPlayerInteract(Player p, PlayerInteractEvent ev, CustomItemInfo cii) {
 		if (cii.getTier() == 0) {
 			p.setVelocity(p.getLocation().getDirection().multiply(0.5F).add(new Vector(-0.03F, 0.1F, -0.03F)));
 		} else {
@@ -43,7 +45,7 @@ public class BunnyHop extends CustomItem {
 	}
 	
 	@Override
-	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {
+	public void onBlockDispense(Dispenser d, Location l, Vector dir, CustomItemInfo cii) {
 		Entity[] entities = l.getChunk().getEntities();
 		l.getWorld().spawnParticle(Particle.CLOUD, l.getX(), l.getY(), l.getZ(), 5, 0.5, 0.5, 0.5, 0.5);
 		for (Entity e : entities) {

@@ -9,6 +9,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
+import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
+import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemType;
 
 public class CustomItemInfo {
 	
@@ -31,7 +33,9 @@ public class CustomItemInfo {
 		List<String> lore = im.getLore();
 		String lastLoreRaw = lore.get(lore.size() - 1);
 		String lastLore = ChatColor.stripColor(lastLoreRaw);
-		if (lastLore.equals("Single use") || lastLore.endsWith("uses") || lastLore.equals("Enchantment")) {
+		if (lastLore.equals(CustomItemType.SINGLE_USE.getName())
+				|| lastLore.endsWith("uses")
+				|| lastLore.equals(CustomItemType.ENCHANTMENT.getName())) {
 			// It is a custom item
 			String displayName = ChatColor.stripColor(im.getDisplayName());
 			String itemName = displayName.substring(displayName.indexOf(' ') + 1, displayName.lastIndexOf('[') - 1);
@@ -40,15 +44,9 @@ public class CustomItemInfo {
 				itemName = displayName.substring(0, displayName.lastIndexOf('[') - 1);
 			}
 			int l_tier = 0;
-			switch(tierText) {
-			case "Uncommon":
-				l_tier = 1; break;
-			case "Rare":
-				l_tier = 2; break;
-			case "Legendary":
-				l_tier = 3; break;
-			case "Stackable":
-				l_tier = 0; break;
+			if (!tierText.equals(CustomItemType.STACKABLE.getName())) {
+				CustomItemTier cit = CustomItemTier.find(tierText);
+				if (cit != null) l_tier = cit.getValue();
 			}
 			if (itemName.equals("sub gift")) {
 				customItem = CustomItemManager.getSubGift();
@@ -61,10 +59,10 @@ public class CustomItemInfo {
 			className = customItem.getClass().getName();
 			customItemStack = item;
 			
-			if (lastLore.equals("Single use")) {
+			if (lastLore.equals(CustomItemType.SINGLE_USE.getName())) {
 				singleUse = true;
 				uses = 1;
-			} else if (lastLore.equals("Enchantment")) {
+			} else if (lastLore.equals(CustomItemType.ENCHANTMENT.getName())) {
 				enchant = true;
 				uses = 0;
 			} else {

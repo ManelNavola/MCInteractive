@@ -5,10 +5,12 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -43,7 +45,7 @@ public class Eggscelent extends CustomItem {
 	}
 	
 	@Override
-	public void onPlayerInteract(Player p, CustomItemInfo cii) {
+	public void onPlayerInteract(Player p, PlayerInteractEvent ev, CustomItemInfo cii) {
 		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_SNOW_GOLEM_SHOOT, 1F, 1F);
 		Egg e = p.launchProjectile(Egg.class);
 		registerEntity(e, cii.getTier());
@@ -64,7 +66,7 @@ public class Eggscelent extends CustomItem {
 	}
 	
 	@Override
-	public void onBlockDispense(Location l, Vector dir, CustomItemInfo cii) {
+	public void onBlockDispense(Dispenser d, Location l, Vector dir, CustomItemInfo cii) {
 		Egg e = l.getWorld().spawn(l, Egg.class);
 		e.setVelocity(dir);
 		registerEntity(e, cii.getTier());

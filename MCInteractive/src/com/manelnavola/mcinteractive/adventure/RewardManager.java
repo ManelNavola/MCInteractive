@@ -2,11 +2,13 @@ package com.manelnavola.mcinteractive.adventure;
 
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 import com.manelnavola.mcinteractive.adventure.customitems.SubGift;
 import com.manelnavola.mcinteractive.generic.PlayerData;
@@ -45,10 +47,15 @@ public class RewardManager {
 			p.playSound(p.getLocation(), Sound.BLOCK_GRAVEL_BREAK, 1, 1);
 			p.getLocation().getWorld().spawnParticle(Particle.SMOKE_NORMAL, 
 					p.getLocation().add(0, 1, 0), 5, 0, 0, 0, 0.2);
+			MessageSender.info(p, ChatColor.GRAY + "Sorry, nothing?");
 			return null;
 		}
 		int rand = (int)(Math.random()*cil.size());
 		CustomItem ci = cil.get(rand);
+		if (ci instanceof CustomEnchant) {
+			rand = (int)(Math.random()*cil.size());
+			ci = cil.get(rand);
+		}
 		if (p != null) {
 			giftCustomItem(p, ci, t, gifterNickname);
 			return null;
