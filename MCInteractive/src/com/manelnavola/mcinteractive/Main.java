@@ -45,7 +45,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static Plugin plugin;
 	
 	private static HashMap<Player, Integer> lastArrowSlot = new HashMap<>();
-
+	
 	@Override
 	public void onEnable() {
 		plugin = this;
@@ -67,7 +67,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		
 		// Register commands
-		MCICommand mcic = new MCICommand();
+		MCICommand mcic = new MCICommand(this);
 		this.getCommand("mci").setExecutor(mcic);
 		this.getCommand("mci").setTabCompleter(new MCITabCompleter(mcic));
 		
@@ -208,7 +208,10 @@ public class Main extends JavaPlugin implements Listener {
 		Player p = e.getPlayer();
 		PlayerManager.playerJoin(p);
 		CommandValidator.addPlayer(p);
-		PlayerManager.updateInventory(p);
+		String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
+		if (ch != null) {
+			ConnectionManager.listen(p, ch);
+		}
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)

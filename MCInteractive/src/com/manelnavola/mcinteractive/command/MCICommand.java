@@ -3,28 +3,93 @@ package com.manelnavola.mcinteractive.command;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
 import com.manelnavola.mcinteractive.chat.VoteManager;
+import com.manelnavola.mcinteractive.generic.Config;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
+import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
+import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
+import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
 
 public class MCICommand implements CommandExecutor {
 	
 	private CommandValidator main;
 	
-	public MCICommand() {
+	public MCICommand(Plugin plugin) {
+		// Channel lock
+		CommandRunnable mciChannelLock = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				String ch = "#" + args[3].toLowerCase();
+				PlayerManager.getConfig().set("serverConfig.channelLock", ch);
+				MessageSender.nice(sender, "Channel lock has been set to listen "
+						+ ChatColor.AQUA + ch);
+				Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+					@Override
+					public void run() {
+						for (Player p : Bukkit.getOnlinePlayers()) {
+							ConnectionManager.leave(p);
+							ConnectionManager.listen(p, ch);
+						}
+					}
+				}, 20L);
+				Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+					@Override
+					public void run() {
+						for (Player p : Bukkit.getOnlinePlayers()) {
+							if (!ConnectionManager.getPlayerConnection(p).getChannel().equals(ch)) {
+								ConnectionManager.leave(p);
+								ConnectionManager.listen(p, ch);
+							}
+						}
+					}
+				}, 60L);
+			}
+		};
+		CommandValidator channelLock = new CommandValidator(new CommandString("lock"),
+			new CommandValidator(new CommandAny(),
+					new CommandValidator[] {},
+					mciChannelLock));
+		
+		// Channel unlock
+		CommandRunnable mciChannelUnlock = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				if (PlayerManager.getConfig().get("serverConfig.channelLock") != null) {
+					PlayerManager.getConfig().set("serverConfig.channelLock", null);
+					MessageSender.nice(sender, "Channel lock has been removed!");
+				} else {
+					MessageSender.error(sender, "There is no current channel lock!");
+				}
+			}
+		};
+		CommandValidator channelUnlock = new CommandValidator(new CommandString("unlock"),
+			new CommandValidator[] {},
+			mciChannelUnlock);
+		
 		// Channel listen
 		CommandRunnable mciChannelListen = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
+				String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
+				if (ch != null) {
+					MessageSender.error(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
+						+ ChatColor.GOLD + "!");
+					return;
+				}
 				ConnectionManager.listen((Player) sender, "#" + args[3].toLowerCase());
 			}
 		};
@@ -38,7 +103,13 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelLeave = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				ConnectionManager.leave((Player) sender);
+				String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
+				if (ch != null) {
+					MessageSender.error(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
+						+ ChatColor.GOLD + "!");
+					return;
+				}
+				ConnectionManager.leave((Player) sender, false);
 			}
 		};
 		CommandValidator channelLeave =
@@ -51,7 +122,9 @@ public class MCICommand implements CommandExecutor {
 			new CommandValidatorInfo(
 				new CommandString("channel"), new CommandValidator[] {
 					channelListen,
-					channelLeave
+					channelLeave,
+					channelLock,
+					channelUnlock
 				}, true);
 		
 		// Vote start
@@ -108,6 +181,17 @@ public class MCICommand implements CommandExecutor {
 					voteCancel,
 				}, true);
 		
+		// Fetch configs
+		Config[] configs = ConfigManager.getConfigList();
+		
+		// Config pre-setup
+		CommandValidator[] configList = new CommandValidator[configs.length];
+		CommandValidator[] globalConfigList = new CommandValidator[configs.length];
+		for (int i = 0; i < configList.length; i++) {
+			configList[i] = new ConfigCommandValidator(configs[i]);
+			globalConfigList[i] = new GlobalConfigCommandValidator(configs[i]);
+		}
+		
 		// Config
 		CommandRunnable mciConfig = new CommandRunnable() {
 			@Override
@@ -118,11 +202,11 @@ public class MCICommand implements CommandExecutor {
 		CommandValidator config = 
 			new CommandValidatorInfo(
 				new CommandString("config"),
-				new CommandValidator[] {},
+				configList,
 				mciConfig,
 				true);
 		
-		// Config
+		// GlobalConfig
 		CommandRunnable mciGlobalconfig = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
@@ -132,9 +216,8 @@ public class MCICommand implements CommandExecutor {
 		CommandValidator globalconfig = 
 			new CommandValidatorInfo(
 				new CommandString("globalconfig"),
-				new CommandValidator[] {},
-				mciGlobalconfig,
-				true);
+				globalConfigList,
+				mciGlobalconfig);
 		
 		// Gift
 		CommandRunnable mciGift = new CommandRunnable() {
@@ -146,22 +229,26 @@ public class MCICommand implements CommandExecutor {
 						return;
 					}
 					MessageSender.nice(sender, "Gift given!");
-					RewardManager.giftCustomItem((Player) sender, CustomItemManager.getSubGift(),
-							CustomItemTier.find(args[2]).getValue(), sender.getName());
+					List<Player> pl = new ArrayList<>();
+					pl.add((Player) sender);
+					RewardManager.process(pl, CustomItemTier.find(args[2]).getValue()*2,
+							SubPlan.LEVEL_1, sender.getName());
 				} else {
 					Player other = Bukkit.getPlayer(args[3]);
 					if (other == null) {
 						MessageSender.error(sender, "This player is not online anymore!");
 					} else {
 						MessageSender.nice(other, "You were sent a gift!");
-						RewardManager.giftCustomItem(other, CustomItemManager.getSubGift(),
-								CustomItemTier.find(args[2]).getValue(), sender.getName());
+						List<Player> pl = new ArrayList<>();
+						pl.add(other);
+						RewardManager.process(pl, CustomItemTier.find(args[2]).getValue()*2,
+								SubPlan.LEVEL_1, sender.getName());
 					}
 				}
 			}
 		};
 		CommandValidator gift = 
-			new CommandValidatorInfo(
+			new CommandValidator(
 				new CommandString("gift"),
 				new CommandValidator[] {
 					new CommandValidator(new CommandChoose(
@@ -448,4 +535,160 @@ public class MCICommand implements CommandExecutor {
 		return true;
 	}*/
 	
+}
+
+class ConfigCommandValidator extends CommandValidator {
+	
+	private Config config;
+	
+	public ConfigCommandValidator(Config c) {
+		super(new CommandStringNC(c.getID()),
+			new CommandValidator[] {
+				new CommandValidator(new CommandStringNC("true"), new CommandRunnable() {
+					@Override
+					public void run(CommandSender sender, String[] args) {
+						Player p = (Player) sender;
+						if (PlayerManager.getLock(c.getID()) != null) {
+							MessageSender.error(p, "This configuration is locked!");
+							return;
+						}
+						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 2);
+						MessageSender.nice(p, ChatColor.AQUA + c.getID()
+						+ ChatColor.GOLD + " set to "
+							+ ChatColor.GREEN + "true");
+						PlayerManager.getPlayerData(p).setConfig(c.getID(), true);
+					}
+				}),
+				new CommandValidator(new CommandStringNC("false"), new CommandRunnable() {
+					@Override
+					public void run(CommandSender sender, String[] args) {
+						Player p = (Player) sender;
+						if (PlayerManager.getLock(c.getID()) != null) {
+							MessageSender.error(p, "This configuration is locked!");
+							return;
+						}
+						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+						MessageSender.nice(p, ChatColor.AQUA + c.getID()
+							+ ChatColor.GOLD + " set to "
+								+ ChatColor.RED + "false");
+						PlayerManager.getPlayerData(p).setConfig(c.getID(), false);
+					}
+				})
+			},
+			new CommandRunnable() {
+				@Override
+				public void run(CommandSender sender, String[] args) {
+					MessageSender.info(sender, ChatColor.AQUA + c.getID()
+						+ ChatColor.GOLD + ": " + c.getDescription());
+					if (PlayerManager.getPlayerData((Player) sender).getConfig(c.getID())) {
+						MessageSender.info(sender, "Current value: " + ChatColor.GREEN + "true");
+					} else {
+						MessageSender.info(sender, "Current value: " + ChatColor.RED + "false");
+					}
+				}
+			},
+			true);
+		
+		config = c;
+	}
+	
+	@Override
+	protected boolean checkPermission(CommandSender sender, String perm) {
+		if (sender instanceof ConsoleCommandSender) {
+			return true;
+		} else {
+			Player p = (Player) sender;
+			if (config == null) return false;
+			if (PlayerManager.getLock(config.getID()) != null) {
+				return false;
+			} else {
+				return p.hasPermission(perm);
+			}
+		}
+	}
+}
+
+class GlobalConfigCommandValidator extends CommandValidator {
+	
+	private Config config;
+	
+	public GlobalConfigCommandValidator(Config c) {
+		super(new CommandStringNC(c.getID()),
+			new CommandValidator[] {
+				new CommandValidator(new CommandStringNC("locktrue"), new CommandRunnable() {
+					@Override
+					public void run(CommandSender sender, String[] args) {
+						MessageSender.nice(sender, ChatColor.AQUA + c.getID()
+						+ ChatColor.GOLD + " locked to "
+							+ ChatColor.GREEN + "true");
+						if (sender instanceof Player) {
+							Player p = (Player) sender;
+							p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 1, 0.8F);
+							p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 2);
+						}
+						PlayerManager.setGlobalConfig(c.getID(), new Boolean(true));
+					}
+				}),
+				new CommandValidator(new CommandStringNC("lockfalse"), new CommandRunnable() {
+					@Override
+					public void run(CommandSender sender, String[] args) {
+						MessageSender.nice(sender, ChatColor.AQUA + c.getID()
+						+ ChatColor.GOLD + " locked to "
+							+ ChatColor.RED + "false");
+						if (sender instanceof Player) {
+							Player p = (Player) sender;
+							p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 1, 0.8F);
+							p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+						}
+						PlayerManager.setGlobalConfig(c.getID(), new Boolean(false));
+					}
+				}),
+				new CommandValidator(new CommandStringNC("unlock"), new CommandRunnable() {
+					@Override
+					public void run(CommandSender sender, String[] args) {
+						MessageSender.nice(sender, ChatColor.AQUA + c.getID()
+						+ ChatColor.GOLD + " unlocked!");
+						if (sender instanceof Player) {
+							Player p = (Player) sender;
+							p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, 1, 1.2F);
+						}
+						PlayerManager.setGlobalConfig(c.getID(), null);
+					}
+				})
+			},
+			new CommandRunnable() {
+				@Override
+				public void run(CommandSender sender, String[] args) {
+					MessageSender.info(sender, ChatColor.AQUA + c.getID()
+						+ ChatColor.GOLD + ": " + c.getDescription());
+					Boolean b = PlayerManager.getLock(c.getID());
+					if (b != null) {
+						if (b.booleanValue()) {
+							MessageSender.info(sender, "Currently locked to: " + ChatColor.GREEN + "true");
+						} else {
+							MessageSender.info(sender, "Currently locked to: " + ChatColor.RED + "false");
+						}
+					} else {
+						MessageSender.info(sender, "Currently unlocked");
+					}
+				}
+			});
+		
+		config = c;
+	}
+	
+	@Override
+	protected boolean checkPermission(CommandSender sender, String perm) {
+		if (sender instanceof ConsoleCommandSender) {
+			return true;
+		} else {
+			Player p = (Player) sender;
+			if (config == null) return false;
+			if (PlayerManager.getLock(config.getID()) != null) {
+				return false;
+			} else {
+				return p.hasPermission(perm);
+			}
+		}
+	}
 }

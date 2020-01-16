@@ -38,6 +38,12 @@ public class ConfigGUI {
 			for (Config c : cc.getConfigs()) {
 				int slot = row*9 + column;
 				Boolean b = PlayerManager.getLock(c.getID());
+				Config pre = c.getPrequisite();
+				if (pre != null) {
+					if (!pd.getConfig(pre.getID())) {
+						continue;
+					}
+				}
 				if (b == null) {
 					if (pd.getConfig(c.getID())) {
 						inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
@@ -88,6 +94,13 @@ public class ConfigGUI {
 			for (Config c : cc.getConfigs()) {
 				int slot = row*9 + column;
 				Boolean b = PlayerManager.getLock(c.getID());
+				Config pre = c.getPrequisite();
+				if (pre != null) {
+					Boolean b2 = PlayerManager.getLock(pre.getID());
+					if (b2 != null && !b2.booleanValue()) {
+						continue;
+					}
+				}
 				if (b == null) {
 					// Unlocked
 					inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
@@ -142,6 +155,7 @@ public class ConfigGUI {
 		if (e.getClick().equals(ClickType.LEFT) || e.getClick().equals(ClickType.RIGHT)) {
 			if (clickedItem != null && (!clickedItem.getType().equals(Material.AIR))) {
 				if (clickedItem.getType().equals(Material.BARRIER)) {
+					p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_TRAPDOOR_CLOSE, 1, 2);
 					p.closeInventory();
 					return;
 				} else {
@@ -202,6 +216,7 @@ public class ConfigGUI {
 		if (e.getClick().equals(ClickType.LEFT)) {
 			if (clickedItem != null && (!clickedItem.getType().equals(Material.AIR))) {
 				if (clickedItem.getType().equals(Material.BARRIER)) {
+					p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_TRAPDOOR_CLOSE, 1, 2);
 					p.closeInventory();
 					return;
 				} else {

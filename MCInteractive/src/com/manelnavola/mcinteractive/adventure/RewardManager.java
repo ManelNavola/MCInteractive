@@ -3,44 +3,163 @@ package com.manelnavola.mcinteractive.adventure;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
-import com.manelnavola.mcinteractive.adventure.customitems.SubGift;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
+import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
 
 public class RewardManager {
 	
+	// Calculated from http://www.naughtynathan.co.uk/minecraft/prices.htm#ores
+	// 750 - 1500
+	private static Reward[] legendaryRewards = new Reward[] {
+		// One item
+		new EnchantReward(Enchantment.DIG_SPEED, 4),
+		new EnchantReward(Enchantment.DURABILITY, 3),
+		new EnchantReward(Enchantment.LOOT_BONUS_BLOCKS, 1),
+		new EnchantReward(Enchantment.DAMAGE_ALL, 3),
+		new EnchantReward(Enchantment.DAMAGE_UNDEAD, 2),
+		new EnchantReward(Enchantment.DAMAGE_UNDEAD, 3),
+		new EnchantReward(Enchantment.DAMAGE_ARTHROPODS, 2),
+		new EnchantReward(Enchantment.DAMAGE_ARTHROPODS, 3),
+		new EnchantReward(Enchantment.KNOCKBACK, 2),
+		new EnchantReward(Enchantment.ARROW_DAMAGE, 4),
+		new EnchantReward(Enchantment.ARROW_FIRE, 1),
+		new EnchantReward(Enchantment.PROTECTION_FIRE, 2),
+		new EnchantReward(Enchantment.PROTECTION_PROJECTILE, 3),
+		new EnchantReward(Enchantment.PROTECTION_PROJECTILE, 4),
+		new EnchantReward(Enchantment.PROTECTION_FALL, 4),
+		new EnchantReward(Enchantment.OXYGEN, 1),
+		new EnchantReward(Enchantment.OXYGEN, 2),
+		new Reward(Material.DIAMOND_LEGGINGS), new Reward(Material.DIAMOND_CHESTPLATE),
+		new Reward(Material.DIAMOND_HELMET), new Reward(Material.CHAINMAIL_CHESTPLATE),
+		new Reward(Material.EMERALD_BLOCK), new Reward(Material.DIAMOND_BLOCK),
+		// Multiple items
+		new Reward(6, 11, Material.IRON_BLOCK), new Reward(3, 4, Material.GOLD_BLOCK),
+		new Reward(5, 9, Material.DIAMOND), new Reward(8, 15, Material.EMERALD),
+		new Reward(25, 40, Material.QUARTZ_BLOCK), new Reward(2, 3, Material.GOLDEN_APPLE),
+		new Reward(4, 7, Material.GHAST_TEAR)
+	};
+	// 250 - 750
+	private static Reward[] rareRewards = new Reward[] {
+		// One item
+		new EnchantReward(Enchantment.PROTECTION_FALL, 2),
+		new EnchantReward(Enchantment.PROTECTION_FALL, 3),
+		new EnchantReward(Enchantment.PROTECTION_PROJECTILE, 2),
+		new EnchantReward(Enchantment.PROTECTION_EXPLOSIONS, 1),
+		new EnchantReward(Enchantment.PROTECTION_FIRE, 1),
+		new EnchantReward(Enchantment.PROTECTION_ENVIRONMENTAL, 2),
+		new EnchantReward(Enchantment.PROTECTION_ENVIRONMENTAL, 3),
+		new EnchantReward(Enchantment.ARROW_KNOCKBACK, 1),
+		new EnchantReward(Enchantment.ARROW_DAMAGE, 3),
+		new EnchantReward(Enchantment.KNOCKBACK, 1),
+		new EnchantReward(Enchantment.DAMAGE_ARTHROPODS, 1),
+		new EnchantReward(Enchantment.DAMAGE_ALL, 2),
+		new EnchantReward(Enchantment.DURABILITY, 2),
+		new EnchantReward(Enchantment.DIG_SPEED, 3),
+		new Reward(Material.CHAINMAIL_BOOTS), new Reward(Material.CHAINMAIL_LEGGINGS),
+		new Reward(Material.CHAINMAIL_HELMET), new Reward(Material.GOLDEN_CHESTPLATE),
+		new Reward(Material.GOLDEN_LEGGINGS), new Reward(Material.DIAMOND_SWORD),
+		new Reward(Material.DIAMOND_PICKAXE), new Reward(Material.DIAMOND_AXE),
+		new Reward(Material.DIAMOND_HOE), new Reward(Material.SADDLE),
+		new Reward(Material.ENCHANTING_TABLE), new Reward(Material.ANVIL),
+		new Reward(Material.GOLDEN_APPLE), new Reward(Material.GOLD_BLOCK),
+		new Reward(Material.EMERALD_BLOCK),
+		// Multiple items
+		new Reward(40, 50, Material.IRON_INGOT), new Reward(10, 20, Material.GOLD_INGOT),
+		new Reward(2, 5, Material.DIAMOND), new Reward(4, 8, Material.EMERALD),
+		new Reward(2, 4, Material.GHAST_TEAR), new Reward(5, 10, Material.BOOKSHELF),
+		new Reward(10, 20, Material.POWERED_RAIL),
+	};
+	// 100 - 250
+	// 0 - 100
+	
 	public static void process(List<Player> channelPlayers, int months, SubPlan subPlan, String gifterNickname) {
-		int tier = 0;
+		int calcMoneyTimesFive = months;
 		if (subPlan == SubPlan.LEVEL_2) {
-			tier = 1;
+			calcMoneyTimesFive = months*2;
 		} else if (subPlan == SubPlan.LEVEL_3) {
+			calcMoneyTimesFive = months*5;
+		}
+		
+		int tier = 0;
+		if (calcMoneyTimesFive >= 5) {
+			tier = 3;
+		} else if (calcMoneyTimesFive >= 4) {
 			tier = 2;
+		} else if (calcMoneyTimesFive >= 2) {
+			tier = 1;
 		}
 		
 		gifterNickname = gifterNickname.replace(' ', '_');
 		
-		if (months >= 12) { tier++; }
-		if (months >= 24) { tier++; }
-		if (months >= 32) { tier++; }
-		if (tier > 3) { tier = 3; }
-		
 		for (Player p : channelPlayers) {
 			PlayerData pd = PlayerManager.getPlayerData(p);
 			if (pd.getConfig("subgifts")) {
-				giftCustomItem(p, new SubGift(), tier, gifterNickname);
+				if (pd.getConfig("specialitems")) {
+					giftCustomItem(p, new SubGift(), tier, gifterNickname);
+				} else {
+					giftRandomItem(p, tier, gifterNickname);
+				}
 			}
 		}
 	}
 	
+	private static void giftRandomItem(Player p, int tier, String gifterNickname) {
+		ItemStack reward = null;
+		switch(tier) {
+		case 0:
+			reward = rareRewards[(int) (Math.random() * rareRewards.length)].get();
+			break;
+		case 1:
+			reward = rareRewards[(int) (Math.random() * rareRewards.length)].get();
+			break;
+		case 2:
+			reward = rareRewards[(int) (Math.random() * rareRewards.length)].get();
+			break;
+		case 3:
+			reward = legendaryRewards[(int) (Math.random() * legendaryRewards.length)].get();
+			break;
+		}
+		char[] formatMaterial = reward.getType().name().toCharArray();
+		String materialName = "";
+		boolean alreadyUppercase = false;
+		for (int i = 0; i < formatMaterial.length; i++) {
+			if (formatMaterial[i] == '_') {
+				materialName += " ";
+				alreadyUppercase = false;
+			} else {
+				if (alreadyUppercase) {
+					materialName += Character.toLowerCase(formatMaterial[i]);
+				} else {
+					alreadyUppercase = true;
+					materialName += formatMaterial[i];
+				}
+			}
+		}
+		MessageSender.info(p, ChatColor.ITALIC + gifterNickname + ChatColor.RESET + "" +
+			ChatColor.GOLD + " has gifted you x" + reward.getAmount() + " " + materialName);
+		if (p.getInventory().firstEmpty() == -1) {
+			// Full
+			p.getWorld().dropItemNaturally(p.getLocation(), reward);
+			MessageSender.info(p, "Inventory full! Sub reward dropped on ground");
+		} else {
+			p.getInventory().addItem(reward);
+			PlayerManager.updateInventory(p);
+		}
+	}
+
 	public static ItemStack giftRandomCustomItem(Player p, String gifterNickname, int t) {
 		List<CustomItem> cil = CustomItemManager.getCustomItemTiers(t);
 		if (cil.isEmpty()) {
@@ -85,6 +204,51 @@ public class RewardManager {
 			p.getInventory().addItem(is);
 			PlayerManager.updateInventory(p);
 		}
+	}
+	
+}
+
+class Reward {
+	
+	private int minAmount, range;
+	private Material material;
+	
+	public Reward(int min, int max, Material m) {
+		minAmount = min;
+		range = max - min + 1;
+		material = m;
+	}
+	
+	public Reward(Material m) {
+		this(1, 1, m);
+	}
+	
+	public ItemStack get() {
+		return new ItemStackBuilder<>(material)
+			.amount(minAmount + (int) (Math.random() * range))
+			.build();
+	}
+	
+}
+
+class EnchantReward extends Reward {
+	
+	private Enchantment enchantment;
+	private int enchLevel;
+	
+	public EnchantReward(Enchantment en, int level) {
+		super(1, 1, Material.ENCHANTED_BOOK);
+		enchantment = en;
+		enchLevel = level;
+	}
+	
+	@Override
+	public ItemStack get() {
+		ItemStack is = super.get();
+		EnchantmentStorageMeta esm = (EnchantmentStorageMeta) is.getItemMeta();
+		esm.addStoredEnchant(enchantment, enchLevel, true);
+		is.setItemMeta(esm);
+		return is;
 	}
 	
 }

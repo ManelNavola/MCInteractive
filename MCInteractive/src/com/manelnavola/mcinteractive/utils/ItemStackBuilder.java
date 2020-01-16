@@ -14,7 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemStackBuilder<T extends ItemStackBuilder<T>> {
 	
-	protected String name = "Unnamed";
+	protected String name = null;
 	protected int amount = 1;
 	protected Material material = Material.BARRIER;
 	protected List<String> lore = new ArrayList<>();
@@ -94,8 +94,12 @@ public class ItemStackBuilder<T extends ItemStackBuilder<T>> {
 		
 		ItemMeta im = is.getItemMeta();
 		
-		im.setDisplayName(name);
-		im.setLore(lore);
+		if (name != null) {
+			im.setDisplayName(name);
+		}
+		if (!lore.isEmpty()) {
+			im.setLore(lore);
+		}
 		for(Entry<Enchantment, Integer> p : enchants.entrySet()) {
 			im.addEnchant(p.getKey(), p.getValue(), true);
 		}

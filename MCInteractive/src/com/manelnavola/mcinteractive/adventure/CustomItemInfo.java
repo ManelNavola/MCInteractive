@@ -38,9 +38,11 @@ public class CustomItemInfo {
 				|| lastLore.equals(CustomItemType.ENCHANTMENT.getName())) {
 			// It is a custom item
 			String displayName = ChatColor.stripColor(im.getDisplayName());
-			String itemName = displayName.substring(displayName.indexOf(' ') + 1, displayName.lastIndexOf('[') - 1);
+			String itemName;
 			String tierText = displayName.substring(displayName.lastIndexOf('[') + 1, displayName.lastIndexOf(']'));
-			if (!displayName.contains("'s")) {
+			if (displayName.contains("'s")) {
+				itemName = displayName.substring(displayName.indexOf(' ') + 1, displayName.lastIndexOf('[') - 1);
+			} else {
 				itemName = displayName.substring(0, displayName.lastIndexOf('[') - 1);
 			}
 			int l_tier = 0;
@@ -48,7 +50,7 @@ public class CustomItemInfo {
 				CustomItemTier cit = CustomItemTier.find(tierText);
 				if (cit != null) l_tier = cit.getValue();
 			}
-			if (itemName.equals("sub gift")) {
+			if (itemName.equals(SubGift.NAME)) {
 				customItem = CustomItemManager.getSubGift();
 			} else {
 				customItem = CustomItemManager.getCustomItemByName(itemName);

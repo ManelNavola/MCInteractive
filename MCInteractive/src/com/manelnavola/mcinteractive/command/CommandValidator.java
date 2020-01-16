@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -141,6 +142,14 @@ public class CommandValidator {
 		return commandObject;
 	}
 	
+	protected boolean checkPermission(CommandSender sender, String perm) {
+		if (sender instanceof ConsoleCommandSender) {
+			return true;
+		} else {
+			return ((Player) sender).hasPermission(perm);
+		}
+	}
+	
 	private String getLongestPath() {
 		String builtParentCommand = null;
 		CommandValidator check = this;
@@ -167,7 +176,7 @@ public class CommandValidator {
 		// Check permission
 		String longestCommandPath = getLongestPath();
 		if (longestCommandPath != null) {
-			if (!sender.hasPermission(commandByName.get(longestCommandPath).getPermission())) {
+			if (!checkPermission(sender, commandByName.get(longestCommandPath).getPermission())) {
 				return "You do not have the required permission!";
 			}
 		}
@@ -218,7 +227,7 @@ public class CommandValidator {
 									CommandString cs = (CommandString) cv.commandObject;
 									String newBuiltCommand = builtParentCommand + " " + cs.string;
 									Command cmd = commandByName.get(newBuiltCommand);
-									if (cmd != null && sender.hasPermission(cmd.getPermission())) {
+									if (cmd != null && checkPermission(sender, cmd.getPermission())) {
 										String usage = cmd.getUsage();
 										String description = cmd.getDescription();
 										MessageSender.info(sender,
@@ -267,7 +276,7 @@ public class CommandValidator {
 		}
 		String longestCommandPath = getLongestPath();
 		if (longestCommandPath != null) {
-			if (!sender.hasPermission(commandByName.get(longestCommandPath).getPermission())) {
+			if (!checkPermission(sender, commandByName.get(longestCommandPath).getPermission())) {
 				return;
 			}
 		}
@@ -490,6 +499,41 @@ class CommandString extends CommandObject {
 	String string;
 	
 	public CommandString(String str) {
+		string = str.toLowerCase();
+	}
+
+	public String getString() {
+		return string;
+	}
+
+	@Override
+	public void validate(String input, List<String> list) {
+		if (string.startsWith(input.toLowerCase())) {
+			list.add(string);
+		}
+	}
+	
+	@Override
+	public String pass(String input) {
+		if (string.equals(input.toLowerCase())) {
+			return null;
+		} else {
+			return "Incorrect command option!";
+		}
+	}
+	
+	@Override
+	public CommandObject clone() {
+		return new CommandString(string);
+	}
+	
+}
+
+class CommandStringNC extends CommandObject {
+	
+	String string;
+	
+	public CommandStringNC(String str) {
 		string = str.toLowerCase();
 	}
 

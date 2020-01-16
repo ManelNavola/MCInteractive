@@ -31,8 +31,11 @@ public class ConfigManager {
 		
 		// Adventure
 		list = new ArrayList<Config>();
-		register(new Config("Sub rewards", "Enables chest rewards from subscriptions", "subgifts",
-				true, Material.BARREL), list);
+		Config subRewards = new Config("Sub rewards", "Enables chest rewards from subscriptions", "subgifts",
+				true, Material.BARREL);
+		register(subRewards, list);
+		register(new Config("Custom items", "Enables using and obtaining custom items from sub rewards", "specialitems",
+				true, Material.NETHER_STAR, subRewards), list);
 		configContainers.add(new ConfigContainer("Adventure", list));
 	}
 	
@@ -47,6 +50,22 @@ public class ConfigManager {
 	
 	public static List<ConfigContainer> getConfigContainers() {
 		return configContainers;
+	}
+	
+	public static Config[] getConfigList() {
+		int total = 0;
+		for (ConfigContainer cc : configContainers) {
+			total += cc.getConfigs().size();
+		}
+		Config[] cl = new Config[total];
+		int i = 0;
+		for (ConfigContainer cc : configContainers) {
+			for (Config c : cc.getConfigs()) {
+				cl[i] = c;
+				i++;
+			}
+		}
+		return cl;
 	}
 	
 	public static Map<String, Boolean> getDefaults() {
@@ -74,29 +93,5 @@ class ConfigContainer {
 	
 	public String getName() { return name; }
 	public List<Config> getConfigs() { return configs; }
-	
-}
-
-class Config {
-	
-	private String name;
-	private String description;
-	private String id;
-	private boolean def;
-	private Material icon;
-	
-	public Config(String l_name, String desc, String l_id, boolean l_def, Material mat) {
-		name = l_name;
-		description = desc;
-		id = l_id;
-		def = l_def;
-		icon = mat;
-	}
-	
-	public String getName() { return name; }
-	public String getDescription() { return description; }
-	public String getID() { return id; }
-	public boolean getDefault() { return def; }
-	public Material getIcon() { return icon; }
 	
 }

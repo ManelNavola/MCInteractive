@@ -70,6 +70,10 @@ public final class ConnectionManager {
 	}
 	
 	public static void leave(Player p) {
+		leave(p, true);
+	}
+	
+	public static void leave(Player p, boolean logErr) {
 		// Leave if player is already connected
 		PlayerConnection pc = getPlayerConnection(p);
 		if (pc != null) {
@@ -81,9 +85,6 @@ public final class ConnectionManager {
 				tbmci.dispose();
 				botToPlayers.remove(tbmci);
 			}
-		} else {
-			// Warn, player is not connected
-			MessageSender.warn(p, "You are not connected to any channel!");
 		}
 	}
 	

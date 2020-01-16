@@ -28,6 +28,16 @@ commands:
       usage: "/mci channel leave"
       permission: mci.channel.issue
       permission-message: You do not have permission to run this command!
+   mci channel lock:
+      description: Locks a channel to listen to server-wide
+      usage: "/mci channel lock [channelName]"
+      permission: mci.channel.lock
+      permission-message: You do not have permission to run this command!
+   mci channel unlock:
+      description: Unlocks a previously listen-locked channel
+      usage: "/mci channel unlock"
+      permission: mci.channel.lock
+      permission-message: You do not have permission to run this command!
    mci vote:
       description: Lists vote commands
       usage: "/mci vote"
@@ -80,16 +90,20 @@ permissions:
       default: true
    mci.channel.*:
       description: Gives access to all MCI channel commands
-      default: true
+      default: op
       children:
          mci.channel.info: true
          mci.channel.issue: true
+         mci.channel.lock: true
    mci.channel.info:
       description: Allows you to list MCI channel commands
       default: true
    mci.channel.issue:
       description: Allows you to listen and leave Twitch channels
       default: true
+   mci.channel.lock:
+      description: Allows you to lock/unlock channel listening server-wide
+      default: op
    mci.vote.*:
       description: Gives access to all voting commands
       children:
