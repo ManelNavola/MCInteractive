@@ -11,6 +11,7 @@ import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemType;
+import com.manelnavola.mcinteractive.utils.Log;
 
 public class CustomItemInfo {
 	
@@ -38,12 +39,17 @@ public class CustomItemInfo {
 				|| lastLore.equals(CustomItemType.ENCHANTMENT.getName())) {
 			// It is a custom item
 			String displayName = ChatColor.stripColor(im.getDisplayName());
-			String itemName;
-			String tierText = displayName.substring(displayName.lastIndexOf('[') + 1, displayName.lastIndexOf(']'));
-			if (displayName.contains("'s")) {
-				itemName = displayName.substring(displayName.indexOf(' ') + 1, displayName.lastIndexOf('[') - 1);
-			} else {
-				itemName = displayName.substring(0, displayName.lastIndexOf('[') - 1);
+			String itemName, tierText;
+			try {
+				tierText = displayName.substring(displayName.lastIndexOf('[') + 1, displayName.lastIndexOf(']'));
+				if (displayName.contains("'s")) {
+					itemName = displayName.substring(displayName.indexOf(' ') + 1, displayName.lastIndexOf('[') - 1);
+				} else {
+					itemName = displayName.substring(0, displayName.lastIndexOf('[') - 1);
+				}
+			} catch (Exception e) {
+				valid = false;
+				return;
 			}
 			int l_tier = 0;
 			if (!tierText.equals(CustomItemType.STACKABLE.getName())) {

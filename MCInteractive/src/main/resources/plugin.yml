@@ -73,21 +73,58 @@ commands:
       usage: "/mci gift [common|uncommon|rare|legendary] <player>"
       permission: mci.gift
       permission-message: You do not have permission to run this command!
-    
+   mci bits:
+      description: Shows bits shop GUI
+      usage: "/mci bits"
+      permission: mci.bits.gui
+      permission-message: You do not have permission to run this command!
+   mci bits give:
+      description: Gives bits to a player or yourself
+      usage: "/mci bits give [amount] <player>"
+      permission: mci.bits.admin
+      permission-message: You do not have permission to run this command!
+   mci bits remove:
+      description: Removes bits from a player or yourself
+      usage: "/mci bits remove [amount] <player>"
+      permission: mci.bits.admin
+      permission-message: You do not have permission to run this command!
+   mci adventureitems:
+      description: Opens the adventure items creative GUI
+      usage: "/mci adventureitems"
+      permission: mci.adventureitems
+      permission-message: You do not have permission to run this command!
+   
 permissions:
    mci.*:
       description: Gives access to all MCI commands
       children:
          mci.info: true
-         mci.channel: true
+         mci.channel.*: true
          mci.vote.*: true
          mci.config: true
          mci.globalconfig: true
          mci.gift: true
+         mci.bits.*: true
+         mci.adventureitems: true
       default: op
    mci.info:
       description: Allows you to list MCI commands
       default: true
+   mci.adventureitems:
+      description: Allows you to open the adventure items creative GUI
+      default: op
+   mci.bits.*:
+      children:
+         mci.bits.gui: true
+         mci.bits.change: true
+      description: Gives access to all MCI bits commands
+      default: op
+   mci.bits.gui:
+      description: Allows you to open the bits shop GUI
+      default: true
+   mci.bits.change:
+      description: Allows you to change yours or others' bits amount
+      default: op
    mci.channel.*:
       description: Gives access to all MCI channel commands
       default: op

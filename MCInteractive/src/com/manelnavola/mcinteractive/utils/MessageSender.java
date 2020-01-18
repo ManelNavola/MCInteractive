@@ -1,7 +1,6 @@
 package com.manelnavola.mcinteractive.utils;
 
 import org.bukkit.command.CommandSender;
-
 import net.md_5.bungee.api.ChatColor;
 
 public class MessageSender {

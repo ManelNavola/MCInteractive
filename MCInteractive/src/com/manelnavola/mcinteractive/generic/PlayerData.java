@@ -8,6 +8,7 @@ public class PlayerData extends PlayerManager {
 	
 	private FileConfiguration fileConfig;
 	private Map<String, Boolean> configMap;
+	private int bits = 0;
 	private String playerUUID;
 	
 	public PlayerData(FileConfiguration fc, String uuid) {
@@ -24,6 +25,15 @@ public class PlayerData extends PlayerManager {
 				break;
 			}
 		}
+		bits = fileConfig.getInt(playerUUID + ".bits");
+	}
+	
+	public int getBits() {
+		return bits;
+	}
+	
+	public void setBits(int bb) {
+		bits = bb;
 	}
 	
 	public boolean getConfig(String config) {
@@ -33,6 +43,7 @@ public class PlayerData extends PlayerManager {
 		}
 		return configMap.get(config);
 	}
+	
 	public void setConfig(String config, boolean value) { configMap.put(config, value); }
 	
 	public void save() {
@@ -40,6 +51,7 @@ public class PlayerData extends PlayerManager {
 		for (String config : configMap.keySet()) {
 			fileConfig.set(playerUUID + "." + config, getConfig(config));
 		}
+		fileConfig.set(playerUUID + ".bits", bits);
 	}
 	
 }

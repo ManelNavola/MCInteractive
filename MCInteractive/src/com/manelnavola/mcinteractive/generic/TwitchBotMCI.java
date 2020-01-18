@@ -95,6 +95,17 @@ public class TwitchBotMCI extends TwitchBotX {
 	public void onTwitchMessage(final TwitchMessageEvent tm) {
 		ChatManager.sendMessage(getChannelPlayers(tm.getChannelName()), tm);
 		VoteManager.process(tm.getUser(), tm.getChannelName(), tm.getContents());
+		if (tm.hasBits()) {
+			int bits = tm.getBits();
+			ChatManager.sendNotice(getChannelPlayers(tm.getChannelName()),
+					String.join(" ",
+							ChatColor.AQUA + tm.getUser().getNickname(),
+							ChatColor.WHITE + "has cheered",
+							ChatColor.GREEN + "" + bits,
+							ChatColor.WHITE + "bits!"));
+			RewardManager.processBits(getChannelPlayers(tm.getChannelName()),
+					bits, tm.getUser().getNickname());
+		}
 	}
 	
 	@Override

@@ -93,7 +93,7 @@
 		<dependency>
 			<groupId>com.manelnavola</groupId>
 			<artifactId>twitchbotx</artifactId>
-			<version>0.2</version>
+			<version>0.2.1</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>

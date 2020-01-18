@@ -16,10 +16,13 @@ import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
 import com.manelnavola.mcinteractive.chat.VoteManager;
+import com.manelnavola.mcinteractive.generic.BitsGUI;
 import com.manelnavola.mcinteractive.generic.Config;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
+import com.manelnavola.mcinteractive.generic.CustomItemsGUI;
+import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
@@ -192,6 +195,20 @@ public class MCICommand implements CommandExecutor {
 			globalConfigList[i] = new GlobalConfigCommandValidator(configs[i]);
 		}
 		
+		// Adventureitems
+		CommandRunnable mciAdventureitems = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				CustomItemsGUI.open((Player) sender, 0);
+			}
+		};
+		CommandValidator adventureitems = 
+			new CommandValidatorInfo(
+				new CommandString("adventureitems"),
+				new CommandValidator[] {},
+				mciAdventureitems,
+				true);
+		
 		// Config
 		CommandRunnable mciConfig = new CommandRunnable() {
 			@Override
@@ -247,9 +264,7 @@ public class MCICommand implements CommandExecutor {
 				}
 			}
 		};
-		CommandValidator gift = 
-			new CommandValidator(
-				new CommandString("gift"),
+		CommandValidator gift = new CommandValidator(new CommandString("gift"),
 				new CommandValidator[] {
 					new CommandValidator(new CommandChoose(
 							CustomItemTier.COMMON.getName(), CustomItemTier.UNCOMMON.getName(),
@@ -259,6 +274,114 @@ public class MCICommand implements CommandExecutor {
 						}, mciGift)
 				});
 		
+		// Bits remove
+		CommandNumber bitsAmount = new CommandNumber(true, 0, Integer.MAX_VALUE);
+		bitsAmount.setDefaults(new String[] {
+			"500", "1000", "2500", "5000"
+		});
+		CommandRunnable mciBitsRemove = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				if (args.length == 4) {
+					if (!(sender instanceof Player)) {
+						MessageSender.error(sender, "You must specify a player to give bits to!");
+						return;
+					}
+					int n = Integer.parseInt(args[3]);
+					MessageSender.nice(sender, "Removed " + n + " bits from " + sender.getName());
+					List<Player> pl = new ArrayList<>();
+					Player p = (Player) sender;
+					pl.add(p);
+					PlayerData pd = PlayerManager.getPlayerData(p);
+					pd.setBits(pd.getBits() - n);
+					if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
+						BitsGUI.open(p);
+					}
+				} else {
+					int n = Integer.parseInt(args[3]);
+					Player other = Bukkit.getPlayer(args[4]);
+					if (other == null) {
+						MessageSender.error(sender, "This player is not online anymore!");
+					} else {
+						List<Player> pl = new ArrayList<>();
+						pl.add(other);
+						Player p = (Player) sender;
+						PlayerData pd = PlayerManager.getPlayerData(p);
+						pd.setBits(pd.getBits() - n);
+						if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
+							BitsGUI.open(p);
+						}
+					}
+				}
+			}
+		};
+		CommandValidator bitsRemove = new CommandValidator(new CommandString("remove"),
+				new CommandValidator[] {
+					new CommandValidator(bitsAmount, new CommandValidator[] {
+						new CommandValidator(new CommandPlayer(), new CommandValidator[] {}, mciBitsRemove)
+					}, mciBitsRemove)
+				});
+		
+		// Bits give
+		CommandRunnable mciBitsGive = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				// mci bits give [amount] <player>
+				if (args.length == 4) {
+					if (!(sender instanceof Player)) {
+						MessageSender.error(sender, "You must specify a player to give bits to!");
+						return;
+					}
+					int n = Integer.parseInt(args[3]);
+					MessageSender.nice(sender, "Given " + n + " bits to " + sender.getName());
+					List<Player> pl = new ArrayList<>();
+					Player p = (Player) sender;
+					pl.add(p);
+					PlayerData pd = PlayerManager.getPlayerData(p);
+					pd.setBits(pd.getBits() + n);
+					if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
+						BitsGUI.open(p);
+					}
+				} else {
+					int n = Integer.parseInt(args[3]);
+					Player other = Bukkit.getPlayer(args[4]);
+					if (other == null) {
+						MessageSender.error(sender, "This player is not online anymore!");
+					} else {
+						MessageSender.nice(other, "You were sent " + n + " bits!");
+						List<Player> pl = new ArrayList<>();
+						pl.add(other);
+						Player p = (Player) sender;
+						PlayerData pd = PlayerManager.getPlayerData(p);
+						pd.setBits(pd.getBits() + n);
+						if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
+							BitsGUI.open(p);
+						}
+					}
+				}
+			}
+		};
+		CommandValidator bitsGive = new CommandValidator(new CommandString("give"),
+				new CommandValidator[] {
+					new CommandValidator(bitsAmount, new CommandValidator[] {
+						new CommandValidator(new CommandPlayer(), new CommandValidator[] {}, mciBitsGive)
+					}, mciBitsGive)
+				});
+		
+		// Bits
+		CommandRunnable mciBits = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				BitsGUI.open((Player) sender);
+			}
+		};
+		CommandValidator bits = new CommandValidator(new CommandString("bits"),
+				new CommandValidator[] {
+					bitsGive,
+					bitsRemove
+				},
+				mciBits, true);
+		
 		// Main
 		main = new CommandValidatorInfo(
 			new CommandString("mci"), new CommandValidator[] {
@@ -266,7 +389,9 @@ public class MCICommand implements CommandExecutor {
 				vote,
 				gift,
 				config,
-				globalconfig
+				globalconfig,
+				bits,
+				adventureitems
 			});
 	}
 	
@@ -626,7 +751,7 @@ class GlobalConfigCommandValidator extends CommandValidator {
 							p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 1, 0.8F);
 							p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 2);
 						}
-						PlayerManager.setGlobalConfig(c.getID(), new Boolean(true));
+						PlayerManager.setLock(c.getID(), new Boolean(true));
 					}
 				}),
 				new CommandValidator(new CommandStringNC("lockfalse"), new CommandRunnable() {
@@ -640,7 +765,7 @@ class GlobalConfigCommandValidator extends CommandValidator {
 							p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 1, 0.8F);
 							p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
 						}
-						PlayerManager.setGlobalConfig(c.getID(), new Boolean(false));
+						PlayerManager.setLock(c.getID(), new Boolean(false));
 					}
 				}),
 				new CommandValidator(new CommandStringNC("unlock"), new CommandRunnable() {
@@ -652,7 +777,7 @@ class GlobalConfigCommandValidator extends CommandValidator {
 							Player p = (Player) sender;
 							p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, 1, 1.2F);
 						}
-						PlayerManager.setGlobalConfig(c.getID(), null);
+						PlayerManager.setLock(c.getID(), null);
 					}
 				})
 			},

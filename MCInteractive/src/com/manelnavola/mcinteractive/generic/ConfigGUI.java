@@ -168,32 +168,32 @@ public class ConfigGUI {
 							if (e.getClick().equals(ClickType.LEFT)) {
 								// Lock on enable
 								p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 2);
-								PlayerManager.setGlobalConfig(configID, true);
+								PlayerManager.setLock(configID, true);
 							} else {
 								// Lock on disable
 								p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-								PlayerManager.setGlobalConfig(configID, false);
+								PlayerManager.setLock(configID, false);
 							}
 						} else {
 							if (b.booleanValue()) {
 								if (e.getClick().equals(ClickType.LEFT)) {
 									// Lock on disable
 									p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-									PlayerManager.setGlobalConfig(configID, false);
+									PlayerManager.setLock(configID, false);
 								} else {
 									// Unlock
 									p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, 1, 1.2F);
-									PlayerManager.setGlobalConfig(configID, null);
+									PlayerManager.setLock(configID, null);
 								}
 							} else {
 								if (e.getClick().equals(ClickType.LEFT)) {
 									// Lock on enable
 									p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 2);
-									PlayerManager.setGlobalConfig(configID, true);
+									PlayerManager.setLock(configID, true);
 								} else {
 									// Unlock
 									p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 1, 1.2F);
-									PlayerManager.setGlobalConfig(configID, null);
+									PlayerManager.setLock(configID, null);
 								}
 							}
 						}

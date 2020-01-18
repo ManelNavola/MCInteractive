@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -24,8 +23,6 @@ public class PlayerManager {
 	private static FileConfiguration playerSave;
 	private static String error = null;
 	private static FileConfiguration config;
-	private static Map<String, Boolean> locks;
-	private static ConfigurationSection serverConfig;
 	private static AtomicBoolean saving = new AtomicBoolean(false);
 	private static BukkitTask saveTimer;
 	
@@ -45,16 +42,6 @@ public class PlayerManager {
 		plugin.saveDefaultConfig();
 		config = plugin.getConfig();
 		
-		serverConfig = config;
-		
-		locks = new HashMap<>();
-		ConfigurationSection cs = config.getConfigurationSection("locks");
-		if (cs != null) {
-			for (String value : cs.getKeys(false)) {
-				locks.put(value, cs.getBoolean(value));
-			}
-		}
-		
 		saveTimer = Bukkit.getScheduler().runTaskTimer(plg, new Runnable() {
 			@Override
 			public void run() {
@@ -63,20 +50,19 @@ public class PlayerManager {
 		}, 10*60*20L, 10*60*20L); // Every 10 minutes
 	}
 	
-	public static ConfigurationSection getConfig() {
-		return serverConfig;
+	public static FileConfiguration getConfig() {
+		return config;
 	}
 	
-	public static void setGlobalConfig(String configID, Boolean b) {
-		if (b != null) {
-			locks.put(configID, b);
-		} else {
-			locks.remove(configID);
+	public static void setLock(String configID, Boolean b) {
+		config.set("locks." + configID, b);
+	}
+	
+	public static Boolean getLock(String configID) {
+		if (config.contains("locks." + configID, true)) {
+			return new Boolean(config.getBoolean("locks." + configID));
 		}
-	}
-	
-	public static Boolean getLock(String config) {
-		return locks.get(config);
+		return null;
 	}
 	
 	public static void playerJoin(Player p) {
@@ -109,22 +95,6 @@ public class PlayerManager {
 		for (String uuid : playerDataMap.keySet()) {
 			playerDataMap.get(uuid).save();
 			playerDataMap.remove(uuid);
-		}
-		
-		ConfigurationSection cs = config.getConfigurationSection("locks");
-		if (locks.isEmpty()) {
-			if (cs != null) {
-				config.set("locks", null);
-			}
-		} else {
-			if (cs != null) {
-				for (String value : cs.getKeys(false)) {
-					cs.set(value, null);
-				}
-			}
-			for (String value : locks.keySet()) {
-				config.set("locks." + value, locks.get(value));
-			}
 		}
 		plugin.saveConfig();
 		

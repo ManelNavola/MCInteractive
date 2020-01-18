@@ -48,14 +48,16 @@ public class Vote {
 	private int removedTaskID;
 	private ChatColor[] chosenColors;
 	private int winnerData[];
+	private VoteRunnable voteRunnable;
 	private Map<TwitchUser, Integer> userChoice = new HashMap<>();
 	
-	public Vote(Plugin plg, String ch, float vt, List<String> opt, List<Player> pl) {
+	public Vote(Plugin plg, String ch, float vt, List<String> opt, List<Player> pl, VoteRunnable vr) {
 		plugin = plg;
 		channelName = ch;
 		voteTime = (long) (vt*1000.0);
 		options = opt;
 		playerList = pl;
+		voteRunnable = vr;
 		
 		// Broadcast voting notice
 		sendTitle(ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Vote", ChatColor.GREEN + "in Twitch chat!",
@@ -115,6 +117,9 @@ public class Vote {
 							sendTitle("", ChatColor.WHITE + "The winner is " + chosenColors[winnerData[0]] + options.get(winnerData[0]) +
 									ChatColor.WHITE + " with " + winnerData[1] + " votes!",
 									basicDuration[0], basicDuration[1], basicDuration[2]);
+							if (voteRunnable != null) {
+								voteRunnable.run(playerList, winnerData[0]);
+							}
 							removedTaskID = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
 								@Override
@@ -130,6 +135,10 @@ public class Vote {
 			}
 			
 		}, basicDuration[0] + basicDuration[1] + basicDuration[2]);
+	}
+	
+	public Vote(Plugin plg, String ch, float vt, List<String> opt, List<Player> pl) {
+		this(plg, ch, vt, opt, pl, null);
 	}
 	
 	private void sendTitle(String t, String s, int a, int b, int c) {

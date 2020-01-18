@@ -31,11 +31,16 @@ public class ConfigManager {
 		
 		// Adventure
 		list = new ArrayList<Config>();
-		Config subRewards = new Config("Sub rewards", "Enables chest rewards from subscriptions", "subgifts",
-				true, Material.BARREL);
+		register(new Config("Custom voting events", "Enables random vote-based events", "eventsvote",
+				false, Material.CHORUS_FRUIT), list);
+		register(new Config("Bit drops", "Enables obtaining bits as you play", "bitdrops",
+				true, Material.PRISMARINE_SHARD), list);
+		Config subRewards = new Config("Twitch Rewards", "Enables rewards from subscriptions and cheers", "rewards",
+				false, Material.BARREL);
 		register(subRewards, list);
-		register(new Config("Custom items", "Enables using and obtaining custom items from sub rewards", "specialitems",
-				true, Material.NETHER_STAR, subRewards), list);
+		register(new Config("Custom items", "Enables using and obtaining custom items",
+				"specialitems",
+				false, Material.TRIDENT, subRewards), list);
 		configContainers.add(new ConfigContainer("Adventure", list));
 	}
 	

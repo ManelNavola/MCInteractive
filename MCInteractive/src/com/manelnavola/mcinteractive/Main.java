@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Furnace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,6 +15,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
@@ -28,15 +30,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.manelnavola.mcinteractive.adventure.BitsNatural;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.chat.VoteManager;
 import com.manelnavola.mcinteractive.command.CommandValidator;
 import com.manelnavola.mcinteractive.command.MCICommand;
 import com.manelnavola.mcinteractive.command.MCITabCompleter;
+import com.manelnavola.mcinteractive.generic.BitsGUI;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
+import com.manelnavola.mcinteractive.generic.CustomItemsGUI;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.Log;
 
@@ -60,6 +66,7 @@ public class Main extends JavaPlugin implements Listener {
 		ConnectionManager.init(this);
 		VoteManager.init(this);
 		CommandValidator.init(this);
+		BitsNatural.init();
 		
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			PlayerManager.playerJoin(p);
@@ -81,6 +88,19 @@ public class Main extends JavaPlugin implements Listener {
 		ConnectionManager.dispose();
 		CustomItemManager.dispose();
 		CommandValidator.dispose();
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR)
+	public void onEntityDeath(EntityDeathEvent e) {
+	     LivingEntity le = e.getEntity();
+
+	    if (le.getKiller() != null) {
+	    	Player p = le.getKiller();
+	    	if (PlayerManager.getPlayerData(p).getConfig("bitdrops")) {
+	    		BitsNatural.killEvent(p, le.getType());
+	    	}
+	    }
+
 	}
 	
 	@EventHandler(priority=EventPriority.HIGH)
@@ -125,10 +145,18 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
 		if (e.getView() != null) {
-			if (e.getView().getTitle().equals(ConfigGUI.getTitle()))
-				ConfigGUI.click(e);
-			if (e.getView().getTitle().equals(ConfigGUI.getGlobalTitle()))
-				ConfigGUI.clickGlobal(e);
+			if (e.getView().getTitle().equals(BitsGUI.getTitle())) {
+				BitsGUI.click(e); return;
+			}
+			if (e.getView().getTitle().equals(ConfigGUI.getTitle())) {
+				ConfigGUI.click(e); return;
+			}
+			if (e.getView().getTitle().equals(ConfigGUI.getGlobalTitle())) {
+				ConfigGUI.clickGlobal(e); return;
+			}
+			if (e.getView().getTitle().startsWith(CustomItemsGUI.getTitle())) {
+				CustomItemsGUI.click(e); return;
+			}
 		}
 	}
 	

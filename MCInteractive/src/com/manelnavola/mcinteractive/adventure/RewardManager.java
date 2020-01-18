@@ -13,6 +13,8 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
+import com.manelnavola.mcinteractive.generic.BitsGUI;
+import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
@@ -106,7 +108,7 @@ public class RewardManager {
 		
 		for (Player p : channelPlayers) {
 			PlayerData pd = PlayerManager.getPlayerData(p);
-			if (pd.getConfig("subgifts")) {
+			if (pd.getConfig("rewards")) {
 				if (pd.getConfig("specialitems")) {
 					giftCustomItem(p, new SubGift(), tier, gifterNickname);
 				} else {
@@ -203,6 +205,18 @@ public class RewardManager {
 		} else {
 			p.getInventory().addItem(is);
 			PlayerManager.updateInventory(p);
+		}
+	}
+
+	public static void processBits(List<Player> pl, int bits, String sourceName) {
+		for (Player p : pl) {
+			PlayerData pd = PlayerManager.getPlayerData(p);
+			if (pd != null) {
+				pd.setBits(pd.getBits() + bits);
+				if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
+					BitsGUI.open(p);
+				}
+			}
 		}
 	}
 	
