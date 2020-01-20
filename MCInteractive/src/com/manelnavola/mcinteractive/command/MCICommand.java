@@ -15,7 +15,6 @@ import org.bukkit.plugin.Plugin;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
-import com.manelnavola.mcinteractive.chat.VoteManager;
 import com.manelnavola.mcinteractive.generic.BitsGUI;
 import com.manelnavola.mcinteractive.generic.Config;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
@@ -25,6 +24,7 @@ import com.manelnavola.mcinteractive.generic.CustomItemsGUI;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
+import com.manelnavola.mcinteractive.voting.VoteManager;
 import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
 
 public class MCICommand implements CommandExecutor {
@@ -99,8 +99,9 @@ public class MCICommand implements CommandExecutor {
 		CommandValidator channelListen = new CommandValidator(new CommandString("listen"),
 			new CommandValidator[] {
 				new CommandValidator(new CommandAny(),
-					mciChannelListen)
-			});
+					mciChannelListen
+					)
+			}, true);
 		
 		// Channel leave
 		CommandRunnable mciChannelLeave = new CommandRunnable() {
@@ -118,7 +119,8 @@ public class MCICommand implements CommandExecutor {
 		CommandValidator channelLeave =
 			new CommandValidator(new CommandString("leave"),
 				new CommandValidator[] {},
-				mciChannelLeave);
+				mciChannelLeave,
+				true);
 		
 		// Channel
 		CommandValidator channel =
@@ -128,7 +130,7 @@ public class MCICommand implements CommandExecutor {
 					channelLeave,
 					channelLock,
 					channelUnlock
-				}, true);
+				});
 		
 		// Vote start
 		CommandRunnable mciVoteStart = new CommandRunnable() {
@@ -149,6 +151,30 @@ public class MCICommand implements CommandExecutor {
 					new CommandValidator(voteStartTime,
 						new CommandValidator(new CommandList(new CommandAny(), 2, 6),
 							mciVoteStart))
+			);
+		
+		// Vote channelStart
+		CommandRunnable mciVoteChannelstart = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				int time = CommandTime.textToTime(args[3]);
+				List<String> options = new ArrayList<>();
+				for (int i = 4; i < args.length; i++) options.add(args[i]);
+				Player p = (Player) sender;
+				if (ConnectionManager.getPlayerConnection(p) == null) {
+					MessageSender.error(p, "You must be connected to a channel!");
+					return;
+				}
+				VoteManager.createChannelVote(ConnectionManager.getPlayerConnection(p).getChannel(), time,
+						ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Channel Vote", ChatColor.GREEN + "in twitch chat!",
+						options);
+			}
+		};
+		CommandValidator voteChannelstart =
+			new CommandValidator(new CommandString("channelstart"),
+					new CommandValidator(voteStartTime,
+						new CommandValidator(new CommandList(new CommandAny(), 2, 6),
+							mciVoteChannelstart))
 			);
 		
 		// Vote end
@@ -182,6 +208,7 @@ public class MCICommand implements CommandExecutor {
 					voteStart,
 					voteEnd,
 					voteCancel,
+					voteChannelstart
 				}, true);
 		
 		// Fetch configs

@@ -1,4 +1,4 @@
-package com.manelnavola.mcinteractive.chat;
+package com.manelnavola.mcinteractive.generic;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import com.manelnavola.mcinteractive.generic.PlayerData;
-import com.manelnavola.mcinteractive.generic.PlayerManager;
+import com.manelnavola.mcinteractive.voting.Vote;
+import com.manelnavola.mcinteractive.voting.VoteManager;
 import com.manelnavola.twitchbotx.TwitchUser;
 import com.manelnavola.twitchbotx.events.TwitchMessageEvent;
 
@@ -93,43 +93,8 @@ public class ChatManager {
 		for (Player p : pl) {
 			PlayerData pd = PlayerManager.getPlayerData(p);
 			
-			if (VoteManager.isActive(p)) {
-				Vote v = VoteManager.getVote(p);
-				String add = v.getOptionChatColor(tme.getContents());
-				if (add != null) {
-					// A  vote, processed automatically, no need to show
-					return;
-				}
-			}
-			
-			/*if (VoteManager.isActive(p) && pd.getConfig("showvotes")) {
-				Vote v = VoteManager.getVote(p);
-				String add = v.getOptionChatColor(tme.getContents());
-				TwitchUser tu = tme.getUser();
-				String message = tme.getContents().toLowerCase();
-				String prefix = getTag(tu);
-				ChatColor messageColor = ChatColor.GRAY;
-				if (!prefix.equals(defaultTag)) {
-					if (pd.getConfig("highlight")) messageColor = ChatColor.WHITE;
-				}
-				String username = tu.getNickname();
-				if (add.equals("")) {
-					// Not a vote, abort
-				} else {
-					// Vote
-					if (!pd.getConfig("showvotes")) continue;
-					if (v.getTwitchUserVote(tu) != null) {
-						if (!v.getTwitchUserVote(tu).equals(message)) {
-							p.sendMessage(prefix + " " + ChatColor.WHITE + getUserChatColor(tu) + username
-									+ messageColor + " changed vote to " + add + message.toLowerCase());
-						}
-					} else {
-						p.sendMessage(prefix + " " + ChatColor.WHITE + getUserChatColor(tu) + username
-								+ messageColor + " voted " + add + message.toLowerCase());
-					}
-					continue; // Next iteration
-				}
-			}*/
+			Vote v = VoteManager.getVote(p);
+			if (v != null && v.isValidOption(tme.getContents())) return; // Is a vote, handle automatically
 			
 			if (pd.getConfig("showchat")) {
 				TwitchUser tu = tme.getUser();
@@ -146,7 +111,9 @@ public class ChatManager {
 			p.sendMessage(msg);
 			if (PlayerManager.getPlayerData(p).getConfig("noticetitle")) {
 				p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-				p.sendTitle("", msg, TITLE_DURATION[0], TITLE_DURATION[1], TITLE_DURATION[2]);
+				if (!VoteManager.isActive(p)) {
+					p.sendTitle("", msg, TITLE_DURATION[0], TITLE_DURATION[1], TITLE_DURATION[2]);
+				}
 			}
 		}
 	}

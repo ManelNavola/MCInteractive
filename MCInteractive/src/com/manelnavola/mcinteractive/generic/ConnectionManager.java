@@ -45,6 +45,10 @@ public final class ConnectionManager {
 		anonTwitchBotX.dispose();
 	}
 	
+	public static List<Player> getChannelPlayers(String ch) {
+		return anonTwitchBotX.getChannelPlayers(ch);
+	}
+	
 	public static void listen(Player p, String ch) {
 		// Leave if player is already connected
 		PlayerConnection pbc = getPlayerConnection(p);

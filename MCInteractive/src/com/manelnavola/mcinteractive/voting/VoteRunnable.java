@@ -1,4 +1,4 @@
-package com.manelnavola.mcinteractive.chat;
+package com.manelnavola.mcinteractive.voting;
 
 import java.util.List;
 

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -23,7 +25,7 @@ public class PlayerManager {
 	private static FileConfiguration playerSave;
 	private static String error = null;
 	private static FileConfiguration config;
-	private static AtomicBoolean saving = new AtomicBoolean(false);
+	private static Lock saveLock = new ReentrantLock();
 	private static BukkitTask saveTimer;
 	
 	public static void init(Plugin plg) {
@@ -88,24 +90,25 @@ public class PlayerManager {
 	}
 	
 	public static void saveAll() {
-		if (!saving.getAndSet(true)) {
-			saving.set(false);
-			return;
-		}
-		for (String uuid : playerDataMap.keySet()) {
-			playerDataMap.get(uuid).save();
-			playerDataMap.remove(uuid);
-		}
-		plugin.saveConfig();
+		saveLock.lock();
 		
 		try {
-			playerSave.save(playerSaveFile);
-		} catch (IOException e) {
-			plugin.getLogger().log(Level.SEVERE, "Could not save players.yml!");
-			plugin.getLogger().log(Level.SEVERE, "Restart the server and if the problem persists contact the developer with the following information:");
-			plugin.getLogger().log(Level.SEVERE, e.toString());
+			for (String uuid : playerDataMap.keySet()) {
+				playerDataMap.get(uuid).save();
+				playerDataMap.remove(uuid);
+			}
+			plugin.saveConfig();
+			
+			try {
+				playerSave.save(playerSaveFile);
+			} catch (IOException e) {
+				plugin.getLogger().log(Level.SEVERE, "Could not save players.yml!");
+				plugin.getLogger().log(Level.SEVERE, "Restart the server and if the problem persists contact the developer with the following information:");
+				plugin.getLogger().log(Level.SEVERE, e.toString());
+			}
+		} finally {
+			saveLock.unlock();
 		}
-		saving.set(false);
 	}
 	
 	public static String getError() {

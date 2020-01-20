@@ -11,10 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.manelnavola.mcinteractive.adventure.RewardManager;
-import com.manelnavola.mcinteractive.chat.ChatManager;
-import com.manelnavola.mcinteractive.chat.VoteManager;
 import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.mcinteractive.utils.MessageSender;
+import com.manelnavola.mcinteractive.voting.VoteManager;
 import com.manelnavola.twitchbotx.TwitchBotX;
 import com.manelnavola.twitchbotx.events.*;
 
@@ -33,7 +32,7 @@ public class TwitchBotMCI extends TwitchBotX {
 		return (a > 1) ? "months" : "month";
 	}
 	
-	private List<Player> getChannelPlayers(String channel) {
+	public List<Player> getChannelPlayers(String channel) {
 		return channelPlayers.get(channel);
 	}
 	

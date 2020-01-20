@@ -48,6 +48,11 @@ commands:
       usage: "/mci vote start [voteTime] [option1] [option2] <option3..6>"
       permission: mci.vote.issue
       permission-message: You do not have permission to run this command!
+   mci vote channelstart:
+      description: Starts a custom vote for all the players in your channel
+      usage: "/mci vote channelstart [voteTime] [option1] [option2] <option3..6>"
+      permission: mci.vote.channel
+      permission-message: You do not have permission to run this command!
    mci vote end:
       description: Forces current vote to end
       usage: "/mci vote end"
@@ -147,10 +152,14 @@ permissions:
          mci.vote.issue: true
          mci.vote.cancel: true
          mci.vote.info: true
+         mci.vote.channel: true
       default: op
    mci.vote.info:
       description: Allows you to list MCI vote commands
       default: true
+   mci.vote.channel:
+      description: Allows you to start channel votes
+      default: op
    mci.vote.issue:
       description: Allows you to start and end Twitch votes
       default: true

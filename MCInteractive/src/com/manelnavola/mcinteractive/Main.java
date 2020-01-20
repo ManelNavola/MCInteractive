@@ -34,7 +34,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.manelnavola.mcinteractive.adventure.BitsNatural;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
-import com.manelnavola.mcinteractive.chat.VoteManager;
 import com.manelnavola.mcinteractive.command.CommandValidator;
 import com.manelnavola.mcinteractive.command.MCICommand;
 import com.manelnavola.mcinteractive.command.MCITabCompleter;
@@ -45,6 +44,7 @@ import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.generic.CustomItemsGUI;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.Log;
+import com.manelnavola.mcinteractive.voting.VoteManager;
 
 public class Main extends JavaPlugin implements Listener {
 	
@@ -69,8 +69,7 @@ public class Main extends JavaPlugin implements Listener {
 		BitsNatural.init();
 		
 		for(Player p : Bukkit.getOnlinePlayers()) {
-			PlayerManager.playerJoin(p);
-			CommandValidator.addPlayer(p);
+			join(p);
 		}
 		
 		// Register commands
@@ -82,12 +81,22 @@ public class Main extends JavaPlugin implements Listener {
 		Log.nice("Enabled MCInteractive successfully!");
 	}
 	
+	private void join(Player p) {
+		PlayerManager.playerJoin(p);
+		CommandValidator.addPlayer(p);
+		String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
+		if (ch != null) {
+			ConnectionManager.listen(p, ch);
+		}
+	}
+	
 	@Override
 	public void onDisable() {
 		PlayerManager.dispose();
 		ConnectionManager.dispose();
 		CustomItemManager.dispose();
 		CommandValidator.dispose();
+		VoteManager.dispose();
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -233,13 +242,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerJoinEvent(PlayerJoinEvent e) {
-		Player p = e.getPlayer();
-		PlayerManager.playerJoin(p);
-		CommandValidator.addPlayer(p);
-		String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
-		if (ch != null) {
-			ConnectionManager.listen(p, ch);
-		}
+		join(e.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
