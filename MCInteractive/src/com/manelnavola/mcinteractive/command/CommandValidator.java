@@ -15,6 +15,8 @@ import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.manelnavola.mcinteractive.generic.ConnectionManager;
+import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 
 public class CommandValidator {
@@ -138,6 +140,10 @@ public class CommandValidator {
 		this(co, cv, null, false);
 	}
 
+	public CommandValidator(CommandObject co, CommandValidator cv, boolean b) {
+		this(co, cv, null, b);
+	}
+
 	public CommandObject getCommandObject() {
 		return commandObject;
 	}
@@ -213,7 +219,7 @@ public class CommandValidator {
 					} else {
 						if (incorrectUsage || !showInfo) {
 							// Show command type
-							MessageSender.error(sender, "Incorrect command usage!");
+							MessageSender.err(sender, "Incorrect command usage!");
 							String usage = commandByName.get(builtParentCommand).getUsage();
 							if (usage != null) {
 								MessageSender.info(sender, usage);
@@ -264,7 +270,7 @@ public class CommandValidator {
 				}
 				return "Invalid command option!";
 			} else {
-				MessageSender.error(sender, "Invalid argument!");
+				MessageSender.err(sender, "Invalid argument!");
 				return passError;
 			}
 		}
@@ -276,7 +282,12 @@ public class CommandValidator {
 		}
 		String longestCommandPath = getLongestPath();
 		if (longestCommandPath != null) {
-			if (!checkPermission(sender, commandByName.get(longestCommandPath).getPermission())) {
+			Command cmd = commandByName.get(longestCommandPath);
+			if (cmd == null) {
+				Log.error(">" + longestCommandPath + "< does not exist in plugin.yml!");
+				return;
+			}
+			if (!checkPermission(sender, cmd.getPermission())) {
 				return;
 			}
 		}
@@ -302,6 +313,7 @@ public class CommandValidator {
 
 abstract class CommandObject {
 	
+	private CommandObject[] notA;
 	private String[] defaults = new String[0];
 	
 	public abstract void validate(String input, List<String> list);
@@ -312,8 +324,22 @@ abstract class CommandObject {
 		defaults = defs;
 	}
 	
+	public void setNotA(CommandObject[] co) {
+		notA = co;
+	}
+	
 	protected String[] getDefaults() {
 		return defaults;
+	}
+	
+	protected boolean isNotA(String input) {
+		if (notA == null) return false;
+		for (CommandObject co : notA) {
+			if (co.pass(input) == null) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
@@ -331,6 +357,7 @@ class CommandAny extends CommandObject {
 
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		return null;
 	}
 
@@ -361,6 +388,7 @@ class CommandTime extends CommandObject {
 
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		Integer ttt = textToTime(input);
 		if (ttt == null) return "Incorrect time format! (XhXmXs)";
 		if (ttt < min) {
@@ -448,6 +476,7 @@ class CommandChoose extends CommandObject {
 	
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		input = input.toLowerCase();
 		for (String s : toChoose) {
 			if (s.equals(input)) {
@@ -480,11 +509,39 @@ class CommandPlayer extends CommandObject {
 	
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		if (CommandValidator.getPlayerList().contains(input.toLowerCase())) {
 			return null;
 		} else {
 			return "Player is not online!";
 		}
+	}
+
+	@Override
+	public CommandObject clone() {
+		return new CommandPlayer();
+	}
+	
+}
+
+class CommandChannel extends CommandObject {
+	
+	public CommandChannel() {}
+	
+	@Override
+	public void validate(String input, List<String> list) {
+		input = input.toLowerCase();
+		for (String s : ConnectionManager.getAnonConnectedChannels()) {
+			String ss = s.substring(1);
+			if (ss.startsWith(input))
+				list.add(ss);
+		}
+	}
+	
+	@Override
+	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
+		return null;
 	}
 
 	@Override
@@ -531,6 +588,7 @@ class CommandNumber extends CommandObject {
 	
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		if (isInteger) {
 			try {
 				int i = Integer.parseInt(input);
@@ -601,6 +659,7 @@ class CommandString extends CommandObject {
 	
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		if (string.equals(input.toLowerCase())) {
 			return null;
 		} else {
@@ -636,6 +695,7 @@ class CommandStringNC extends CommandObject {
 	
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		if (string.equals(input.toLowerCase())) {
 			return null;
 		} else {
@@ -668,6 +728,7 @@ class CommandList extends CommandObject {
 
 	@Override
 	public String pass(String input) {
+		if (isNotA(input)) return "Invalid argument";
 		return "???";
 	}
 	

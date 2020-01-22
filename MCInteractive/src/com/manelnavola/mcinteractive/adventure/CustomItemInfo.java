@@ -11,7 +11,6 @@ import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemType;
-import com.manelnavola.mcinteractive.utils.Log;
 
 public class CustomItemInfo {
 	

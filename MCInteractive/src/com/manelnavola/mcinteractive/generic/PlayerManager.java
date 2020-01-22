@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -95,7 +94,6 @@ public class PlayerManager {
 		try {
 			for (String uuid : playerDataMap.keySet()) {
 				playerDataMap.get(uuid).save();
-				playerDataMap.remove(uuid);
 			}
 			plugin.saveConfig();
 			

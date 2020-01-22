@@ -1,6 +1,5 @@
 package com.manelnavola.mcinteractive.generic;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -18,7 +17,6 @@ import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
-import com.manelnavola.mcinteractive.utils.Log;
 
 public class CustomItemsGUI {
 	
@@ -71,8 +69,6 @@ public class CustomItemsGUI {
 	
 	public static void click(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
-		PlayerData pd = PlayerManager.getPlayerData(p);
-		int bits = pd.getBits();
 		ItemStack clickedItem = e.getCurrentItem();
 		
 		if (e.getClick().equals(ClickType.LEFT)) {
@@ -96,9 +92,6 @@ public class CustomItemsGUI {
 						open(p, 3);
 						p.getWorld().playSound(p.getLocation(), sounds[3], 1F, 1F);
 					} else {
-						Log.info(ChatColor.RESET + "" + ChatColor.ITALIC
-										+ "Server's " + clickedItem.getItemMeta().getDisplayName() + " "
-										+ p.getOpenInventory().getTitle().substring(TITLE.length()));
 						CustomItemInfo cii = new CustomItemInfo(new ItemStackBuilder<>(clickedItem)
 								.name(ChatColor.RESET + "" + ChatColor.ITALIC
 										+ "Server's " + clickedItem.getItemMeta().getDisplayName() + " "

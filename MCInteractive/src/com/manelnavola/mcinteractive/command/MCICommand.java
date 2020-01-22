@@ -12,7 +12,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
 import com.manelnavola.mcinteractive.generic.BitsGUI;
@@ -32,6 +31,9 @@ public class MCICommand implements CommandExecutor {
 	private CommandValidator main;
 	
 	public MCICommand(Plugin plugin) {
+		// Common commands
+		CommandObject commandAny = new CommandAny();
+		
 		// Channel lock
 		CommandRunnable mciChannelLock = new CommandRunnable() {
 			@Override
@@ -63,7 +65,7 @@ public class MCICommand implements CommandExecutor {
 			}
 		};
 		CommandValidator channelLock = new CommandValidator(new CommandString("lock"),
-			new CommandValidator(new CommandAny(),
+			new CommandValidator(commandAny,
 					new CommandValidator[] {},
 					mciChannelLock));
 		
@@ -75,7 +77,7 @@ public class MCICommand implements CommandExecutor {
 					PlayerManager.getConfig().set("serverConfig.channelLock", null);
 					MessageSender.nice(sender, "Channel lock has been removed!");
 				} else {
-					MessageSender.error(sender, "There is no current channel lock!");
+					MessageSender.err(sender, "There is no current channel lock!");
 				}
 			}
 		};
@@ -89,7 +91,7 @@ public class MCICommand implements CommandExecutor {
 			public void run(CommandSender sender, String[] args) {
 				String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
 				if (ch != null) {
-					MessageSender.error(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
+					MessageSender.err(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
 						+ ChatColor.GOLD + "!");
 					return;
 				}
@@ -98,7 +100,7 @@ public class MCICommand implements CommandExecutor {
 		};
 		CommandValidator channelListen = new CommandValidator(new CommandString("listen"),
 			new CommandValidator[] {
-				new CommandValidator(new CommandAny(),
+				new CommandValidator(commandAny,
 					mciChannelListen
 					)
 			}, true);
@@ -109,7 +111,7 @@ public class MCICommand implements CommandExecutor {
 			public void run(CommandSender sender, String[] args) {
 				String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
 				if (ch != null) {
-					MessageSender.error(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
+					MessageSender.err(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
 						+ ChatColor.GOLD + "!");
 					return;
 				}
@@ -132,6 +134,132 @@ public class MCICommand implements CommandExecutor {
 					channelUnlock
 				});
 		
+		// Vote times
+		CommandTime voteStartTime = new CommandTime(10, 60*60*24);
+		voteStartTime.setDefaults(new String[] {
+			"5m", "10m", "15m", "30m", "1h", "2h"
+		});
+		
+		// Channelvote forcestart
+		CommandRunnable mciChannelvoteForcestartwcn = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				int time = CommandTime.textToTime(args[4]);
+				List<String> options = new ArrayList<>();
+				for (int i = 5; i < args.length; i++) options.add(args[i]);
+				VoteManager.startChannelVote(sender, "#" + args[3], time, options, true);
+			}
+		};
+		CommandRunnable mciChannelvoteForcestart = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				int time = CommandTime.textToTime(args[3]);
+				List<String> options = new ArrayList<>();
+				for (int i = 4; i < args.length; i++) options.add(args[i]);
+				VoteManager.startChannelVote((Player) sender, time, options, true);
+			}
+		};
+		CommandChannel commandChannel = new CommandChannel();
+		commandChannel.setNotA(new CommandObject[] {voteStartTime});
+		CommandValidator channelvoteForcestart =
+			new CommandValidator(new CommandString("forcestart"),
+				new CommandValidator[] {
+					new CommandValidator(voteStartTime,
+						new CommandValidator(new CommandList(commandAny, 2, 6),
+							mciChannelvoteForcestart), true),
+					new CommandValidator(commandChannel,
+						new CommandValidator(voteStartTime,
+							new CommandValidator(new CommandList(commandAny, 2, 6),
+									mciChannelvoteForcestartwcn)))
+					
+				}
+					
+			);
+		
+		// Channelvote start
+		CommandRunnable mciChannelvoteStartwcn = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				int time = CommandTime.textToTime(args[4]);
+				List<String> options = new ArrayList<>();
+				for (int i = 5; i < args.length; i++) options.add(args[i]);
+				VoteManager.startChannelVote(sender, "#" + args[3], time, options, false);
+			}
+		};
+		CommandRunnable mciChannelvoteStart = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				int time = CommandTime.textToTime(args[3]);
+				List<String> options = new ArrayList<>();
+				for (int i = 4; i < args.length; i++) options.add(args[i]);
+				VoteManager.startChannelVote((Player) sender, time, options, false);
+			}
+		};
+		CommandValidator channelvoteStart =
+			new CommandValidator(new CommandString("start"),
+				new CommandValidator[] {
+					new CommandValidator(voteStartTime,
+						new CommandValidator(new CommandList(commandAny, 2, 6),
+							mciChannelvoteStart), true),
+					new CommandValidator(commandChannel,
+						new CommandValidator(voteStartTime,
+							new CommandValidator(new CommandList(commandAny, 2, 6),
+									mciChannelvoteStartwcn)))
+					
+				}
+					
+			);
+		
+		// Channelvote end
+		CommandRunnable mciChannelvoteEnd = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				if (args.length == 3) {
+					if (sender instanceof Player) {
+						VoteManager.endChannelVote((Player) sender);
+					} else {
+						MessageSender.err(sender, "You must specify a channel!");
+					}
+				} else {
+					VoteManager.endChannelVote(sender, "#" + args[3]);
+				}
+			}
+		};
+		CommandValidator channelvoteEnd =
+			new CommandValidator(new CommandString("end"),
+				new CommandValidator(commandAny, new CommandValidator[] {}, mciChannelvoteEnd),
+				mciChannelvoteEnd);
+		
+		// Channelvote cancel
+		CommandRunnable mciChannelvoteCancel = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				if (args.length == 3) {
+					if (sender instanceof Player) {
+						VoteManager.cancelChannelVote((Player) sender);
+					} else {
+						MessageSender.err(sender, "You must specify a channel!");
+					}
+				} else {
+					VoteManager.cancelChannelVote(sender, "#" + args[3]);
+				}
+			}
+		};
+		CommandValidator channelvoteCancel =
+			new CommandValidator(new CommandString("cancel"),
+				new CommandValidator(commandAny, new CommandValidator[] {}, mciChannelvoteCancel),
+				mciChannelvoteCancel);
+		
+		// Channelvote
+		CommandValidator channelvote = 
+			new CommandValidatorInfo(
+				new CommandString("channelvote"), new CommandValidator[] {
+					channelvoteStart,
+					channelvoteEnd,
+					channelvoteCancel,
+					channelvoteForcestart
+				});
+		
 		// Vote start
 		CommandRunnable mciVoteStart = new CommandRunnable() {
 			@Override
@@ -139,49 +267,21 @@ public class MCICommand implements CommandExecutor {
 				int time = CommandTime.textToTime(args[3]);
 				List<String> options = new ArrayList<>();
 				for (int i = 4; i < args.length; i++) options.add(args[i]);
-				VoteManager.createPlayerVote((Player) sender, time, options);
+				VoteManager.startPlayerVote((Player) sender, time, options);
 			}
 		};
-		CommandTime voteStartTime = new CommandTime(10, 60*60*24);
-		voteStartTime.setDefaults(new String[] {
-			"5m", "10m", "15m", "30m", "1h", "2h"
-		});
 		CommandValidator voteStart =
 			new CommandValidator(new CommandString("start"),
 					new CommandValidator(voteStartTime,
-						new CommandValidator(new CommandList(new CommandAny(), 2, 6),
+						new CommandValidator(new CommandList(commandAny, 2, 6),
 							mciVoteStart))
-			);
-		
-		// Vote channelStart
-		CommandRunnable mciVoteChannelstart = new CommandRunnable() {
-			@Override
-			public void run(CommandSender sender, String[] args) {
-				int time = CommandTime.textToTime(args[3]);
-				List<String> options = new ArrayList<>();
-				for (int i = 4; i < args.length; i++) options.add(args[i]);
-				Player p = (Player) sender;
-				if (ConnectionManager.getPlayerConnection(p) == null) {
-					MessageSender.error(p, "You must be connected to a channel!");
-					return;
-				}
-				VoteManager.createChannelVote(ConnectionManager.getPlayerConnection(p).getChannel(), time,
-						ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Channel Vote", ChatColor.GREEN + "in twitch chat!",
-						options);
-			}
-		};
-		CommandValidator voteChannelstart =
-			new CommandValidator(new CommandString("channelstart"),
-					new CommandValidator(voteStartTime,
-						new CommandValidator(new CommandList(new CommandAny(), 2, 6),
-							mciVoteChannelstart))
 			);
 		
 		// Vote end
 		CommandRunnable mciVoteEnd = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				VoteManager.endVote((Player) sender);
+				VoteManager.endPlayerVote((Player) sender);
 			}
 		};
 		CommandValidator voteEnd =
@@ -193,7 +293,7 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciVoteCancel = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				VoteManager.cancelVote((Player) sender);
+				VoteManager.cancelPlayerVote((Player) sender);
 			}
 		};
 		CommandValidator voteCancel =
@@ -207,8 +307,7 @@ public class MCICommand implements CommandExecutor {
 				new CommandString("vote"), new CommandValidator[] {
 					voteStart,
 					voteEnd,
-					voteCancel,
-					voteChannelstart
+					voteCancel
 				}, true);
 		
 		// Fetch configs
@@ -269,7 +368,7 @@ public class MCICommand implements CommandExecutor {
 			public void run(CommandSender sender, String[] args) {
 				if (args.length == 3) {
 					if (!(sender instanceof Player)) {
-						MessageSender.error(sender, "You must specify a player to gift!");
+						MessageSender.err(sender, "You must specify a player to gift!");
 						return;
 					}
 					MessageSender.nice(sender, "Gift given!");
@@ -280,7 +379,7 @@ public class MCICommand implements CommandExecutor {
 				} else {
 					Player other = Bukkit.getPlayer(args[3]);
 					if (other == null) {
-						MessageSender.error(sender, "This player is not online anymore!");
+						MessageSender.err(sender, "This player is not online anymore!");
 					} else {
 						MessageSender.nice(other, "You were sent a gift!");
 						List<Player> pl = new ArrayList<>();
@@ -311,7 +410,7 @@ public class MCICommand implements CommandExecutor {
 			public void run(CommandSender sender, String[] args) {
 				if (args.length == 4) {
 					if (!(sender instanceof Player)) {
-						MessageSender.error(sender, "You must specify a player to give bits to!");
+						MessageSender.err(sender, "You must specify a player to give bits to!");
 						return;
 					}
 					int n = Integer.parseInt(args[3]);
@@ -328,7 +427,7 @@ public class MCICommand implements CommandExecutor {
 					int n = Integer.parseInt(args[3]);
 					Player other = Bukkit.getPlayer(args[4]);
 					if (other == null) {
-						MessageSender.error(sender, "This player is not online anymore!");
+						MessageSender.err(sender, "This player is not online anymore!");
 					} else {
 						List<Player> pl = new ArrayList<>();
 						pl.add(other);
@@ -356,7 +455,7 @@ public class MCICommand implements CommandExecutor {
 				// mci bits give [amount] <player>
 				if (args.length == 4) {
 					if (!(sender instanceof Player)) {
-						MessageSender.error(sender, "You must specify a player to give bits to!");
+						MessageSender.err(sender, "You must specify a player to give bits to!");
 						return;
 					}
 					int n = Integer.parseInt(args[3]);
@@ -373,7 +472,7 @@ public class MCICommand implements CommandExecutor {
 					int n = Integer.parseInt(args[3]);
 					Player other = Bukkit.getPlayer(args[4]);
 					if (other == null) {
-						MessageSender.error(sender, "This player is not online anymore!");
+						MessageSender.err(sender, "This player is not online anymore!");
 					} else {
 						MessageSender.nice(other, "You were sent " + n + " bits!");
 						List<Player> pl = new ArrayList<>();
@@ -418,7 +517,8 @@ public class MCICommand implements CommandExecutor {
 				config,
 				globalconfig,
 				bits,
-				adventureitems
+				adventureitems,
+				channelvote
 			});
 	}
 	
@@ -435,7 +535,7 @@ public class MCICommand implements CommandExecutor {
 		}
 		String error = main.run(sender, argsList, 0);
 		if (error != null && !error.isEmpty()) {
-			MessageSender.error(sender, error);
+			MessageSender.err(sender, error);
 		}
 		return true;
 		/*
@@ -701,7 +801,7 @@ class ConfigCommandValidator extends CommandValidator {
 					public void run(CommandSender sender, String[] args) {
 						Player p = (Player) sender;
 						if (PlayerManager.getLock(c.getID()) != null) {
-							MessageSender.error(p, "This configuration is locked!");
+							MessageSender.err(p, "This configuration is locked!");
 							return;
 						}
 						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 2);
@@ -716,7 +816,7 @@ class ConfigCommandValidator extends CommandValidator {
 					public void run(CommandSender sender, String[] args) {
 						Player p = (Player) sender;
 						if (PlayerManager.getLock(c.getID()) != null) {
-							MessageSender.error(p, "This configuration is locked!");
+							MessageSender.err(p, "This configuration is locked!");
 							return;
 						}
 						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);

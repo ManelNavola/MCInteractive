@@ -7,7 +7,7 @@ public class MessageSender {
 	
 	private static final String PLUGIN_TAG = "[MCI]";
 	
-	public static void error(CommandSender sender, String msg) {
+	public static void err(CommandSender sender, String msg) {
 		sender.sendMessage(ChatColor.RED + PLUGIN_TAG + " " + msg);
 	}
 	

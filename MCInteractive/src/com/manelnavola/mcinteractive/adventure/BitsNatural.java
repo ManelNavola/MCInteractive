@@ -1,6 +1,5 @@
 package com.manelnavola.mcinteractive.adventure;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

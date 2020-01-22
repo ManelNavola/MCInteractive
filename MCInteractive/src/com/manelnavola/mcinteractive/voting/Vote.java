@@ -20,16 +20,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 public class Vote {
 	
 	public enum VoteType {
-		PLAYER(0), CHANNEL(1), EVENT(2);
-		
-		private final int value;
-		private VoteType(int v) {
-			value = v;
-		}
-		
-		public int getValue() {
-			return value;
-		}
+		PLAYER, CHANNEL, EVENT
 	}
 	
 	private VoteType voteType;

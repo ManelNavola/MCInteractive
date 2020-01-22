@@ -14,7 +14,6 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
 import com.manelnavola.mcinteractive.generic.BitsGUI;
-import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;

@@ -92,6 +92,10 @@ public final class ConnectionManager {
 		}
 	}
 	
+	public static List<String> getAnonConnectedChannels() {
+		return anonTwitchBotX.getConnectedChannels();
+	}
+	
 	public static PlayerConnection getPlayerConnection(Player p) {
 		return playerConnections.get(p);
 	}

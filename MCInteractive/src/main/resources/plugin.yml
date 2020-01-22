@@ -45,23 +45,43 @@ commands:
       permission-message: You do not have permission to run this command!
    mci vote start:
       description: Starts a custom vote
-      usage: "/mci vote start [voteTime] [option1] [option2] <option3..6>"
+      usage: "/mci vote start <player> [voteTime] [option1] [option2] <option3..6>"
       permission: mci.vote.issue
-      permission-message: You do not have permission to run this command!
-   mci vote channelstart:
-      description: Starts a custom vote for all the players in your channel
-      usage: "/mci vote channelstart [voteTime] [option1] [option2] <option3..6>"
-      permission: mci.vote.channel
       permission-message: You do not have permission to run this command!
    mci vote end:
       description: Forces current vote to end
-      usage: "/mci vote end"
+      usage: "/mci vote end <player>"
       permission: mci.vote.issue
       permission-message: You do not have permission to run this command!
    mci vote cancel:
       description: Cancels and invalidates the current vote
-      usage: "/mci vote cancel"
+      usage: "/mci vote cancel <player>"
       permission: mci.vote.cancel
+      permission-message: You do not have permission to run this command!
+   mci channelvote:
+      description: Lists vote commands
+      usage: "/mci channelvote"
+      permission: mci.channelvote.info
+      permission-message: You do not have permission to run this command!
+   mci channelvote start:
+      description: Starts a channel vote
+      usage: "/mci channelvote start <channel> [voteTime] [option1] [option2] <option3..6>"
+      permission: mci.channelvote.issue
+      permission-message: You do not have permission to run this command!
+   mci channelvote forcestart:
+      description: Forces starting a channel vote, cancelling all channel's current player votes
+      usage: "/mci channelvote forcestart <channel> [voteTime] [option1] [option2] <option3..6>"
+      permission: mci.channelvote.force
+      permission-message: You do not have permission to run this command!
+   mci channelvote end:
+      description: Forces current channel vote to end
+      usage: "/mci channelvote end <channel>"
+      permission: mci.channelvote.issue
+      permission-message: You do not have permission to run this command!
+   mci channelvote cancel:
+      description: Cancels and invalidates the current channel vote
+      usage: "/mci channelvote cancel <channel>"
+      permission: mci.channelvote.cancel
       permission-message: You do not have permission to run this command!
    mci globalconfig:
       description: Shows global configuration GUI
@@ -111,6 +131,7 @@ permissions:
          mci.gift: true
          mci.bits.*: true
          mci.adventureitems: true
+         mci.channelvote.*: true
       default: op
    mci.info:
       description: Allows you to list MCI commands
@@ -152,19 +173,35 @@ permissions:
          mci.vote.issue: true
          mci.vote.cancel: true
          mci.vote.info: true
-         mci.vote.channel: true
       default: op
    mci.vote.info:
       description: Allows you to list MCI vote commands
       default: true
-   mci.vote.channel:
-      description: Allows you to start channel votes
-      default: op
    mci.vote.issue:
       description: Allows you to start and end Twitch votes
       default: true
    mci.vote.cancel:
       description: Allows you to cancel a Twitch vote
+      default: op
+   mci.channelvote.*:
+      description: Gives access to all channel voting commands
+      children:
+         mci.channelvote.issue: true
+         mci.channelvote.cancel: true
+         mci.channelvote.info: true
+         mci.channelvote.force: true
+      default: op
+   mci.channelvote.info:
+      description: Allows you to list MCI channel vote commands
+      default: op
+   mci.channelvote.issue:
+      description: Allows you to start and end Twitch channel votes
+      default: op
+   mci.channelvote.cancel:
+      description: Allows you to cancel a Twitch channel vote
+      default: op
+   mci.channelvote.force:
+      description: Allows you to force start a channel vote
       default: op
    mci.config:
       description: Allows you to change your personal MCI configuration

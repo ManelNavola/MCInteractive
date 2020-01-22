@@ -171,10 +171,10 @@ public class CustomItemManager {
 			if (cii.isValid()) {
 				Boolean lock = PlayerManager.getLock("specialitems");
 				if (lock != null && !lock.booleanValue()) {
-					MessageSender.error(p, "Cannot use item: the server has disabled custom items!");
+					MessageSender.err(p, "Cannot use item: the server has disabled custom items!");
 					return;
 				} else if (!PlayerManager.getPlayerData(p).getConfig("specialitems")) {
-					MessageSender.error(p, "Cannot use item: you have disabled custom items!");
+					MessageSender.err(p, "Cannot use item: you have disabled custom items!");
 					return;
 				}
 				if (cii.getClassName().equals(SubGift.class.getName())) {
