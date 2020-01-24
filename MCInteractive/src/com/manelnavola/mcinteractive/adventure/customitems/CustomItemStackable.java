@@ -19,24 +19,9 @@ public class CustomItemStackable extends CustomItem {
 	
 	public void fixDisplayName(ItemStack is, String gifterNickname, int rarity) {
 		ItemMeta im = is.getItemMeta();
-		switch(rarity) {
-		case 0:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.GREEN + im.getDisplayName()
-				+ " [" + CustomItemTier.COMMON.getName() + "]");
-			break;
-		case 1:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.AQUA + im.getDisplayName()
-				+ " [" + CustomItemTier.UNCOMMON.getName() + "]");
-			break;
-		case 2:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.LIGHT_PURPLE + im.getDisplayName()
-				+ " [" + CustomItemTier.RARE.getName() + "]");
-			break;
-		case 3:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.YELLOW + im.getDisplayName()
-				+ " [" + CustomItemTier.LEGENDARY.getName() + "]");
-			break;
-		}
+		CustomItemTier cit = CustomItemTier.getById(rarity);
+		im.setDisplayName(ChatColor.RESET + "" + cit.getColor() + im.getDisplayName()
+			+ " [" + cit.getName() + "]");
 		is.setItemMeta(im);
 	}
 	

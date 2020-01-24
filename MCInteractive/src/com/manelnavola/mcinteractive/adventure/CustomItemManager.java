@@ -89,6 +89,8 @@ public class CustomItemManager {
 		register(new Freezer());
 		register(new Smelter());
 		register(new Planter());
+		register(new Boomer());
+		register(new Timber());
 		
 		subGift = new SubGift();
 		setFlags(subGift);

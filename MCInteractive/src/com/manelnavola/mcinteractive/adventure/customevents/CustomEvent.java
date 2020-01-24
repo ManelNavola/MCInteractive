@@ -20,7 +20,7 @@ public class CustomEvent {
 		Collections.shuffle(options);
 		options = options.subList(0, amount);
 	}
-	
+
 	public String getDescription() { return description; }
 	public VoteRunnable getRunnable() { return runnable; }
 	public List<String> getOptions() { return options; }

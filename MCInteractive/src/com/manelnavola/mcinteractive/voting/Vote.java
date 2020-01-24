@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
-import com.manelnavola.mcinteractive.adventure.customevents.VoteRunnable;
 import com.manelnavola.mcinteractive.generic.ChatManager;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
@@ -26,8 +25,8 @@ public class Vote {
 	}
 	
 	private VoteType voteType;
-	private int duration;
-	private long time;
+	protected int duration; // Seconds
+	protected long time;
 	private String channel;
 	private List<Player> playerList;
 	private List<String> options;
@@ -35,7 +34,7 @@ public class Vote {
 	private String[] procOptions;
 	private int procOptionsSize, procOptionsIter = 0;
 	private ChatColor[] chosenColors;
-	private VoteRunnable voteRunnable;
+	
 	private static final ChatColor[][] optionColors = new ChatColor[][] {
 		{ChatColor.GREEN},
 		{ChatColor.GREEN, ChatColor.DARK_AQUA},
@@ -46,14 +45,13 @@ public class Vote {
 	};
 	
 	public Vote(VoteType vt, List<Player> pl, String ch, int dur,
-			String title, String subtitle, List<String> opt, VoteRunnable vr) {
+			String title, String subtitle, List<String> opt) {
 		voteType = vt;
 		playerList = pl;
 		channel = ch;
 		time = -4;
 		duration = dur;
 		options = opt;
-		voteRunnable = vr;
 		
 		chosenColors = optionColors[options.size() - 1];
 		userChoice = new HashMap<>();
@@ -80,10 +78,6 @@ public class Vote {
 		for (Player p : playerList) {
 			p.sendTitle(title, subtitle, 10, 50, 10);
 		}
-	}
-	
-	public Vote(VoteType vt, List<Player> pl, String ch, int dur, String title, String subtitle, List<String> opt) {
-		this(vt, pl, ch, dur, title, subtitle, opt, null);
 	}
 
 	public void process(TwitchUser tu, String ch, String message) {
@@ -198,7 +192,7 @@ public class Vote {
 	public String getChannel() { return channel; }
 	public List<Player> getPlayerList() { return playerList; }
 
-	public void finish() {
+	public String finish() {
 		// Countdown just ended
 		time = -9999;
 		int[] results = calculateWinner();
@@ -213,9 +207,7 @@ public class Vote {
 		for (Player p : playerList) {
 			p.sendTitle("", ts, 10, 70, 10);
 		}
-		if (voteRunnable != null) {
-			voteRunnable.run(playerList, options.get(results[0]));
-		}
+		return options.get(results[0]);
 	}
 	
 	private int[] calculateWinner() {

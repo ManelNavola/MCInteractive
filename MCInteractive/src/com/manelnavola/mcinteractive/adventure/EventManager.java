@@ -22,18 +22,16 @@ import com.manelnavola.mcinteractive.voting.VoteManager;
 public class EventManager {
 	
 	public static final int VOTING_LENGTH_S = 5;
-	private static final int EVENT_LENGTH = 200;
+	public static final int EVENT_LENGTH_S = 10;
 	private static List<CustomEvent> events;
 	private static BukkitTask bt;
 	private static List<BukkitTask> btl;
 	private static Plugin plugin;
-	private static List<Player> eventPlayers;
 	
 	public static void init(Plugin plg) {
 		plugin = plg;
 		events = new ArrayList<>();
 		btl = new ArrayList<>();
-		eventPlayers = new ArrayList<>();
 		
 		bt = plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
 
@@ -56,7 +54,6 @@ public class EventManager {
 					@Override
 					public void run(List<Player> playerList, String option) {
 						for (Player p : playerList) {
-							eventPlayers.add(p);
 							switch(option) {
 							case "jump":
 								p.setMetadata("MCI_WALKSPEED", new FixedMetadataValue(plugin, true));
@@ -64,8 +61,9 @@ public class EventManager {
 								p.removePotionEffect(PotionEffectType.JUMP);
 								p.removePotionEffect(PotionEffectType.SLOW_FALLING);
 								p.setMetadata("MCI_POTIONEFFECT", new FixedMetadataValue(plugin, "JUMP,SLOW_FALLING"));
-								p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, EVENT_LENGTH, 1, true));
-								p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, EVENT_LENGTH, 0, true));
+								p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, EVENT_LENGTH_S*20, 1, true));
+								p.addPotionEffect(
+										new PotionEffect(PotionEffectType.SLOW_FALLING, EVENT_LENGTH_S*20, 0, true));
 								break;
 							case "fast":
 								p.setMetadata("MCI_WALKSPEED", new FixedMetadataValue(plugin, true));
@@ -76,7 +74,7 @@ public class EventManager {
 								p.setWalkSpeed(0F);
 								p.removePotionEffect(PotionEffectType.JUMP);
 								p.setMetadata("MCI_POTIONEFFECT", new FixedMetadataValue(plugin, "JUMP"));
-								p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, EVENT_LENGTH, 128, true));
+								p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, EVENT_LENGTH_S*20, 128, true));
 								BukkitTask bt = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
 									@Override
 									public void run() {
@@ -96,7 +94,7 @@ public class EventManager {
 											bt.cancel();
 										}
 									}
-								}, EVENT_LENGTH);
+								}, EVENT_LENGTH_S*20L);
 								addTasks(bt, bt2);
 								break;
 							}
@@ -112,25 +110,16 @@ public class EventManager {
 			btl.add(bt);
 		}
 	}
-	
-	public static boolean contains(Player p) {
-		return eventPlayers.contains(p);
-	}
 
 	private static void clearLater(List<Player> playerList) {
 		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 			@Override
 			public void run() {
 				for (Player p : playerList) {
-					EventManager.leave(p);
 					Main.clearEventEffects(p);
 				}
 			}
-		}, EVENT_LENGTH);
-	}
-	
-	public static void leave(Player p) {
-		eventPlayers.removeIf(p2 -> p2.equals(p));
+		}, EVENT_LENGTH_S*20L);
 	}
 	
 	public static void dispose() {

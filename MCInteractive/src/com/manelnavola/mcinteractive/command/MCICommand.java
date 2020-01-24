@@ -12,6 +12,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.manelnavola.mcinteractive.adventure.CustomItemsGUI;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
 import com.manelnavola.mcinteractive.generic.BitsGUI;
@@ -19,7 +20,6 @@ import com.manelnavola.mcinteractive.generic.Config;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
-import com.manelnavola.mcinteractive.generic.CustomItemsGUI;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;

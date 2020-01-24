@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.manelnavola.mcinteractive.adventure.EventManager;
+import com.manelnavola.mcinteractive.adventure.customevents.EventVote;
 import com.manelnavola.mcinteractive.adventure.customevents.VoteRunnable;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.generic.PlayerConnection;
@@ -108,12 +109,12 @@ public class VoteManager {
 		List<Player> pl = new ArrayList<>();
 		for (Player p : ConnectionManager.getChannelPlayers(channel)) {
 			Vote v = playerVotes.get(p);
-			if (v == null && !EventManager.contains(p)) {
+			if (v == null) {
 				pl.add(p);
 			}
 		}
 		if (pl.isEmpty()) return;
-		Vote v = new Vote(VoteType.EVENT, pl, channel, EventManager.VOTING_LENGTH_S,
+		Vote v = new EventVote(VoteType.EVENT, pl, channel,
 				ChatColor.ITALIC + "" + ChatColor.AQUA + "Event Vote",
 				ChatColor.GREEN + desc,
 				options, run);

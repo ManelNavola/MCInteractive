@@ -30,24 +30,20 @@ public class SubGift extends CustomItem {
 
 	public SubGift() {
 		super(new CustomItemFlag[] { CustomItemFlag.DISPENSES, CustomItemFlag.RIGHT_CLICK });
-		ItemStack common = new CustomItemStackBuilder<>(Material.BARREL)
-				.name(NAME)
-				.lore("Right click to open the gift!").lore("Common - " + CHANCES[0][3] + "%")
-				.lore("Uncommon - " + CHANCES[0][2] + "%").lore("Rare - " + CHANCES[0][1] + "%")
-				.lore("Legendary - " + CHANCES[0][0] + "%").build();
-		ItemStack uncommon = new CustomItemStackBuilder<>(common).material(Material.CHEST)
-				.newLore("Right click to open the gift!").lore("Common - " + CHANCES[1][3] + "%")
-				.lore("Uncommon - " + CHANCES[1][2] + "%").lore("Rare - " + CHANCES[1][1] + "%")
-				.lore("Legendary - " + CHANCES[1][0] + "%").build();
-		ItemStack rare = new CustomItemStackBuilder<>(common).material(Material.ENDER_CHEST)
-				.newLore("Right click to open the gift!").lore("Common - " + CHANCES[2][3] + "%")
-				.lore("Uncommon - " + CHANCES[2][2] + "%").lore("Rare - " + CHANCES[2][1] + "%")
-				.lore("Legendary - " + CHANCES[2][0] + "%").build();
-		ItemStack legendary = new CustomItemStackBuilder<>(common).material(Material.YELLOW_SHULKER_BOX)
-				.newLore("Right click to open the gift!").lore("Common - " + CHANCES[3][3] + "%")
-				.lore("Uncommon - " + CHANCES[3][2] + "%").lore("Rare - " + CHANCES[3][1] + "%")
-				.lore("Legendary - " + CHANCES[3][0] + "%").build();
-		setRarities(common, uncommon, rare, legendary);
+		ItemStack[] rarities = new ItemStack[4];
+		CustomItemTier cit;
+		for (int i = 0; i < 4; i++) {
+			cit = CustomItemTier.getById(i);
+			rarities[i] = new CustomItemStackBuilder<>(cit.getDisplayMaterial())
+					.name(NAME)
+					.lore("Right click to open the gift!")
+					.lore("Common - " + CHANCES[i][3] + "%")
+					.lore("Uncommon - " + CHANCES[i][2] + "%")
+					.lore("Rare - " + CHANCES[i][1] + "%")
+					.lore("Legendary - " + CHANCES[i][0] + "%")
+					.build();
+		}
+		setRarities(rarities[0], rarities[1], rarities[2], rarities[3]);
 	}
 
 	private int getRandomTier(int giftTier) {

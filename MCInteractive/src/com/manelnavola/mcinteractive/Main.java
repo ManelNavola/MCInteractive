@@ -35,6 +35,7 @@ import org.bukkit.potion.PotionEffectType;
 import com.manelnavola.mcinteractive.adventure.BitsNatural;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
+import com.manelnavola.mcinteractive.adventure.CustomItemsGUI;
 import com.manelnavola.mcinteractive.adventure.EventManager;
 import com.manelnavola.mcinteractive.command.CommandValidator;
 import com.manelnavola.mcinteractive.command.MCICommand;
@@ -43,7 +44,6 @@ import com.manelnavola.mcinteractive.generic.BitsGUI;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
-import com.manelnavola.mcinteractive.generic.CustomItemsGUI;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.mcinteractive.voting.VoteManager;
@@ -283,7 +283,6 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		PlayerManager.playerQuit(e.getPlayer());
 		CommandValidator.removePlayer(p);
-		EventManager.leave(p);
 	}
 	
 }

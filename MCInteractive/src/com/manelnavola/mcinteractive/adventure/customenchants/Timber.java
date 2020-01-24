@@ -1,37 +1,37 @@
 package com.manelnavola.mcinteractive.adventure.customenchants;
 
-import java.util.Collection;
-
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
+import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.CustomTrail;
-import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
 
-public class Smelter extends CustomEnchant {
+public class Timber extends CustomEnchant {
 	
 	private static CustomTrail trail = new CustomTrail(Particle.FLAME, 1, 0);
 	
-	public Smelter() {
+	public Timber() {
 		super(new CustomItemFlag[] {CustomItemFlag.BLOCK_BREAK, CustomItemFlag.PROJECTILE,
 				CustomItemFlag.DISPENSES, CustomItemFlag.SHOOT_BOW},
-				new CustomEnchantFlag[] {CustomEnchantFlag.PICKAXE, CustomEnchantFlag.ARROW});
-		setRarities(null, null,
-				getEnchantedBook("Smelter I", "25% chance to automatically smelt ores"),
-				getEnchantedBook("Smelter II", "50% chance to automatically smelt ores"));
+				new CustomEnchantFlag[] {CustomEnchantFlag.AXE, CustomEnchantFlag.ARROW});
+		setRarities(null,
+				getEnchantedBook("Timber I", "25% chance to timber adjacent logs"),
+				getEnchantedBook("Timber II", "50% chance to timber adjacent logs"),
+				getEnchantedBook("Timber III", "100% chance to timber adjacent logs"));
 	}
 	
 	@Override
@@ -39,18 +39,9 @@ public class Smelter extends CustomEnchant {
 		Block block = e.getBlock();
 		if (player.getGameMode() == GameMode.CREATIVE) return;
 		if (failCalculateChance(cii.getTier())) return;
-		
-		smeltBlock(block, player.getInventory().getItemInMainHand());
+		timberBlock(block, 12, 12, true);
 	}
 	
-	private boolean failCalculateChance(int tier) {
-		if (tier == 2) {
-			return !quickChance(50);
-		} else {
-			return !quickChance(25);
-		}
-	}
-
 	@Override
 	public void onProjectileHit(Entity proj, Block b, Entity e, int tier) {
 		BlockIterator iterator = new BlockIterator(proj.getWorld(),
@@ -65,7 +56,7 @@ public class Smelter extends CustomEnchant {
 			}
 		}
 		
-		if (smeltBlock(hitBlock, new ItemStack(Material.DIAMOND_PICKAXE))) {
+		if (timberBlock(hitBlock, 3, 3, false)) {
 			proj.getWorld().spawnParticle(Particle.FLAME,
 					hitBlock.getLocation().add(0.5, 0.5, 0.5), 4, 0.5, 0.5, 0.5, 0.1);
 		} else {
@@ -91,44 +82,38 @@ public class Smelter extends CustomEnchant {
 		registerTrail(a, trail);
 	}
 	
-	private boolean smeltBlock(Block b, ItemStack mineWith) {
-		if (b.getType().name().contains("ORE")) {
-			Collection<ItemStack> drops = b.getDrops(mineWith);
-			if (drops.isEmpty()) return false;
-			ItemStack firstDrop = drops.iterator().next();
-			if (!firstDrop.getType().name().contains("ORE")) return false;
-			b.setType(Material.AIR);
-			Location end = b.getLocation().add(0.5, 0.5, 0.5);
-			Material toDrop = Material.REDSTONE;
-			switch(firstDrop.getType()) {
-			case COAL_ORE:
-				toDrop = Material.COAL;
-				break;
-			case DIAMOND_ORE:
-				toDrop = Material.DIAMOND;
-				break;
-			case EMERALD_ORE:
-				toDrop = Material.EMERALD;
-				break;
-			case GOLD_ORE:
-				toDrop = Material.GOLD_INGOT;
-				break;
-			case IRON_ORE:
-				toDrop = Material.IRON_INGOT;
-				break;
-			case LAPIS_ORE:
-				toDrop = Material.LAPIS_LAZULI;
-				break;
-			default:
-				break;
+	private boolean timberBlock(Block b, int len, int max, boolean first) {
+		if (len <= 0) return false;
+		if (b != null && b.getType().name().contains("_LOG") && !b.getType().name().contains("STRIPPED")) {
+			b.breakNaturally();
+			if (!first) {
+				float lenf = (float) len;
+				b.getWorld().playSound(b.getLocation(), Sound.BLOCK_WOOD_BREAK, 1, 1 + (1 - (lenf/max)));
 			}
-			b.getWorld().playSound(end, Sound.ENTITY_BLAZE_BURN, 1, 1.2F);
-			b.getWorld().spawnParticle(Particle.FLAME, end, 10, 0.5, 0.5, 0.5, 0.2);
-			b.getWorld().dropItemNaturally(end,
-					new ItemStackBuilder<>(toDrop).amount(drops.size()).build());
+			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemManager.getPlugin(), new Runnable() {
+				@Override
+				public void run() {
+					timberBlock(b.getRelative(BlockFace.UP), len - 1, max, false);
+					timberBlock(b.getRelative(BlockFace.EAST), len - 1, max, false);
+					timberBlock(b.getRelative(BlockFace.NORTH), len - 1, max, false);
+					timberBlock(b.getRelative(BlockFace.WEST), len - 1, max, false);
+					timberBlock(b.getRelative(BlockFace.SOUTH), len - 1, max, false);
+					timberBlock(b.getRelative(BlockFace.DOWN), len/2, max, false);
+				}
+			}, 3L);
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean failCalculateChance(int tier) {
+		if (tier == 3) {
+			return false;
+		} else if (tier == 2) {
+			return !quickChance(50);
+		} else {
+			return !quickChance(25);
+		}
 	}
 
 }

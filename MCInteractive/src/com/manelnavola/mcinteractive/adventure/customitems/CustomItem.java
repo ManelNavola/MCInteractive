@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.Furnace;
@@ -37,12 +38,18 @@ public abstract class CustomItem {
 	}
 	
 	public enum CustomItemTier {
-		COMMON("Common", 0), UNCOMMON("Uncommon", 1), RARE("Rare", 2), LEGENDARY("Legendary", 3);
+		COMMON("Common", 0, ChatColor.GREEN, Material.BARREL),
+		UNCOMMON("Uncommon", 1, ChatColor.AQUA, Material.CHEST),
+		RARE("Rare", 2, ChatColor.LIGHT_PURPLE, Material.ENDER_CHEST),
+		LEGENDARY("Legendary", 3, ChatColor.YELLOW, Material.YELLOW_SHULKER_BOX);
 		
 		private final int value;
 		private final String name;
-		private CustomItemTier(String n, int v) {
-			name = n; value = v;
+		private final ChatColor color;
+		private final Material displayMaterial;
+		
+		private CustomItemTier(String n, int v, ChatColor cc, Material dm) {
+			name = n; value = v; color = cc; displayMaterial = dm;
 		}
 		
 		public int getValue() {
@@ -51,6 +58,23 @@ public abstract class CustomItem {
 		
 		public String getName() {
 			return name;
+		}
+		
+		public ChatColor getColor() {
+			return color;
+		}
+		
+		public Material getDisplayMaterial() {
+			return displayMaterial;
+		}
+		
+		public static CustomItemTier getById(int id) {
+			for (CustomItemTier cit : CustomItemTier.values()) {
+				if (cit.getValue() == id) {
+					return cit;
+				}
+			}
+			return null;
 		}
 		
 		public static CustomItemTier find(String tf) {
@@ -141,28 +165,10 @@ public abstract class CustomItem {
 	
 	public void fixDisplayName(ItemStack is, String gifterNickname, int rarity) {
 		ItemMeta im = is.getItemMeta();
-		switch(rarity) {
-		case 0:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.ITALIC + gifterNickname + "'s "
-					+ ChatColor.RESET + "" + ChatColor.GREEN + im.getDisplayName()
-					+ " [" + CustomItemTier.COMMON.getName() + "]");
-			break;
-		case 1:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.ITALIC + gifterNickname + "'s "
-					+ ChatColor.RESET + "" + ChatColor.AQUA + im.getDisplayName()
-					+ " [" + CustomItemTier.UNCOMMON.getName() + "]");
-			break;
-		case 2:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.ITALIC + gifterNickname + "'s "
-					+ ChatColor.RESET + "" + ChatColor.LIGHT_PURPLE + im.getDisplayName()
-					+ " [" + CustomItemTier.RARE.getName() + "]");
-			break;
-		case 3:
-			im.setDisplayName(ChatColor.RESET + "" + ChatColor.ITALIC + gifterNickname + "'s "
-					+  ChatColor.RESET + "" + ChatColor.YELLOW + im.getDisplayName()
-					+ " [" + CustomItemTier.LEGENDARY.getName() + "]");
-			break;
-		}
+		CustomItemTier cit = CustomItemTier.getById(rarity);
+		im.setDisplayName(ChatColor.RESET + "" + ChatColor.ITALIC + gifterNickname + "'s "
+				+ ChatColor.RESET + "" + cit.getColor() + im.getDisplayName()
+				+ " [" + cit.getName() + "]");
 		is.setItemMeta(im);
 	}
 	
