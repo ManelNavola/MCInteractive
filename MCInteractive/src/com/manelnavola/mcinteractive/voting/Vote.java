@@ -1,12 +1,14 @@
 package com.manelnavola.mcinteractive.voting;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
 
+import com.manelnavola.mcinteractive.adventure.customevents.VoteRunnable;
 import com.manelnavola.mcinteractive.generic.ChatManager;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
@@ -43,7 +45,8 @@ public class Vote {
 		{ChatColor.AQUA, ChatColor.LIGHT_PURPLE, ChatColor.GREEN, ChatColor.RED, ChatColor.DARK_AQUA, ChatColor.GOLD}
 	};
 	
-	public Vote(VoteType vt, List<Player> pl, String ch, int dur, String title, String subtitle, List<String> opt, VoteRunnable vr) {
+	public Vote(VoteType vt, List<Player> pl, String ch, int dur,
+			String title, String subtitle, List<String> opt, VoteRunnable vr) {
 		voteType = vt;
 		playerList = pl;
 		channel = ch;
@@ -68,14 +71,14 @@ public class Vote {
 				procOptions[iter] = procOptions[iter].substring(0, procOptions[iter].length() - 3);
 				iter++;
 			}
-			procOptions[iter] += chosenColors[i] + options.get(i) + ChatColor.WHITE + " | ";
+			procOptions[iter] += chosenColors[i] + options.get(i) + ChatColor.WHITE + ", ";
 			first = false;
 		}
-		procOptions[iter] = procOptions[iter].substring(0, procOptions[iter].length() - 3);
+		procOptions[iter] = procOptions[iter].substring(0, procOptions[iter].length() - 2);
 		procOptionsSize = iter;
 		
 		for (Player p : playerList) {
-			p.sendTitle(ChatColor.ITALIC + "" + ChatColor.AQUA + "Vote", ChatColor.GREEN + "In Twitch chat!", 0, 50, 10);
+			p.sendTitle(title, subtitle, 10, 50, 10);
 		}
 	}
 	
@@ -211,7 +214,7 @@ public class Vote {
 			p.sendTitle("", ts, 10, 70, 10);
 		}
 		if (voteRunnable != null) {
-			voteRunnable.run(playerList, results[0]);
+			voteRunnable.run(playerList, options.get(results[0]));
 		}
 	}
 	
@@ -220,14 +223,21 @@ public class Vote {
 		for (String tuId : userChoice.keySet()) {
 			counts[userChoice.get(tuId)] ++;
 		}
-		int max = 0;
-		for (int i = 1; i < counts.length; i++) {
-			if (counts[i] > counts[max]) {
-				max = i;
+		int max = -1;
+		List<Integer> maxes = new ArrayList<>();
+		for (int i = 0; i < counts.length; i++) {
+			if (counts[i] > max) {
+				max = counts[i];
+				maxes.clear();
+				maxes.add(i);
+			} else if (counts[i] == max) {
+				maxes.add(i);
 			}
-			if (counts[i] == counts[max] && Math.random() < 0.5) {
-				max = i;
-			}
+		}
+		if (maxes.size() > 1) {
+			max = maxes.get((int) (Math.random()*maxes.size()));
+		} else {
+			max = maxes.get(0);
 		}
 		userChoice.clear();
 		return new int[] {max, counts[max]};

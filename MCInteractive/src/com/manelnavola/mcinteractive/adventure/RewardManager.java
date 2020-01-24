@@ -84,7 +84,51 @@ public class RewardManager {
 		new Reward(10, 20, Material.POWERED_RAIL),
 	};
 	// 100 - 250
+	private static Reward[] uncommonRewards = new Reward[] {
+		// One item
+		new EnchantReward(Enchantment.DIG_SPEED, 1),
+		new EnchantReward(Enchantment.DIG_SPEED, 2),
+		new EnchantReward(Enchantment.DURABILITY, 1),
+		new EnchantReward(Enchantment.DAMAGE_UNDEAD, 1),
+		new EnchantReward(Enchantment.ARROW_DAMAGE, 2),
+		new EnchantReward(Enchantment.PROTECTION_PROJECTILE, 1),
+		new EnchantReward(Enchantment.PROTECTION_FALL, 1),
+		
+		new Reward(Material.DIAMOND_BOOTS), new Reward(Material.GOLDEN_HOE),
+		new Reward(Material.GOLDEN_AXE), new Reward(Material.GOLDEN_PICKAXE),
+		new Reward(Material.GOLDEN_HELMET), new Reward(Material.GOLDEN_BOOTS),
+		new Reward(Material.IRON_CHESTPLATE), new Reward(Material.IRON_LEGGINGS),
+		new Reward(Material.LEATHER_HELMET), new Reward(Material.LEATHER_CHESTPLATE),
+		new Reward(Material.LEATHER_LEGGINGS),
+		
+		new Reward(Material.CLOCK), new Reward(Material.SADDLE),
+		new Reward(Material.LAVA_BUCKET), new Reward(Material.CAULDRON),
+		new Reward(Material.JUKEBOX), new Reward(Material.HOPPER),
+		new Reward(Material.ENDER_CHEST), new Reward(Material.GHAST_TEAR),
+		new Reward(Material.EMERALD), new Reward(Material.DIAMOND),
+		new Reward(Material.IRON_BLOCK),
+		// Multiple items
+		new Reward(20, 30, Material.IRON_INGOT), new Reward(5, 10, Material.GOLD_INGOT),
+		new Reward(2, 6, Material.BOOKSHELF),
+	};
 	// 0 - 100
+	private static Reward[] commonRewards = new Reward[] {
+		new Reward(15, 30, Material.ACACIA_LOG), new Reward(15, 30, Material.BIRCH_LOG),
+		new Reward(15, 30, Material.JUNGLE_LOG), new Reward(15, 30, Material.DARK_OAK_LOG),
+		new Reward(15, 30, Material.SPRUCE_LOG), new Reward(15, 30, Material.OAK_LOG),
+		new Reward(10, 20, Material.IRON_INGOT), new Reward(8, 16, Material.COAL_BLOCK),
+		new Reward(8, 16, Material.OBSIDIAN), new Reward(16, 24, Material.BLUE_WOOL),
+		new Reward(16, 24, Material.RED_WOOL), new Reward(8, 16, Material.SOUL_SAND),
+		
+		new Reward(58, 64, Material.STONE), new Reward(32, 64, Material.REDSTONE),
+		new Reward(32, 64, Material.GLOWSTONE), new Reward(8, 24, Material.QUARTZ),
+		new Reward(18, 36, Material.LAPIS_LAZULI), new Reward(58, 64, Material.SAND),
+		new Reward(32, 64, Material.STICK), new Reward(58, 64, Material.TORCH),
+		new Reward(32, 64, Material.BRICKS), new Reward(10, 20, Material.APPLE),
+		new Reward(10, 20, Material.COOKED_SALMON), new Reward(8, 16, Material.MELON),
+		new Reward(48, 64, Material.ARROW), new Reward(4, 8, Material.ENDER_PEARL),
+		new Reward(8, 16, Material.SLIME_BALL),
+	};
 	
 	public static void process(List<Player> channelPlayers, int months, SubPlan subPlan, String gifterNickname) {
 		int calcMoneyTimesFive = months;
@@ -121,10 +165,10 @@ public class RewardManager {
 		ItemStack reward = null;
 		switch(tier) {
 		case 0:
-			reward = rareRewards[(int) (Math.random() * rareRewards.length)].get();
+			reward = commonRewards[(int) (Math.random() * commonRewards.length)].get();
 			break;
 		case 1:
-			reward = rareRewards[(int) (Math.random() * rareRewards.length)].get();
+			reward = uncommonRewards[(int) (Math.random() * uncommonRewards.length)].get();
 			break;
 		case 2:
 			reward = rareRewards[(int) (Math.random() * rareRewards.length)].get();

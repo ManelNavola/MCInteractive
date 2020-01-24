@@ -30,10 +30,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffectType;
 
 import com.manelnavola.mcinteractive.adventure.BitsNatural;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
+import com.manelnavola.mcinteractive.adventure.EventManager;
 import com.manelnavola.mcinteractive.command.CommandValidator;
 import com.manelnavola.mcinteractive.command.MCICommand;
 import com.manelnavola.mcinteractive.command.MCITabCompleter;
@@ -67,6 +69,7 @@ public class Main extends JavaPlugin implements Listener {
 		VoteManager.init(this);
 		CommandValidator.init(this);
 		BitsNatural.init();
+		EventManager.init(this);
 		
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			join(p);
@@ -88,6 +91,25 @@ public class Main extends JavaPlugin implements Listener {
 		if (ch != null) {
 			ConnectionManager.listen(p, ch);
 		}
+		clearEventEffects(p);
+	}
+	
+	public static void clearEventEffects(Player p) {
+		for (MetadataValue mv : p.getMetadata("MCI_WALKSPEED")) {
+			if (mv.getOwningPlugin().equals(plugin)) {
+				p.setWalkSpeed(0.2F);
+				break;
+			}
+		}
+		for (MetadataValue mv : p.getMetadata("MCI_POTIONEFFECT")) {
+			if (mv.getOwningPlugin().equals(plugin)) {
+				for (String s : mv.asString().split(",")) {
+					PotionEffectType pet = PotionEffectType.getByName(s);
+					if (pet != null) p.removePotionEffect(pet);
+				}
+				break;
+			}
+		}
 	}
 	
 	@Override
@@ -97,6 +119,7 @@ public class Main extends JavaPlugin implements Listener {
 		CustomItemManager.dispose();
 		CommandValidator.dispose();
 		VoteManager.dispose();
+		EventManager.dispose();
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -147,7 +170,10 @@ public class Main extends JavaPlugin implements Listener {
 	public void onProjectileHit(ProjectileHitEvent e) {
 		Entity ent = e.getEntity();
 		for (MetadataValue mv : ent.getMetadata("MCI")) {
-			CustomItemManager.onProjectileHit(mv, ent, e.getHitBlock(), e.getHitEntity());
+			if (mv.getOwningPlugin().equals(this)) {
+				CustomItemManager.onProjectileHit(mv, ent, e.getHitBlock(), e.getHitEntity());
+				break;
+			}
 		}
 	}
 	
@@ -207,8 +233,10 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority=EventPriority.HIGH)
 	public void onPlayerEggThrow(PlayerEggThrowEvent e) {
 		Entity ent = e.getEgg();
-		if (ent.hasMetadata("MCI")) {
-			e.setHatching(false);
+		for (MetadataValue mv : ent.getMetadata("MCI")) {
+			if (mv.getOwningPlugin().equals(this)) {
+				e.setHatching(false); break;
+			}
 		}
 	}
 	
@@ -248,12 +276,14 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerQuitEvent(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
+		p.removeMetadata("MCI_CE_TEMP", this);
 		lastArrowSlot.remove(p);
 		if (ConnectionManager.isConnected(p)) {
 			ConnectionManager.leave(p);
 		}
 		PlayerManager.playerQuit(e.getPlayer());
 		CommandValidator.removePlayer(p);
+		EventManager.leave(p);
 	}
 	
 }

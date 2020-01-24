@@ -12,6 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.manelnavola.mcinteractive.adventure.EventManager;
+import com.manelnavola.mcinteractive.adventure.customevents.VoteRunnable;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.generic.PlayerConnection;
 import com.manelnavola.mcinteractive.utils.MessageSender;
@@ -39,12 +41,16 @@ public class VoteManager {
 				voteLock.lock();
 				
 				try {
+					List<Vote> toRemove = new ArrayList<>();
 					for (List<Vote> vl : channelVotes.values()) {
 						for (Vote v : vl) {
 							if (v.timeStep()) {
-								removeVote(v);
+								toRemove.add(v);
 							}
 						}
+					}
+					for (Vote v : toRemove) {
+						removeVote(v);
 					}
 				} finally {
 					voteLock.unlock();
@@ -96,6 +102,24 @@ public class VoteManager {
 		}
 	}
 	
+	// EVENT VOTES
+	// Start
+	public static void startEventVote(String channel, String desc, VoteRunnable run, List<String> options) {
+		List<Player> pl = new ArrayList<>();
+		for (Player p : ConnectionManager.getChannelPlayers(channel)) {
+			Vote v = playerVotes.get(p);
+			if (v == null && !EventManager.contains(p)) {
+				pl.add(p);
+			}
+		}
+		if (pl.isEmpty()) return;
+		Vote v = new Vote(VoteType.EVENT, pl, channel, EventManager.VOTING_LENGTH_S,
+				ChatColor.ITALIC + "" + ChatColor.AQUA + "Event Vote",
+				ChatColor.GREEN + desc,
+				options, run);
+		addVote(v);
+	}
+	
 	// CHANNEL VOTES
 	// Start
 	public static void startChannelVote(CommandSender cs, String channel, int duration,
@@ -130,8 +154,8 @@ public class VoteManager {
 			return;
 		}
 		Vote v = new Vote(VoteType.CHANNEL, pl, channel, duration,
-				ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Vote",
-				ChatColor.GREEN + "in twitch chat!",
+				ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Channel Vote",
+				ChatColor.GREEN + "Vote in twitch chat!",
 				options);
 		addVote(v);
 		
@@ -175,8 +199,8 @@ public class VoteManager {
 				return;
 			}
 			Vote v = new Vote(VoteType.CHANNEL, pl, ch, duration,
-					ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Vote",
-					ChatColor.GREEN + "in twitch chat!",
+					ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Channel Vote",
+					ChatColor.GREEN + "Vote in twitch chat!",
 					options);
 			addVote(v);
 			if (st == 1) {
@@ -236,22 +260,6 @@ public class VoteManager {
 	
 	// PLAYER VOTES
 	// Start
-	/*public static void startPlayerVote(CommandSender cs, Player p, int duration, List<String> options) {
-		if (isActive(p)) {
-			MessageSender.err(cs, p.getName() + " already has an operative vote!");
-		} else {
-			if (ConnectionManager.getPlayerConnection(p) == null) {
-				MessageSender.err(cs, p.getName() + " must be connected to a channel!");
-				return;
-			}
-			List<Player> pl = new ArrayList<Player>();
-			pl.add(p);
-			addVote(new Vote(VoteType.PLAYER, pl, ConnectionManager.getPlayerConnection(p).getChannel(), duration,
-					ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Vote",
-					ChatColor.GREEN + "in twitch chat!", options));
-			MessageSender.nice(cs, "Started vote for " + p.getName());
-		}
-	}*/
 	public static void startPlayerVote(Player p, int duration, List<String> options) {
 		if (isActive(p)) {
 			MessageSender.err(p, "A vote is already operative!");
@@ -269,15 +277,6 @@ public class VoteManager {
 		}
 	}
 	// Cancel
-	/*public static void cancelPlayerVote(CommandSender cs, Player p) {
-		Vote v = playerVotes.get(p);
-		if (v != null) {
-			removeVote(v);
-			MessageSender.nice(cs, p.getName() + "'s vote cancelled!");
-		} else {
-			MessageSender.err(cs, p.getName() + " has no currently running vote!");
-		}
-	}*/
 	public static void cancelPlayerVote(Player p) {
 		Vote v = playerVotes.get(p);
 		if (v != null) {
@@ -288,16 +287,6 @@ public class VoteManager {
 		}
 	}
 	// End
-	/*public static void endPlayerVote(CommandSender cs, Player p) {
-		Vote v = playerVotes.get(p);
-		if (v != null) {
-			v.finish();
-			removeVote(v);
-			MessageSender.nice(cs, "Ended " + p.getName() + "'s vote!");
-		} else {
-			MessageSender.err(cs, p.getName() + " has no currently running vote!");
-		}
-	}*/
 	public static void endPlayerVote(Player p) {
 		Vote v = playerVotes.get(p);
 		if (v != null) {

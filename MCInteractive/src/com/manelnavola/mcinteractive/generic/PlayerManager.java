@@ -56,12 +56,17 @@ public class PlayerManager {
 	}
 	
 	public static void setLock(String configID, Boolean b) {
-		config.set("locks." + configID, b);
+		if (b != null) {
+			config.set("locks." + configID, b);
+		} else {
+			config.set("locks." + configID, "unlocked");
+		}
 	}
 	
 	public static Boolean getLock(String configID) {
-		if (config.contains("locks." + configID, true)) {
-			return new Boolean(config.getBoolean("locks." + configID));
+		String ccc = "locks." + configID;
+		if (config.contains(ccc, true)) {
+			return new Boolean(config.getBoolean(ccc));
 		}
 		return null;
 	}

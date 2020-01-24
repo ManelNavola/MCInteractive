@@ -1,0 +1,14 @@
+# MCInteractive Configuration v1.0
+#
+#  locks:
+#    showchat: false
+#    highlight: false
+#    noticetitle: false
+#    showvotes: false
+#    eventsvote: false
+#    specialitems: false
+#    bitdrops: false
+#    rewards: false
+#
+#  serverConfig:
+#    channelLock: '#channelname'
