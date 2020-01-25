@@ -16,16 +16,15 @@ public class ChangeGravity extends CustomEvent {
 		switch(option) {
 		case "low":
 			setPotionEffects(playerList,
-					new PotionEffectType[] {PotionEffectType.JUMP, PotionEffectType.SLOW_FALLING}, new int[] {1, 1});
+					new PotionEffectType[] {PotionEffectType.JUMP, PotionEffectType.SLOW_FALLING}, new int[] {2, 1});
 			break;
 		case "high":
-			setWalkspeed(playerList, 0.15F);
+			setWalkspeed(playerList, 0.14F);
 			setPotionEffects(playerList, PotionEffectType.JUMP, 128);
 			break;
 		case "inverse":
 			setWalkspeed(playerList, 0F);
-			setPotionEffects(playerList, PotionEffectType.LEVITATION, 1);
-
+			setPotionEffects(playerList, PotionEffectType.LEVITATION, 0);
 			break;
 		}
 	}

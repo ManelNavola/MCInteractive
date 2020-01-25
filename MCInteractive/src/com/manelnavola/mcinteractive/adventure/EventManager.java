@@ -39,7 +39,7 @@ public class EventManager {
 			
 		}, 0L, 20L*2);
 		
-		events.add(new PlayerMove());
+		events.add(new ChangeGravity());
 	}
 
 	public static void clearLater(List<Player> playerList) {
