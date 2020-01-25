@@ -283,6 +283,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		PlayerManager.playerQuit(e.getPlayer());
 		CommandValidator.removePlayer(p);
+		VoteManager.removePlayer(p);
 	}
 	
 }

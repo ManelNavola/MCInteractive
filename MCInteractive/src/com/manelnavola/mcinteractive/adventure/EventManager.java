@@ -21,8 +21,8 @@ import com.manelnavola.mcinteractive.voting.VoteManager;
 
 public class EventManager {
 	
-	public static final int VOTING_LENGTH_S = 5;
-	public static final int EVENT_LENGTH_S = 10;
+	public static final int VOTING_LENGTH_S = 10;
+	public static final int EVENT_LENGTH_S = 30;
 	private static List<CustomEvent> events;
 	private static BukkitTask bt;
 	private static List<BukkitTask> btl;

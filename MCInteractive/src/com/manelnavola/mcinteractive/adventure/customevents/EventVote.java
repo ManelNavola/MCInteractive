@@ -17,9 +17,9 @@ public class EventVote extends Vote {
 	private boolean duringEvent = false;
 	private VoteRunnable voteRunnable;
 
-	public EventVote(VoteType vt, List<Player> pl, String ch, String title, String subtitle,
+	public EventVote(List<Player> pl, String ch, String title, String subtitle,
 			List<String> opt, VoteRunnable vr) {
-		super(vt, pl, ch, EventManager.VOTING_LENGTH_S, title, subtitle, opt);
+		super(VoteType.EVENT, pl, ch, EventManager.VOTING_LENGTH_S, title, subtitle, opt);
 		voteRunnable = vr;
 	}
 	
@@ -29,6 +29,8 @@ public class EventVote extends Vote {
 			updateEventActionBar();
 			time++;
 			if (time > EventManager.EVENT_LENGTH_S) {
+				duringEvent = false;
+				time = -9999;
 				return true;
 			}
 		} else {
@@ -41,14 +43,16 @@ public class EventVote extends Vote {
 				finish();
 				duringEvent = true;
 				time = 0;
+				return true;
 			}
 		}
 		return false;
 	}
 	
 	private void updateEventActionBar() {
-		int i = (int) (((double) time/EventManager.EVENT_LENGTH_S)*10.0);
-		String send = "Event time: " + "||||||||||".substring(i) + ChatColor.BLACK + "||||||||||".substring(10-i);
+		int i = (int) (((double) time/EventManager.EVENT_LENGTH_S)*25.0);
+		String send = "Event time: " + "|||||||||||||||||||||||||".substring(i)
+				+ ChatColor.BLACK + "|||||||||||||||||||||||||".substring(25-i);
 		BaseComponent[] bc = new ComponentBuilder(send).create();
 		for (Player p : getPlayerList()) {
 			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, bc);
@@ -60,6 +64,10 @@ public class EventVote extends Vote {
 		String resultText = super.finish();
 		voteRunnable.run(getPlayerList(), resultText);
 		return resultText;
+	}
+
+	public boolean finishedVoting() {
+		return duringEvent;
 	}
 
 }
