@@ -13,7 +13,6 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
-import com.manelnavola.mcinteractive.generic.BitsGUI;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
@@ -139,7 +138,7 @@ public class RewardManager {
 		}
 		
 		int tier = 0;
-		if (calcMoneyTimesFive >= 5) {
+		if (calcMoneyTimesFive >= 6) {
 			tier = 3;
 		} else if (calcMoneyTimesFive >= 4) {
 			tier = 2;

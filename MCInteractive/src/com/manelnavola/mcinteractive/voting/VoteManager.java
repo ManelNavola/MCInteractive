@@ -12,9 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import com.manelnavola.mcinteractive.adventure.EventManager;
+import com.manelnavola.mcinteractive.adventure.customevents.CustomEvent;
 import com.manelnavola.mcinteractive.adventure.customevents.EventVote;
-import com.manelnavola.mcinteractive.adventure.customevents.VoteRunnable;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.generic.PlayerConnection;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
@@ -137,7 +136,7 @@ public class VoteManager {
 	
 	// EVENT VOTES
 	// Start
-	public static void startEventVote(String channel, String desc, VoteRunnable run, List<String> options) {
+	public static void startEventVote(String channel, CustomEvent ce) {
 		List<Player> pl = new ArrayList<>();
 		for (Player p : ConnectionManager.getChannelPlayers(channel)) {
 			if (PlayerManager.getPlayerData(p).getConfig("eventsvote")
@@ -146,8 +145,7 @@ public class VoteManager {
 			}
 		}
 		if (pl.isEmpty()) return;
-		Vote v = new EventVote(pl, channel, ChatColor.ITALIC + "" + ChatColor.AQUA + "Event Vote", ChatColor.GREEN + desc,
-				options, run);
+		Vote v = new EventVote(pl, channel, ce);
 		addVote(v);
 	}
 	
@@ -370,6 +368,13 @@ public class VoteManager {
 	}
 	
 	public static void dispose() {
+		for (List<Vote> vl : channelVotes.values()) {
+			for (Vote v : vl) {
+				if (v.getVoteType() == VoteType.EVENT) {
+					((EventVote) v).dispose();
+				}
+			}
+		}
 		Bukkit.getScheduler().cancelTask(voteLoop);
 	}
 

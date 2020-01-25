@@ -34,7 +34,7 @@ public class ConfigManager {
 		register(new Config("Custom voting events", "Enables random vote-based events", "eventsvote",
 				false, Material.CHORUS_FRUIT), list);
 		register(new Config("Bit drops", "Enables obtaining bits as you play", "bitdrops",
-				true, Material.PRISMARINE_SHARD), list);
+				false, Material.PRISMARINE_SHARD), list);
 		Config subRewards = new Config("Twitch Rewards", "Enables rewards from subscriptions and cheers", "rewards",
 				false, Material.BARREL);
 		register(subRewards, list);

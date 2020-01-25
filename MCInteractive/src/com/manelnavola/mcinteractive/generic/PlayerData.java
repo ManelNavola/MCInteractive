@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import com.manelnavola.mcinteractive.utils.Log;
+
 public class PlayerData extends PlayerManager {
 	
 	private FileConfiguration fileConfig;
@@ -17,15 +19,21 @@ public class PlayerData extends PlayerManager {
 		
 		configMap = ConfigManager.getDefaults();
 		
-		if (!fileConfig.contains(playerUUID)) return;
+		if (!fileConfig.contains(playerUUID)) {
+			return;
+		}
 		
 		for (String config : configMap.keySet()) {
 			if (fileConfig.contains(playerUUID + "." + config)) {
 				setConfig(config, fileConfig.getBoolean(playerUUID + "." + config));
-				break;
 			}
 		}
-		bits = fileConfig.getInt(playerUUID + ".bits");
+		
+		if (fileConfig.contains(playerUUID + ".bits")) {
+			bits = fileConfig.getInt(playerUUID + ".bits");
+		} else {
+			bits = 0;
+		}
 	}
 	
 	public int getBits() {

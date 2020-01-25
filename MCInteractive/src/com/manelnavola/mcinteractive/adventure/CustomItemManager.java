@@ -349,6 +349,8 @@ public class CustomItemManager {
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}
+			f.setCookTimeTotal((short) 200);
+			f.update();
 			cii.getCustomItem().onBurn(f, e, cii);
 		}
 	}

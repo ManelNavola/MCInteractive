@@ -32,6 +32,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
+import com.manelnavola.mcinteractive.adventure.BitsGUI;
 import com.manelnavola.mcinteractive.adventure.BitsNatural;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
@@ -40,7 +41,6 @@ import com.manelnavola.mcinteractive.adventure.EventManager;
 import com.manelnavola.mcinteractive.command.CommandValidator;
 import com.manelnavola.mcinteractive.command.MCICommand;
 import com.manelnavola.mcinteractive.command.MCITabCompleter;
-import com.manelnavola.mcinteractive.generic.BitsGUI;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
@@ -138,8 +138,6 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority=EventPriority.HIGH)
     public void onFurnaceBurn(FurnaceBurnEvent e) {
 		Furnace f = (Furnace) e.getBlock().getState();
-		f.setCookTimeTotal((short) 200);
-		f.update();
 		CustomItemInfo cii = new CustomItemInfo(f.getInventory().getFuel());
 		if (cii.isValid() && !cii.isEnchant()) {
 			CustomItemManager.onFurnaceBurn(cii, f, e);

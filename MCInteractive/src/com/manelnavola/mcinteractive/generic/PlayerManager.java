@@ -16,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import com.manelnavola.mcinteractive.utils.Log;
+
 public class PlayerManager {
 	
 	private static Plugin plugin;
@@ -59,7 +61,7 @@ public class PlayerManager {
 		if (b != null) {
 			config.set("locks." + configID, b);
 		} else {
-			config.set("locks." + configID, "unlocked");
+			config.set("locks." + configID, null);
 		}
 	}
 	
