@@ -11,7 +11,7 @@ import org.bukkit.potion.PotionEffectType;
 public class PlayerMove extends CustomEvent {
 
 	public PlayerMove() {
-		super("How should the player move?", new String[] {"jump", "fast", "auto"}, 3);
+		super("How does the player move?", new String[] {"jump", "fast", "auto"}, 3);
 	}
 	
 	@Override

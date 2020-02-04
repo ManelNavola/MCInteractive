@@ -15,8 +15,8 @@ import com.manelnavola.mcinteractive.voting.VoteManager;
 
 public class EventManager {
 	
-	public static final int VOTING_LENGTH_S = 10;
-	public static final int EVENT_LENGTH_S = 30;
+	public static final int VOTING_LENGTH_S = 5;
+	public static final int EVENT_LENGTH_S = 90;
 	private static List<CustomEvent> events;
 	private static BukkitTask bt;
 	private static Plugin plugin;
@@ -31,15 +31,19 @@ public class EventManager {
 			public void run() {
 				for (String ch : ConnectionManager.getAnonConnectedChannels()) {
 					if (Math.random() < 0.3) {
-						CustomEvent ce = getRandomEvent();
-						VoteManager.startEventVote(ch, ce);
+						startRandomEvent(ch);
 					}
 				}
 			}
 			
-		}, 0L, 20L*2);
+		}, 0L, 20*20);
 		
-		events.add(new ChangeGravity());
+		events.add(new FavoriteMob());
+	}
+	
+	public static int startRandomEvent(String ch) {
+		CustomEvent ce = getRandomEvent();
+		return VoteManager.startEventVote(ch, ce);
 	}
 
 	public static void clearLater(List<Player> playerList) {

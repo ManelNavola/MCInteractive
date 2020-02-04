@@ -60,9 +60,9 @@ public class Eggscelent extends CustomItem {
 		for (int i = 0; i < amount; i++) {
 			Entity ent = l.getWorld().spawnEntity(l, passive[(int)(Math.random()*passive.length)]);
 			ent.setVelocity(new Vector(Math.cos(angle)/4F, 0.1, Math.sin(angle)/4F));
-			l.getWorld().playSound(l, Sound.BLOCK_BEACON_POWER_SELECT, 1F, 2F);
 			angle += (2*Math.PI)/amount;
 		}
+		l.getWorld().playSound(l, Sound.BLOCK_BEACON_POWER_SELECT, 1F, 2F);
 	}
 	
 	@Override

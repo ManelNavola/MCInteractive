@@ -33,6 +33,7 @@ public class MCICommand implements CommandExecutor {
 	public MCICommand(Plugin plugin) {
 		// Common commands
 		CommandObject commandAny = new CommandAny();
+		CommandChannel commandChannel = new CommandChannel();
 		
 		// Channel lock
 		CommandRunnable mciChannelLock = new CommandRunnable() {
@@ -140,6 +141,75 @@ public class MCICommand implements CommandExecutor {
 			"5m", "10m", "15m", "30m", "1h", "2h"
 		});
 		
+		// Eventvote start
+		CommandRunnable mciEventvoteStartwcn = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				VoteManager.startEventVote(sender, "#" + args[3]);
+			}
+		};
+		CommandRunnable mciEventvoteStart = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				VoteManager.startEventVote((Player) sender);
+			}
+		};
+		CommandValidator eventvoteStart =
+			new CommandValidator(new CommandString("start"),
+				new CommandValidator[] {
+					new CommandValidator(commandChannel, new CommandValidator[] {}, mciEventvoteStartwcn)
+				}, mciEventvoteStart
+			);
+		
+		// Eventvote end
+		CommandRunnable mciEventvoteEnd = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				if (args.length == 3) {
+					if (sender instanceof Player) {
+						VoteManager.endEventVote((Player) sender);
+					} else {
+						MessageSender.err(sender, "You must specify a channel!");
+					}
+				} else {
+					VoteManager.endEventVote(sender, "#" + args[3]);
+				}
+			}
+		};
+		CommandValidator eventvoteEnd =
+			new CommandValidator(new CommandString("end"),
+				new CommandValidator(commandAny, new CommandValidator[] {}, mciEventvoteEnd),
+				mciEventvoteEnd);
+		
+		// Eventvote cancel
+		CommandRunnable mciEventvoteCancel = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				if (args.length == 3) {
+					if (sender instanceof Player) {
+						VoteManager.cancelEventVote((Player) sender);
+					} else {
+						MessageSender.err(sender, "You must specify a channel!");
+					}
+				} else {
+					VoteManager.cancelEventVote(sender, "#" + args[3]);
+				}
+			}
+		};
+		CommandValidator eventvoteCancel =
+			new CommandValidator(new CommandString("cancel"),
+				new CommandValidator(commandAny, new CommandValidator[] {}, mciEventvoteCancel),
+				mciEventvoteCancel);
+		
+		// Channelvote
+		CommandValidator eventvote = 
+			new CommandValidatorInfo(
+				new CommandString("eventvote"), new CommandValidator[] {
+					eventvoteStart,
+					eventvoteEnd,
+					eventvoteCancel
+				});
+		
 		// Channelvote forcestart
 		CommandRunnable mciChannelvoteForcestartwcn = new CommandRunnable() {
 			@Override
@@ -159,7 +229,6 @@ public class MCICommand implements CommandExecutor {
 				VoteManager.startChannelVote((Player) sender, time, options, true);
 			}
 		};
-		CommandChannel commandChannel = new CommandChannel();
 		commandChannel.setNotA(new CommandObject[] {voteStartTime});
 		CommandValidator channelvoteForcestart =
 			new CommandValidator(new CommandString("forcestart"),
@@ -518,7 +587,8 @@ public class MCICommand implements CommandExecutor {
 				globalconfig,
 				bits,
 				adventureitems,
-				channelvote
+				channelvote,
+				eventvote
 			});
 	}
 	

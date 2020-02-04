@@ -68,6 +68,13 @@ public class ItemStackBuilder<T extends ItemStackBuilder<T>> {
 		return self();
 	}
 	
+	public T lore(List<String> sl) {
+		for (String s : sl) {
+			lore.add(s);
+		}
+		return self();
+	}
+	
 	public T enchant(Enchantment ench, int lvl) {
 		enchants.put(ench, lvl);
 		return self();

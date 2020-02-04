@@ -1,7 +1,6 @@
 package com.manelnavola.mcinteractive.adventure;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Item;

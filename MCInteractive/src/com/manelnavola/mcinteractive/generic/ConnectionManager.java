@@ -45,6 +45,10 @@ public final class ConnectionManager {
 		anonTwitchBotX.dispose();
 	}
 	
+	public static TwitchBotMCI getAnonBot() {
+		return anonTwitchBotX;
+	}
+	
 	public static List<Player> getChannelPlayers(String ch) {
 		return anonTwitchBotX.getChannelPlayers(ch);
 	}

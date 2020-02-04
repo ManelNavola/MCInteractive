@@ -4,8 +4,6 @@ import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.manelnavola.mcinteractive.utils.Log;
-
 public class PlayerData extends PlayerManager {
 	
 	private FileConfiguration fileConfig;

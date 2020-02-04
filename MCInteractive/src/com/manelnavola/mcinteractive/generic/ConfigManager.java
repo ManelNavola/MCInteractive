@@ -19,26 +19,41 @@ public class ConfigManager {
 		
 		// Basic
 		list = new ArrayList<Config>();
-		register(new Config("Show votes", "Displays votes in Minecraft chat", "showvotes",
+		register(new Config("Show votes",
+				"Displays votes in Minecraft chat",
+				"showvotes",
 				true, Material.PAPER), list);
-		register(new Config("Show chat", "Displays Twitch chat in Minecraft chat", "showchat",
+		register(new Config("Show chat",
+				"Displays Twitch chat in Minecraft chat",
+				"showchat",
 				true, Material.FILLED_MAP), list);
-		register(new Config("Highlight messages", "Highlights sub/mod Twitch messages", "highlight",
+		register(new Config("Highlight messages",
+				"Highlights sub/mod Twitch messages",
+				"highlight",
 				true, Material.DIAMOND), list);
-		register(new Config("Show notices", "Displays important Twitch events as Minecraft titles", "noticetitle",
+		register(new Config("Show notices",
+				new String[] {"Displays important Twitch events", "as Minecraft titles"},
+				"noticetitle",
 				true, Material.OAK_SIGN), list);
 		configContainers.add(new ConfigContainer("Chat", list));
 		
 		// Adventure
 		list = new ArrayList<Config>();
-		register(new Config("Custom voting events", "Enables random vote-based events", "eventsvote",
+		register(new Config("Custom voting events",
+				"Enables random vote-based events",
+				"eventsvote",
 				false, Material.CHORUS_FRUIT), list);
-		register(new Config("Bit drops", "Enables obtaining bits as you play", "bitdrops",
+		register(new Config("Bit drops",
+				"Enables obtaining bits as you play",
+				"bitdrops",
 				false, Material.PRISMARINE_SHARD), list);
-		Config subRewards = new Config("Twitch Rewards", "Enables rewards from subscriptions and cheers", "rewards",
+		Config subRewards = new Config("Twitch Rewards",
+				new String[] {"Enables rewards from", "subscriptions and cheers"},
+				"rewards",
 				false, Material.BARREL);
 		register(subRewards, list);
-		register(new Config("Custom items", "Enables using and obtaining custom items",
+		register(new Config("Custom items",
+				"Enables using and obtaining custom items",
 				"specialitems",
 				false, Material.TRIDENT, subRewards), list);
 		configContainers.add(new ConfigContainer("Adventure", list));

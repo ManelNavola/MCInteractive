@@ -1,5 +1,6 @@
 package com.manelnavola.mcinteractive.generic;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -44,18 +45,22 @@ public class ConfigGUI {
 						continue;
 					}
 				}
+				List<String> desc = new ArrayList<>();
+				for (String s : c.getDescription()) {
+					desc.add(ChatColor.WHITE + s);
+				}
 				if (b == null) {
 					if (pd.getConfig(c.getID())) {
 						inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
 								.name(ChatColor.GREEN + c.getName())
-								.lore(ChatColor.WHITE + c.getDescription())
+								.lore(desc)
 								.lore(ChatColor.AQUA + "Left-click " + ChatColor.WHITE + "to disable!")
 								.addEnchantEffect()
 								.build());
 					} else {
 						inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
 								.name(ChatColor.RED + c.getName())
-								.lore(ChatColor.WHITE + c.getDescription())
+								.lore(desc)
 								.lore(ChatColor.AQUA + "Left-click " + ChatColor.WHITE + "to enable!")
 								.build());
 					}
@@ -63,14 +68,14 @@ public class ConfigGUI {
 					if (b.booleanValue()) {
 						inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
 								.name(ChatColor.GRAY + c.getName())
-								.lore(ChatColor.WHITE + c.getDescription())
+								.lore(desc)
 								.lore(ChatColor.GOLD + "Globally" + ChatColor.GREEN + " enabled")
 								.addEnchantEffect()
 								.build());
 					} else {
 						inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
 								.name(ChatColor.GRAY + c.getName())
-								.lore(ChatColor.WHITE + c.getDescription())
+								.lore(desc)
 								.lore(ChatColor.GOLD + "Globally" + ChatColor.RED + " disabled")
 								.build());
 					}
@@ -101,11 +106,15 @@ public class ConfigGUI {
 						continue;
 					}
 				}
+				List<String> desc = new ArrayList<>();
+				for (String s : c.getDescription()) {
+					desc.add(ChatColor.WHITE + s);
+				}
 				if (b == null) {
 					// Unlocked
 					inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
 						.name(ChatColor.GOLD + c.getName())
-						.lore(ChatColor.WHITE + c.getDescription())
+						.lore(desc)
 						.lore(ChatColor.GRAY + "Currently " + ChatColor.GOLD + "unlocked")
 						.lore(ChatColor.AQUA + "Left-click " + ChatColor.WHITE
 								+ "to lock on " + ChatColor.GREEN + "enable")
@@ -117,7 +126,7 @@ public class ConfigGUI {
 						// Locked on enable
 						inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
 							.name(ChatColor.GREEN + c.getName())
-							.lore(ChatColor.WHITE + c.getDescription())
+							.lore(desc)
 							.lore(ChatColor.GRAY + "Currently locked on " + ChatColor.GREEN + "enable")
 							.lore(ChatColor.AQUA + "Left-click " + ChatColor.WHITE
 									+ "to lock on " + ChatColor.RED + "disable")
@@ -129,7 +138,7 @@ public class ConfigGUI {
 						// Locked on disable
 						inv.setItem(slot, new ItemStackBuilder<>(c.getIcon())
 							.name(ChatColor.RED + c.getName())
-							.lore(ChatColor.WHITE + c.getDescription())
+							.lore(desc)
 							.lore(ChatColor.GRAY + "Currently locked on " + ChatColor.RED + "disable")
 							.lore(ChatColor.AQUA + "Left-click " + ChatColor.WHITE
 									+ "to lock on " + ChatColor.GREEN + "enable")

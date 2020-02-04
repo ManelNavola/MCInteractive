@@ -27,7 +27,6 @@ public class EventVote extends Vote {
 	@Override
 	public boolean timeStep() {
 		if (duringEvent) {
-			updateEventActionBar();
 			time++;
 			if (time > EventManager.EVENT_LENGTH_S - 1) {
 				duringEvent = false;
@@ -35,17 +34,16 @@ public class EventVote extends Vote {
 				dispose();
 				return true;
 			}
+			updateEventActionBar();
 		} else {
 			time++;
+			if (time >= duration) {
+				finish();
+				return true;
+			}
 			if (time >= 0) {
 				updateTitle();
 				updateActionBar();
-			}
-			if (time >= duration) {
-				finish();
-				duringEvent = true;
-				time = 0;
-				return true;
 			}
 		}
 		return false;
@@ -60,10 +58,21 @@ public class EventVote extends Vote {
 			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, bc);
 		}
 	}
+	
+	public void hackTimeIncrease() {
+		time = 999999;
+	}
+	
+	public void hackTimeIncreaseFinal() {
+		hackTimeIncrease();
+		duringEvent = true;
+	}
 
 	@Override
 	public String finish() {
 		String resultText = super.finish();
+		duringEvent = true;
+		time = 0;
 		customEvent.run(getPlayerList(), resultText);
 		return resultText;
 	}
@@ -73,6 +82,8 @@ public class EventVote extends Vote {
 	}
 	
 	public void dispose() {
+		duringEvent = false;
+		time = -9999;
 		customEvent.dispose(getPlayerList());
 	}
 

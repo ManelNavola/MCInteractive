@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.14.4-R0.1-SNAPSHOT</version>
+			<version>1.15.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- PircBotX -->
@@ -91,10 +91,9 @@
 		</dependency>
 		<!-- TwitchBotX -->
 		<dependency>
-			<groupId>com.manelnavola</groupId>
-			<artifactId>twitchbotx</artifactId>
-			<version>0.2.1</version>
-			<scope>compile</scope>
+		  <groupId>TwitchBotX</groupId>
+		  <artifactId>TwitchBotX</artifactId>
+		  <version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>

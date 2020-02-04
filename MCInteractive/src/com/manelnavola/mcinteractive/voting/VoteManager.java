@@ -9,9 +9,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.manelnavola.mcinteractive.adventure.EventManager;
 import com.manelnavola.mcinteractive.adventure.customevents.CustomEvent;
 import com.manelnavola.mcinteractive.adventure.customevents.EventVote;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
@@ -103,6 +105,10 @@ public class VoteManager {
 						if (pv != null && pv.equals(v)) {
 							runningEvents.remove(p);
 						}
+						Vote ppv = playerVotes.get(p);
+						if (ppv != null && ppv.equals(v)) {
+							playerVotes.remove(p);
+						}
 					}
 					List<Vote> vl = channelVotes.get(v.getChannel());
 					if (vl != null) vl.remove(v);
@@ -135,8 +141,22 @@ public class VoteManager {
 	}
 	
 	// EVENT VOTES
+	// Checking
+	private static boolean checkOngoingEventVote(String channel) {
+		List<Vote> vl = channelVotes.get(channel);
+		if (vl != null) {
+			for (Vote v : vl) {
+				if (v.getVoteType() == VoteType.EVENT) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	// Start
-	public static void startEventVote(String channel, CustomEvent ce) {
+	public static int startEventVote(String channel, CustomEvent ce) {
+		if (checkOngoingEventVote(channel)) return 0;
 		List<Player> pl = new ArrayList<>();
 		for (Player p : ConnectionManager.getChannelPlayers(channel)) {
 			if (PlayerManager.getPlayerData(p).getConfig("eventsvote")
@@ -144,9 +164,104 @@ public class VoteManager {
 				pl.add(p);
 			}
 		}
-		if (pl.isEmpty()) return;
+		if (pl.isEmpty()) return 0;
 		Vote v = new EventVote(pl, channel, ce);
 		addVote(v);
+		return pl.size();
+	}
+	
+	public static void startEventVote(CommandSender cs, String channel) {
+		if (checkOngoingEventVote(channel)) {
+			MessageSender.err(cs, "An event vote is already in progress!");
+			return;
+		}
+		int pa = EventManager.startRandomEvent(channel);
+		if (pa == 0) {
+			MessageSender.err(cs, "There are no available players in this channel!");
+		} else if (pa == 1) {
+			MessageSender.nice(cs, "Started channel vote on " + channel + " for 1 player!");
+		} else {
+			MessageSender.nice(cs, "Started channel vote on " + channel + " for " + pa + " players!");
+		}
+	}
+
+	public static void startEventVote(Player p) {
+		if (isActive(p)) {
+			MessageSender.err(p, "A vote is already operative!");
+		} else {
+			PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
+			if (pc == null) {
+				MessageSender.err(p, "You must be connected to a channel!");
+				return;
+			}
+			startEventVote(p, pc.getChannel());
+		}
+	}
+	
+	// End
+	public static void endEventVote(CommandSender cs, String channel) {
+		List<Vote> vl = channelVotes.get(channel);
+		if (vl != null) {
+			for (Vote v : vl) {
+				if (v.getVoteType() == VoteType.EVENT) {
+					EventVote ev = (EventVote) v;
+					if (ev.finishedVoting()) {
+						MessageSender.err(cs, "The vote has already finished!");
+						if (cs instanceof ConsoleCommandSender || cs.hasPermission("mci.eventvote.cancel")) {
+							MessageSender.warn(cs, "You can cancel the event via "
+								+ ChatColor.WHITE + "/mci eventvote cancel");
+						}
+					} else {
+						MessageSender.err(cs, "Event vote ended successfully!");
+						ev.hackTimeIncrease();
+					}
+					return;
+				}
+			}
+		}
+		MessageSender.err(cs, "There's no currently running event vote!");
+	}
+	
+	public static void endEventVote(Player p) {
+		PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
+		if (pc == null) {
+			MessageSender.err(p, "You must be connected to a channel!");
+			return;
+		}
+		if (!isActive(p) && !runningEvents.containsKey(p)) {
+			MessageSender.err(p, "There's no operative vote!");
+		} else {
+			endEventVote(p, pc.getChannel());
+		}
+	}
+	
+	// Cancel
+	public static void cancelEventVote(CommandSender cs, String channel) {
+		List<Vote> vl = channelVotes.get(channel);
+		if (vl != null) {
+			for (Vote v : vl) {
+				if (v.getVoteType() == VoteType.EVENT) {
+					EventVote ev = (EventVote) v;
+					ev.hackTimeIncreaseFinal();
+					MessageSender.err(cs, "Event vote cancelled successfully!");
+					return;
+				}
+			}
+		}
+		MessageSender.err(cs, "There's no currently running event vote!");
+	}
+
+	public static void cancelEventVote(Player p) {
+		PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
+		if (pc == null) {
+			MessageSender.err(p, "You must be connected to a channel!");
+			return;
+		}
+		if (!isActive(p) && !runningEvents.containsKey(p)) {
+			MessageSender.err(p, "There's no operative vote!");
+		} else {
+			cancelEventVote(p, pc.getChannel());
+		}
 	}
 	
 	// CHANNEL VOTES

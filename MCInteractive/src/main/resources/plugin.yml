@@ -13,6 +13,7 @@ commands:
       usage: "/mci"
       permission: mci.info
       permission-message: You do not have permission to run this command!
+   # Channel
    mci channel:
       description: Lists channel commands
       usage: "/mci channel"
@@ -38,6 +39,7 @@ commands:
       usage: "/mci channel unlock"
       permission: mci.channel.lock
       permission-message: You do not have permission to run this command!
+   # Vote
    mci vote:
       description: Lists vote commands
       usage: "/mci vote"
@@ -58,8 +60,9 @@ commands:
       usage: "/mci vote cancel <player>"
       permission: mci.vote.cancel
       permission-message: You do not have permission to run this command!
+   # Channelvote
    mci channelvote:
-      description: Lists vote commands
+      description: Lists channel vote commands
       usage: "/mci channelvote"
       permission: mci.channelvote.info
       permission-message: You do not have permission to run this command!
@@ -83,6 +86,28 @@ commands:
       usage: "/mci channelvote cancel <channel>"
       permission: mci.channelvote.cancel
       permission-message: You do not have permission to run this command!
+   # Eventvote
+   mci eventvote:
+      description: Lists event vote commands
+      usage: "/mci eventvote"
+      permission: mci.eventvote.info
+      permission-message: You do not have permission to run this command!
+   mci eventvote start:
+      description: Starts an even vote
+      usage: "/mci eventvote start <channel>"
+      permission: mci.eventvote.issue
+      permission-message: You do not have permission to run this command!
+   mci eventvote end:
+      description: Forces current event vote to end
+      usage: "/mci eventvote end <channel>"
+      permission: mci.eventvote.issue
+      permission-message: You do not have permission to run this command!
+   mci eventvote cancel:
+      description: Cancels and invalidates the current event vote and its effects
+      usage: "/mci eventvote cancel <channel>"
+      permission: mci.eventvote.cancel
+      permission-message: You do not have permission to run this command!
+   # Config/Globalconfig
    mci globalconfig:
       description: Shows global configuration GUI
       usage: "/mci globalconfig"
@@ -93,11 +118,13 @@ commands:
       usage: "/mci config"
       permission: mci.config
       permission-message: You do not have permission to run this command!
+   # Gift
    mci gift:
       description: Gifts a subscription reward to a player
       usage: "/mci gift [common|uncommon|rare|legendary] <player>"
       permission: mci.gift
       permission-message: You do not have permission to run this command!
+   # Bits
    mci bits:
       description: Shows bits shop GUI
       usage: "/mci bits"
@@ -113,6 +140,7 @@ commands:
       usage: "/mci bits remove [amount] <player>"
       permission: mci.bits.admin
       permission-message: You do not have permission to run this command!
+   # Adventureitems
    mci adventureitems:
       description: Opens the adventure items creative GUI
       usage: "/mci adventureitems"
@@ -132,6 +160,7 @@ permissions:
          mci.bits.*: true
          mci.adventureitems: true
          mci.channelvote.*: true
+         mci.eventvote.*: true
       default: op
    mci.info:
       description: Allows you to list MCI commands
@@ -202,6 +231,22 @@ permissions:
       default: op
    mci.channelvote.force:
       description: Allows you to force start a channel vote
+      default: op
+   mci.eventvote.*:
+      description: Gives access to all event voting commands
+      children:
+         mci.eventvote.issue: true
+         mci.eventvote.cancel: true
+         mci.eventvote.info: true
+      default: op
+   mci.eventvote.info:
+      description: Allows you to list MCI event vote commands
+      default: op
+   mci.eventvote.issue:
+      description: Allows you to start and end Twitch event votes
+      default: op
+   mci.eventvote.cancel:
+      description: Allows you to cancel a Twitch event vote
       default: op
    mci.config:
       description: Allows you to change your personal MCI configuration

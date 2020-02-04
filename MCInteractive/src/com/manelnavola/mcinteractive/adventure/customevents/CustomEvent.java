@@ -21,6 +21,7 @@ public abstract class CustomEvent {
 	private String description;
 	private List<String> options;
 	private List<BukkitTask> tasks;
+	private int optionAmount = 2;
 	
 	public CustomEvent(String d, String[] op, int amount) {
 		plugin = EventManager.getPlugin();
@@ -30,13 +31,15 @@ public abstract class CustomEvent {
 		for (String s : op) {
 			options.add(s);
 		}
-		options = options.subList(0, amount);
+		optionAmount = amount;
 	}
 
 	public String getDescription() { return description; }
 	public List<String> getOptions() {
-		Collections.shuffle(options);
-		return options;
+		List<String> newOptions = new ArrayList<>(options);
+		Collections.shuffle(newOptions);
+		newOptions = newOptions.subList(0, optionAmount);
+		return newOptions;
 	}
 	
 	public void clearLater(List<Player> playerList) {
@@ -66,12 +69,35 @@ public abstract class CustomEvent {
 					new FixedMetadataValue(plugin, ta));
 		}
 	}
+	
 	public void setPotionEffects(List<Player> playerList, PotionEffectType potionEffectType, int amplifier) {
 		setPotionEffects(playerList, new PotionEffectType[] {potionEffectType}, new int[] {amplifier});
 	}
 	
 	public void runTaskTimer(Runnable runnable, long delay, long period) {
 		tasks.add(Bukkit.getScheduler().runTaskTimer(EventManager.getPlugin(), runnable, delay, period));
+	}
+	
+	public void runTaskLater(Runnable runnable, long period) {
+		tasks.add(Bukkit.getScheduler().runTaskLater(EventManager.getPlugin(), runnable, period));
+	}
+	
+	public void distributeDelayedTask(List<Player> playerList, int batchSize, DistributedTaskRunnable dtr, long period) {
+		List<Player> push = new ArrayList<>();
+		if (playerList.size() > 0) push.add(playerList.get(0));
+		for (int i = 1; i < playerList.size(); i++) {
+			push.add(playerList.get(0));
+			if (i%batchSize == 0) {
+				runTaskLater(new Runnable() {
+					@Override
+					public void run() {
+						dtr.run(new ArrayList<>(push));
+					}
+				}, period*(i/batchSize));
+				push.clear();
+			}
+		}
+		dtr.run(new ArrayList<>(push));
 	}
 	
 	public abstract void run(List<Player> playerList, String option);
@@ -85,4 +111,10 @@ public abstract class CustomEvent {
 		}
 	}
 
+}
+
+interface DistributedTaskRunnable {
+	
+	public void run(List<Player> players);
+	
 }
