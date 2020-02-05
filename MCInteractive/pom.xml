@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>MCInteractive</groupId>
 	<artifactId>MCInteractive</artifactId>
-	<version>0.1-SNAPSHOT</version>
-	<name>Minecraft Interactive</name>
-	<description>Making Twitch interact with Minecraft!</description>
+	<version>1.0</version>
+	<name>MC Interactive</name>
+	<description>Enables Twitch interaction with customizable in-game features</description>
 	<build>
 		<resources>
 			<resource>
@@ -75,12 +75,6 @@
 			<artifactId>spigot-api</artifactId>
 			<version>1.15.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
-		<!-- PircBotX -->
-		<dependency>
-			<groupId>org.pircbotx</groupId>
-			<artifactId>pircbotx</artifactId>
-			<version>2.1</version>
 		</dependency>
 		<!-- SLF4J NOP -->
 		<dependency>

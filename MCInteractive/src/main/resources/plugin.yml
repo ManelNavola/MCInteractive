@@ -1,6 +1,6 @@
 name: MCInteractive
-description: Making Minecraft Twitch-Interactive!
-version: 0.1
+description: Enables Twitch interaction with customizable in-game features
+version: 1.0
 author: Manel Navola
 
 main: com.manelnavola.mcinteractive.Main
@@ -168,6 +168,7 @@ permissions:
    mci.adventureitems:
       description: Allows you to open the adventure items creative GUI
       default: op
+   # Bits
    mci.bits.*:
       children:
          mci.bits.gui: true
@@ -180,6 +181,7 @@ permissions:
    mci.bits.change:
       description: Allows you to change yours or others' bits amount
       default: op
+   # Channel
    mci.channel.*:
       description: Gives access to all MCI channel commands
       default: op
@@ -196,6 +198,7 @@ permissions:
    mci.channel.lock:
       description: Allows you to lock/unlock channel listening server-wide
       default: op
+   # Vote
    mci.vote.*:
       description: Gives access to all voting commands
       children:
@@ -212,6 +215,7 @@ permissions:
    mci.vote.cancel:
       description: Allows you to cancel a Twitch vote
       default: op
+   # Channelvote
    mci.channelvote.*:
       description: Gives access to all channel voting commands
       children:
@@ -232,6 +236,7 @@ permissions:
    mci.channelvote.force:
       description: Allows you to force start a channel vote
       default: op
+   # Eventvote
    mci.eventvote.*:
       description: Gives access to all event voting commands
       children:

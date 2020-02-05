@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -15,7 +13,9 @@ import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import com.manelnavola.mcinteractive.generic.ConnectionManager;
+import com.manelnavola.mcinteractive.command.commandobjects.CommandList;
+import com.manelnavola.mcinteractive.command.commandobjects.CommandObject;
+import com.manelnavola.mcinteractive.command.commandobjects.CommandString;
 import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 
@@ -163,9 +163,9 @@ public class CommandValidator {
 			if (check.commandObject instanceof CommandString) {
 				CommandString cs = (CommandString) check.commandObject;
 				if (builtParentCommand == null) {
-					builtParentCommand = cs.string;
+					builtParentCommand = cs.getString();
 				} else {
-					builtParentCommand = cs.string + " " + builtParentCommand;
+					builtParentCommand = cs.getString() + " " + builtParentCommand;
 				}
 			} else {
 				builtParentCommand = null;
@@ -203,9 +203,9 @@ public class CommandValidator {
 							CommandString cs = (CommandString) check.commandObject;
 							if (builtParentCommand == null) {
 								lastValidator = check;
-								builtParentCommand = cs.string;
+								builtParentCommand = cs.getString();
 							} else {
-								builtParentCommand = cs.string + " " + builtParentCommand;
+								builtParentCommand = cs.getString() + " " + builtParentCommand;
 							}
 						} else {
 							incorrectUsage = true;
@@ -231,7 +231,7 @@ public class CommandValidator {
 							for (CommandValidator cv : lastValidator.commandValidatorList) {
 								if (cv.commandObject instanceof CommandString) {
 									CommandString cs = (CommandString) cv.commandObject;
-									String newBuiltCommand = builtParentCommand + " " + cs.string;
+									String newBuiltCommand = builtParentCommand + " " + cs.getString();
 									Command cmd = commandByName.get(newBuiltCommand);
 									if (cmd != null && checkPermission(sender, cmd.getPermission())) {
 										String usage = cmd.getUsage();
@@ -309,444 +309,4 @@ public class CommandValidator {
 	public static List<String> getPlayerList() {
 		return playerList;
 	}
-}
-
-abstract class CommandObject {
-	
-	private CommandObject[] notA;
-	private String[] defaults = new String[0];
-	
-	public abstract void validate(String input, List<String> list);
-	public abstract String pass(String input);
-	public abstract CommandObject clone();
-	
-	public void setDefaults(String[] defs) {
-		defaults = defs;
-	}
-	
-	public void setNotA(CommandObject[] co) {
-		notA = co;
-	}
-	
-	protected String[] getDefaults() {
-		return defaults;
-	}
-	
-	protected boolean isNotA(String input) {
-		if (notA == null) return false;
-		for (CommandObject co : notA) {
-			if (co.pass(input) == null) {
-				return true;
-			}
-		}
-		return false;
-	}
-}
-
-class CommandAny extends CommandObject {
-	
-	public CommandAny() {}
-
-	@Override
-	public void validate(String input, List<String> list) {
-		for (String s : getDefaults()) {
-			list.add(s);
-		}
-		return;
-	}
-
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		return null;
-	}
-
-	@Override
-	public CommandObject clone() {
-		return new CommandAny();
-	}
-	
-}
-
-class CommandTime extends CommandObject {
-	
-	private int min = 0;
-	private int max = Integer.MAX_VALUE;
-	
-	public CommandTime(int min, int max) {
-		this.min = min;
-		this.max = max;
-	}
-	
-	@Override
-	public void validate(String input, List<String> list) {
-		for (String s : getDefaults()) {
-			list.add(s);
-		}
-		return;
-	}
-
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		Integer ttt = textToTime(input);
-		if (ttt == null) return "Incorrect time format! (XhXmXs)";
-		if (ttt < min) {
-			return "Time cannot be lower than " + timeToText(min);
-		} else if (ttt > max) {
-			return "Time cannot be greater than " + timeToText(max);
-		}
-		return null;
-	}
-	
-	@Override
-	public CommandObject clone() {
-		return new CommandTime(min, max);
-	}
-	
-	public static String timeToText(int t) {
-		int h, m, s;
-		s = t%60;
-		m = t/60;
-		h = t/3600;
-		if (h == 0) {
-			if (m == 0) {
-				return s + "s";
-			} else {
-				return m + "m" + s + "s";
-			}
-		} else {
-			return h + "h" + m + "m" + s + "s";
-		}
-	}
-	
-	public static Integer textToTime(String input) {
-		Integer tr = null;
-		try {
-			tr = Integer.parseInt(input);
-		} catch(NumberFormatException nfe) {
-			Pattern p = Pattern.compile("^([0-9]+h)?([0-9]+m)?([0-9]+s)?$");
-			Matcher mat = p.matcher(input);
-			if (mat.matches()) {
-				int h = 0, m = 0, s = 0, hi, mi, si, sss;
-				hi = input.indexOf('h');
-				mi = input.indexOf('m');
-				si = input.indexOf('s');
-				sss = 0;
-				if (hi != -1) {
-					h = Integer.parseInt(input.substring(0, hi));
-					sss = hi + 1;
-				}
-				if (mi != -1) {
-					m = Integer.parseInt(input.substring(sss, mi));
-					sss = mi + 1;
-				}
-				if (si != -1) {
-					s = Integer.parseInt(input.substring(sss, si));
-					sss = si + 1;
-				}
-				tr = (h*60 + m)*60 + s;
-			}
-		}
-		return tr;
-	}
-	
-}
-
-class CommandChoose extends CommandObject {
-	
-	private String[] toChoose = new String[0];
-	
-	public CommandChoose(String... choose) {
-		toChoose = new String[choose.length];
-		for (int i = 0; i < choose.length; i++) {
-			toChoose[i] = choose[i].toLowerCase();
-		}
-	}
-	
-	@Override
-	public void validate(String input, List<String> list) {
-		input = input.toLowerCase();
-		for (String s : toChoose) {
-			if (s.startsWith(input))
-				list.add(s);
-		}
-		return;
-	}
-	
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		input = input.toLowerCase();
-		for (String s : toChoose) {
-			if (s.equals(input)) {
-				return null;
-			}
-		}
-		return "Incorrect argment option!";
-	}
-
-	@Override
-	public CommandObject clone() {
-		return new CommandChoose(toChoose);
-	}
-	
-}
-
-class CommandPlayer extends CommandObject {
-	
-	public CommandPlayer() {}
-	
-	@Override
-	public void validate(String input, List<String> list) {
-		input = input.toLowerCase();
-		for (String s : CommandValidator.getPlayerList()) {
-			if (s.startsWith(input))
-				list.add(s);
-		}
-		return;
-	}
-	
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		if (CommandValidator.getPlayerList().contains(input.toLowerCase())) {
-			return null;
-		} else {
-			return "Player is not online!";
-		}
-	}
-
-	@Override
-	public CommandObject clone() {
-		return new CommandPlayer();
-	}
-	
-}
-
-class CommandChannel extends CommandObject {
-	
-	public CommandChannel() {}
-	
-	@Override
-	public void validate(String input, List<String> list) {
-		input = input.toLowerCase();
-		for (String s : ConnectionManager.getAnonConnectedChannels()) {
-			String ss = s.substring(1);
-			if (ss.startsWith(input))
-				list.add(ss);
-		}
-	}
-	
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		return null;
-	}
-
-	@Override
-	public CommandObject clone() {
-		return new CommandPlayer();
-	}
-	
-}
-
-class CommandNumber extends CommandObject {
-	
-	private boolean isInteger;
-	private Number min;
-	private Number max;
-	
-	public CommandNumber(boolean ii, Number min, Number max) {
-		isInteger = ii;
-		if (ii) {
-			this.min = (int) min;
-			this.max = (int) max;
-		} else {
-			this.min = (double) min;
-			this.max = (double) max;
-		}
-	}
-	
-	public CommandNumber(boolean ii) {
-		isInteger = ii;
-		if (ii) {
-			min = Integer.MIN_VALUE;
-			max = Integer.MAX_VALUE;
-		} else {
-			min = Double.MIN_VALUE;
-			max = Double.MAX_VALUE;
-		}
-	}
-	
-	@Override
-	public void validate(String input, List<String> list) {
-		for (String s : getDefaults()) {
-			list.add(s);
-		}
-	}
-	
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		if (isInteger) {
-			try {
-				int i = Integer.parseInt(input);
-				int omin = min.intValue();
-				int omax = max.intValue();
-				if (i >= omin) {
-					if (i <= omax) {
-						return null;
-					} else {
-						return "Value cannot be higher than " + omax + "!";
-					}
-				} else {
-					return "Value cannot be lower than " + omin + "!";
-				}
-			} catch (NumberFormatException nfe) {
-				try {
-					Double.parseDouble(input);
-					return "Value cannot be decimal!";
-				} catch (NumberFormatException nfe2) {
-					return "Value is not a valid number!";
-				}
-			}
-		} else {
-			try {
-				double i = Double.parseDouble(input);
-				double omin = min.doubleValue();
-				double omax = max.doubleValue();
-				if (i >= omin) {
-					if (i <= omax) {
-						return null;
-					} else {
-						return "Value cannot be higher than " + omax + "!";
-					}
-				} else {
-					return "Value cannot be lower than " + omin + "!";
-				}
-			} catch (NumberFormatException nfe) {
-				return "Value is not a valid number!";
-			}
-		}
-	}
-	
-	@Override
-	public CommandObject clone() {
-		return new CommandNumber(isInteger, min, max);
-	}
-	
-}
-
-class CommandString extends CommandObject {
-	
-	String string;
-	
-	public CommandString(String str) {
-		string = str.toLowerCase();
-	}
-
-	public String getString() {
-		return string;
-	}
-
-	@Override
-	public void validate(String input, List<String> list) {
-		if (string.startsWith(input.toLowerCase())) {
-			list.add(string);
-		}
-	}
-	
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		if (string.equals(input.toLowerCase())) {
-			return null;
-		} else {
-			return "Incorrect command option!";
-		}
-	}
-	
-	@Override
-	public CommandObject clone() {
-		return new CommandString(string);
-	}
-	
-}
-
-class CommandStringNC extends CommandObject {
-	
-	String string;
-	
-	public CommandStringNC(String str) {
-		string = str.toLowerCase();
-	}
-
-	public String getString() {
-		return string;
-	}
-
-	@Override
-	public void validate(String input, List<String> list) {
-		if (string.startsWith(input.toLowerCase())) {
-			list.add(string);
-		}
-	}
-	
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		if (string.equals(input.toLowerCase())) {
-			return null;
-		} else {
-			return "Incorrect command option!";
-		}
-	}
-	
-	@Override
-	public CommandObject clone() {
-		return new CommandString(string);
-	}
-	
-}
-
-class CommandList extends CommandObject {
-	
-	private CommandObject commandObject;
-	private int min, max;
-	
-	public CommandList(CommandObject co, int min, int max) {
-		this.min = min;
-		this.max = max;
-		commandObject = co;
-	}
-	
-	@Override
-	public void validate(String input, List<String> list) {
-		return;
-	}
-
-	@Override
-	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
-		return "???";
-	}
-	
-	@Override
-	public CommandObject clone() {
-		return new CommandList(commandObject, min, max);
-	}
-	
-	public CommandObject getCommandObject() {
-		return commandObject;
-	}
-	
-	public int getMin() {
-		return min;
-	}
-	
-	public int getMax() {
-		return max;
-	}
-	
 }

@@ -1,5 +1,7 @@
 package com.manelnavola.mcinteractive.command;
 
+import com.manelnavola.mcinteractive.command.commandobjects.CommandObject;
+
 public class CommandValidatorInfo extends CommandValidator {
 	
 	public CommandValidatorInfo(CommandObject co, CommandValidator[] cvl, CommandRunnable r, boolean p) {

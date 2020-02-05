@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -15,6 +16,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+
+import com.manelnavola.mcinteractive.command.commandobjects.CommandTime;
+import com.manelnavola.mcinteractive.utils.Log;
 
 public class PlayerManager {
 	
@@ -43,12 +47,24 @@ public class PlayerManager {
 		plugin.saveDefaultConfig();
 		config = plugin.getConfig();
 		
+		int autoSaveTime = 60*10;
+		String autoSave = config.getString("serverconfig.autosave");
+		if (autoSave != null) {
+			String err = new CommandTime(0, Integer.MAX_VALUE).pass(autoSave);
+			if (err != null) {
+				Log.error("Error setting auto save time from config: " + err);
+				Log.warn("Defaulting to 10 minutes!");
+			} else {
+				autoSaveTime = CommandTime.textToTime(autoSave);
+			}
+		}
+		
 		saveTimer = Bukkit.getScheduler().runTaskTimer(plg, new Runnable() {
 			@Override
 			public void run() {
 				saveAll();
 			}
-		}, 10*60*20L, 10*60*20L); // Every 10 minutes
+		}, autoSaveTime*20L, autoSaveTime*20L);
 	}
 	
 	public static FileConfiguration getConfig() {
@@ -99,6 +115,12 @@ public class PlayerManager {
 		try {
 			for (String uuid : playerDataMap.keySet()) {
 				playerDataMap.get(uuid).save();
+			}
+			if (config.isConfigurationSection("locks")) {
+				Set<String> ss = config.getConfigurationSection("locks").getKeys(false);
+				if (ss.isEmpty()) {
+					config.set("locks", null);
+				}
 			}
 			plugin.saveConfig();
 			

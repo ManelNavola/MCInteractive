@@ -98,7 +98,6 @@ public class BitsNatural {
 	private static void tryRewardBits(Player p, EntityType et) {
 		EntityBitsData ebd = getEntityBitsDataMap().get(et);
 		int r = (int) (Math.random()*1000);
-		MessageSender.info(p, "Reward check: " + r + "<=" + ebd.getChancePerThousand());
 		if (r <= ebd.getChancePerThousand()) {
 			int min = ebd.getBitsMin();
 			int range = ebd.getBitsMax() - min;

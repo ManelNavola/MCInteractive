@@ -16,6 +16,7 @@ import com.manelnavola.mcinteractive.adventure.BitsGUI;
 import com.manelnavola.mcinteractive.adventure.CustomItemsGUI;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemTier;
+import com.manelnavola.mcinteractive.command.commandobjects.*;
 import com.manelnavola.mcinteractive.generic.Config;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConfigManager;
@@ -40,7 +41,7 @@ public class MCICommand implements CommandExecutor {
 			@Override
 			public void run(CommandSender sender, String[] args) {
 				String ch = "#" + args[3].toLowerCase();
-				PlayerManager.getConfig().set("serverConfig.channelLock", ch);
+				PlayerManager.getConfig().set("serverconfig.channellock", args[3].toLowerCase());
 				MessageSender.nice(sender, "Channel lock has been set to listen "
 						+ ChatColor.AQUA + ch);
 				Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
@@ -74,8 +75,8 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelUnlock = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				if (PlayerManager.getConfig().get("serverConfig.channelLock") != null) {
-					PlayerManager.getConfig().set("serverConfig.channelLock", null);
+				if (PlayerManager.getConfig().get("serverconfig.channellock") != null) {
+					PlayerManager.getConfig().set("serverconfig.channellock", null);
 					MessageSender.nice(sender, "Channel lock has been removed!");
 				} else {
 					MessageSender.err(sender, "There is no current channel lock!");
@@ -90,7 +91,7 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelListen = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
+				String ch = PlayerManager.getConfig().getString("serverconfig.channellock");
 				if (ch != null) {
 					MessageSender.err(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
 						+ ChatColor.GOLD + "!");
@@ -110,7 +111,7 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelLeave = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				String ch = PlayerManager.getConfig().getString("serverConfig.channelLock");
+				String ch = PlayerManager.getConfig().getString("serverconfig.channellock");
 				if (ch != null) {
 					MessageSender.err(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
 						+ ChatColor.GOLD + "!");
@@ -422,7 +423,22 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciGlobalconfig = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				ConfigGUI.openGlobal((Player) sender);
+				if (sender instanceof Player) {
+					ConfigGUI.openGlobal((Player) sender);
+				} else {
+					// Info HACK
+					MessageSender.info(sender, ChatColor.GREEN + "-- mci globalconfig --");
+					for (Config cfg : configs) {
+						String usage = cfg.getID();
+						String description = "";
+						for (String dp : cfg.getDescription()) {
+							description += dp + " ";
+						}
+						description = description.substring(0, description.length() - 1);
+						MessageSender.info(sender,
+								ChatColor.AQUA + "/mci globalconfig " + usage + ": " + ChatColor.GRAY + description);
+					}
+				}
 			}
 		};
 		CommandValidator globalconfig = 
@@ -502,7 +518,11 @@ public class MCICommand implements CommandExecutor {
 						pl.add(other);
 						Player p = (Player) sender;
 						PlayerData pd = PlayerManager.getPlayerData(p);
-						pd.setBits(pd.getBits() - n);
+						if (pd.getBits() - n < 0) {
+							pd.setBits(0);
+						} else {
+							pd.setBits(pd.getBits() - n);
+						}
 						if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
 							BitsGUI.open(p);
 						}

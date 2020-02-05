@@ -11,4 +11,5 @@
 #    rewards: false
 #
 #  serverConfig:
-#    channelLock: '#channelname'
+#    channellock: '#channelname'
+#    autosave: 10m
