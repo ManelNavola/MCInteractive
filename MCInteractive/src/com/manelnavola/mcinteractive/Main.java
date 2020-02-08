@@ -2,11 +2,15 @@ package com.manelnavola.mcinteractive;
 
 import java.util.HashMap;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Furnace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,10 +18,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -151,10 +157,63 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
+	@EventHandler(priority=EventPriority.HIGH)
+	public void onEntityExplode(EntityExplodeEvent e) {
+		if (e.getEntityType() == EntityType.PRIMED_TNT) {
+        	Entity ent = e.getEntity();
+        	for (MetadataValue mv : ent.getMetadata("MCI_FallEventDamageTnt")) {
+				if (mv.getOwningPlugin().equals(this)) {
+					float[] data = (float[]) mv.value();
+					Location l = ent.getLocation();
+					for (Entity ent2 : ent.getWorld().getNearbyEntities(l, data[0], data[0], data[0],
+							ne -> ne instanceof Monster || ne.getType() == EntityType.PLAYER)) {
+						if (ent2.getLocation().distance(l) <= data[0]) {
+							((LivingEntity) ent2).damage(data[1]);
+						}
+					}
+					l.getWorld().playSound(l, Sound.ENTITY_GENERIC_EXPLODE, 1F, 1F);
+					e.getEntity().remove();
+					e.setCancelled(true);
+					break;
+				}
+			}
+        }
+	}
+	
+	@EventHandler(priority=EventPriority.HIGH)
+    public void onEntityChangeBlockEvent(EntityChangeBlockEvent e) {
+        if (e.getEntityType() == EntityType.FALLING_BLOCK) {
+        	FallingBlock fb = (FallingBlock) e.getEntity();
+        	for (MetadataValue mv : fb.getMetadata("MCI_FallEventDamage")) {
+				if (mv.getOwningPlugin().equals(this)) {
+					Location l = fb.getLocation();
+					fb.remove();
+					e.setCancelled(true);
+					
+					float[] data = (float[]) mv.value();
+					for (Entity ent : fb.getWorld().getNearbyEntities(l, data[0], data[0], data[0],
+							ne -> ne instanceof Monster || ne.getType() == EntityType.PLAYER)) {
+						if (ent.getLocation().distance(l) <= data[0]) {
+							((LivingEntity) ent).damage(data[1]);
+						}
+					}
+					if (fb.getName().equals("stone")) {
+						l.getWorld().playSound(l, Sound.BLOCK_STONE_FALL, 1F, 1F);
+					} else if (fb.getName().equals("anvil")) {
+						l.getWorld().playSound(l, Sound.BLOCK_ANVIL_LAND, 1F, 1F);
+					} else {
+						l.getWorld().playSound(l, Sound.BLOCK_SAND_FALL, 1F, 1F);
+					}
+					break;
+				}
+			}
+        }
+    }
+	
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
 		Entity damager = e.getDamager();
-		if (damager instanceof Player) {
+		if (damager.getType() == EntityType.PLAYER) {
 			Player playerDamager = (Player) damager;
 			CustomItemInfo cii = new CustomItemInfo(playerDamager.getInventory().getItemInMainHand());
 			if (cii.isValid() && !cii.isEnchant()) {

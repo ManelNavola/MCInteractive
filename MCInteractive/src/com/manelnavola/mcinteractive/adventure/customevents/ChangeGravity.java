@@ -8,7 +8,7 @@ import org.bukkit.potion.PotionEffectType;
 public class ChangeGravity extends CustomEvent {
 
 	public ChangeGravity() {
-		super("What's the gravity like?", new String[] {"low", "high", "inverse"}, 3);
+		super("What's the gravity like?", new String[] {"low", "high"}, 2);
 	}
 	
 	@Override
@@ -22,11 +22,12 @@ public class ChangeGravity extends CustomEvent {
 			setWalkspeed(playerList, 0.14F);
 			setPotionEffects(playerList, PotionEffectType.JUMP, 128);
 			break;
-		case "inverse":
-			setWalkspeed(playerList, 0F);
-			setPotionEffects(playerList, PotionEffectType.LEVITATION, 0);
-			break;
 		}
+	}
+
+	@Override
+	public CustomEvent clone() {
+		return new ChangeGravity();
 	}
 	
 }

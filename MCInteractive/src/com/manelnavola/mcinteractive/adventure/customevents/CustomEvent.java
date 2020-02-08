@@ -110,6 +110,8 @@ public abstract class CustomEvent {
 			Main.clearEventEffects(p);
 		}
 	}
+	
+	public abstract CustomEvent clone();
 
 }
 

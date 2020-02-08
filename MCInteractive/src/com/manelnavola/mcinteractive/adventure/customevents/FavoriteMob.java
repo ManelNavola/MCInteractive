@@ -20,13 +20,13 @@ import org.bukkit.util.Vector;
 
 public class FavoriteMob extends CustomEvent {
 	
-	private static Random r = new Random();
+	private static final Random r = new Random();
 	
-	private static long spawnDelay = 100L;
-	private static float spawnChance = .333333334f;
+	private static final long spawnDelay = 100L;
+	private static final float spawnChance = .333333334f;
 	
-	private static int maxSpawnRadius = 8;
-	private static int minSpawnRadius = 6;
+	private static final int maxSpawnRadius = 8;
+	private static final int minSpawnRadius = 6;
 	
 	private EntityType et;
 	
@@ -69,7 +69,7 @@ public class FavoriteMob extends CustomEvent {
 					@Override
 					public void run(List<Player> players) {
 						for (Player p : players) {
-							SpawnNearPlayer(p, fm.getEntityType());
+							spawnNearPlayer(p, fm.getEntityType());
 						}
 					}
 				}, 10L);
@@ -77,7 +77,7 @@ public class FavoriteMob extends CustomEvent {
 		}, spawnDelay, spawnDelay);
 	}
 
-	private static boolean TrySpawn(Set<Vector> vs, int x, int y, int z, Location l) {
+	private static boolean trySpawn(Set<Vector> vs, int x, int y, int z, Location l) {
 		l.add(x, y, z);
 		Block other = l.getBlock();
 		if (other == null)
@@ -111,7 +111,7 @@ public class FavoriteMob extends CustomEvent {
 		return false;
 	}
 	
-	private static void SpawnNearPlayer(Player p, EntityType et) {
+	private static void spawnNearPlayer(Player p, EntityType et) {
 		Set<Vector> vs = new HashSet<>();
 		Location l = p.getLocation().getBlock().getLocation();
 		int x = -maxSpawnRadius;
@@ -120,13 +120,13 @@ public class FavoriteMob extends CustomEvent {
 		int inARow = 0;
 		while (y <= maxSpawnRadius) {
 			// Check up
-			if (TrySpawn(vs, x, y, z, l.clone())) {
+			if (trySpawn(vs, x, y, z, l.clone())) {
 				if (inARow > 2) {
 					z += inARow;
 				}
 				x += r.nextInt(maxSpawnRadius*2);
 				inARow++;
-			} else if (TrySpawn(vs, x, -y, z, l.clone())) {
+			} else if (trySpawn(vs, x, -y, z, l.clone())) {
 				if (inARow > 2) {
 					z += inARow;
 				}
@@ -156,20 +156,20 @@ public class FavoriteMob extends CustomEvent {
 		}
 		
 		if (vs.size() > 6)
-			CheckSpawn(l, et, vs, p);
+			checkSpawn(l, et, vs, p);
 		
 		x = -maxSpawnRadius + 1;
 		y = -maxSpawnRadius + 1;
 		z = -maxSpawnRadius;
 		while (y <= maxSpawnRadius) {
 			// Check up
-			if (TrySpawn(vs, x, y, z, l.clone())) {
+			if (trySpawn(vs, x, y, z, l.clone())) {
 				if (inARow > 2) {
 					z += inARow;
 				}
 				x += r.nextInt(maxSpawnRadius*2);
 				inARow++;
-			} else if (TrySpawn(vs, x, -y, z, l.clone())) {
+			} else if (trySpawn(vs, x, -y, z, l.clone())) {
 				if (inARow > 2) {
 					z += inARow;
 				}
@@ -195,16 +195,18 @@ public class FavoriteMob extends CustomEvent {
 		}
 		
 		if (!vs.isEmpty())
-			CheckSpawn(l, et, vs, p);
+			checkSpawn(l, et, vs, p);
 	}
 
-	private static void CheckSpawn(Location l, EntityType et, Set<Vector> vs, Player p) {
+	private static void checkSpawn(Location l, EntityType et, Set<Vector> vs, Player p) {
 		int size = vs.size();
 		int item = r.nextInt(size);
 		int i = 0;
 		for(Vector v : vs) {
 		    if (i == item) {
 		    	l.add(v).add(0.5, 1, 0.5);
+		    	if (!l.getWorld().getNearbyEntities(l, 4.0, 4.0, 4.0,
+		    			e -> e.getType() == EntityType.VILLAGER).isEmpty()) return;
 		    	l.getWorld().spawnParticle(Particle.SPELL_WITCH, l.getX(), l.getY(), l.getZ(), 5, 0.5, 0.5, 0.5, 0.5);
 		    	Mob mo = (Mob) l.getWorld().spawnEntity(l, et);
 		    	if (mo.getType() == EntityType.ZOMBIE || mo.getType() == EntityType.SKELETON) {
@@ -217,6 +219,11 @@ public class FavoriteMob extends CustomEvent {
 		    }
 		    i++;
 		}
+	}
+
+	@Override
+	public CustomEvent clone() {
+		return new FavoriteMob();
 	}
 	
 }

@@ -16,6 +16,7 @@ public class EventVote extends Vote {
 	
 	private boolean duringEvent = false;
 	private CustomEvent customEvent;
+	private String chosenOption = null;
 
 	public EventVote(List<Player> pl, String ch, CustomEvent ce) {
 		super(VoteType.EVENT, pl, ch, EventManager.VOTING_LENGTH_S,
@@ -70,11 +71,11 @@ public class EventVote extends Vote {
 
 	@Override
 	public String finish() {
-		String resultText = super.finish();
+		chosenOption = super.finish();
 		duringEvent = true;
 		time = 0;
-		customEvent.run(getPlayerList(), resultText);
-		return resultText;
+		customEvent.run(getPlayerList(), chosenOption);
+		return chosenOption;
 	}
 
 	public boolean finishedVoting() {
@@ -85,6 +86,14 @@ public class EventVote extends Vote {
 		duringEvent = false;
 		time = -9999;
 		customEvent.dispose(getPlayerList());
+	}
+	
+	public String getChosenOption() {
+		return chosenOption;
+	}
+	
+	public CustomEvent getCustomEvent() {
+		return customEvent;
 	}
 
 }

@@ -119,7 +119,7 @@ public abstract class CustomItem {
 	public void onBlockDispense(Dispenser d, Location l, Vector dir, CustomItemInfo cii) {}
 	public void onBurn(Furnace f, FurnaceBurnEvent e, CustomItemInfo cii) {}
 	public void onEntityMount(Player p, Entity mount, int parseInt) {}
-	public void onBlockBreak(Player player, BlockBreakEvent e, CustomItemInfo cii) {}
+	public void onBlockBreak(Player player, Block block, CustomItemInfo cii) {}
 	public void onEntityShootBow(Player player, Entity projectile, CustomItemInfo cii) {}
 	
 	public boolean hasFlag(CustomItemFlag f) {

@@ -18,8 +18,8 @@ public class SubGift extends CustomItem {
 	public static final String NAME = "Sub Gift";
 	
 	private final static int[][] CHANCES = {
-		{ 2, 6, 27, 65 },
-		{ 4, 27, 55, 14 },
+		{ 2, 6, 25, 67 },
+		{ 4, 25, 55, 16 },
 		{ 10, 45, 30, 15 },
 		{ 35, 30, 20, 15 }
 	};

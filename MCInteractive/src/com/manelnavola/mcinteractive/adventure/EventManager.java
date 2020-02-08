@@ -38,11 +38,11 @@ public class EventManager {
 			
 		}, 0L, 20*20);
 		
-		events.add(new FavoriteMob());
+		events.add(new Falling());
 	}
 	
 	public static int startRandomEvent(String ch) {
-		CustomEvent ce = getRandomEvent();
+		CustomEvent ce = getNewRandomEvent();
 		return VoteManager.startEventVote(ch, ce);
 	}
 
@@ -65,8 +65,8 @@ public class EventManager {
 		bt.cancel();
 	}
 	
-	private static CustomEvent getRandomEvent() {
-		return events.get((int) (Math.random()*events.size()));
+	private static CustomEvent getNewRandomEvent() {
+		return events.get((int) (Math.random()*events.size())).clone();
 	}
 	
 }

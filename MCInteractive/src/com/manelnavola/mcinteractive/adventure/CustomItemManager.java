@@ -361,7 +361,7 @@ public class CustomItemManager {
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}
-			cii.getCustomItem().onBlockBreak(player, e, cii);
+			cii.getCustomItem().onBlockBreak(player, e.getBlock(), cii);
 		}
 	}
 

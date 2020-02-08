@@ -8,10 +8,22 @@ load: POSTWORLD
 api-version: 1.13
 
 commands:
+   # Base command
    mci:
-      description: List all Minecraft Interactive commands
+      description: Lists all Minecraft Interactive commands
       usage: "/mci"
       permission: mci.info
+      permission-message: You do not have permission to run this command!
+   # Configuration management
+   mci globalconfig:
+      description: Shows global configuration GUI
+      usage: "/mci globalconfig"
+      permission: mci.globalconfig
+      permission-message: You do not have permission to run this command!
+   mci config:
+      description: Shows chat configuration GUI
+      usage: "/mci config"
+      permission: mci.config
       permission-message: You do not have permission to run this command!
    # Channel
    mci channel:
@@ -93,7 +105,7 @@ commands:
       permission: mci.eventvote.info
       permission-message: You do not have permission to run this command!
    mci eventvote start:
-      description: Starts an even vote
+      description: Starts an event vote
       usage: "/mci eventvote start <channel>"
       permission: mci.eventvote.issue
       permission-message: You do not have permission to run this command!
@@ -106,17 +118,6 @@ commands:
       description: Cancels and invalidates the current event vote and its effects
       usage: "/mci eventvote cancel <channel>"
       permission: mci.eventvote.cancel
-      permission-message: You do not have permission to run this command!
-   # Config/Globalconfig
-   mci globalconfig:
-      description: Shows global configuration GUI
-      usage: "/mci globalconfig"
-      permission: mci.globalconfig
-      permission-message: You do not have permission to run this command!
-   mci config:
-      description: Shows chat configuration GUI
-      usage: "/mci config"
-      permission: mci.config
       permission-message: You do not have permission to run this command!
    # Gift
    mci gift:

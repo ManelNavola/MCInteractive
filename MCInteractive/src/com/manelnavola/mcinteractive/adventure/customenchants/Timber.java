@@ -12,7 +12,6 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
@@ -35,11 +34,10 @@ public class Timber extends CustomEnchant {
 	}
 	
 	@Override
-	public void onBlockBreak(Player player, BlockBreakEvent e, CustomItemInfo cii) {
-		Block block = e.getBlock();
+	public void onBlockBreak(Player player, Block b, CustomItemInfo cii) {
 		if (player.getGameMode() == GameMode.CREATIVE) return;
 		if (failCalculateChance(cii.getTier())) return;
-		timberBlock(block, 12, 12, true);
+		timberBlock(b, 12, 12, true);
 	}
 	
 	@Override
