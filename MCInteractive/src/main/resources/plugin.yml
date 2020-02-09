@@ -21,7 +21,7 @@ commands:
       permission: mci.globalconfig
       permission-message: You do not have permission to run this command!
    mci config:
-      description: Shows chat configuration GUI
+      description: Shows player configuration GUI
       usage: "/mci config"
       permission: mci.config
       permission-message: You do not have permission to run this command!
