@@ -163,6 +163,7 @@ public class PlayerManager {
 
 	public static void updateInventory(Player p) {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			@SuppressWarnings("deprecation")
 			public void run() {
 				p.updateInventory();
 			}

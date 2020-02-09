@@ -1,5 +1,6 @@
 package com.manelnavola.mcinteractive.adventure.customenchants;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -18,9 +19,11 @@ import org.bukkit.inventory.meta.ItemMeta;import org.bukkit.metadata.FixedMetada
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
+import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.CustomTrail;
+import com.manelnavola.mcinteractive.utils.Log;
 
 public class Planter extends CustomEnchant {
 	
@@ -159,7 +162,7 @@ public class Planter extends CustomEnchant {
 						top.getWorld().spawnParticle(Particle.VILLAGER_HAPPY,
 								top.getLocation().add(0.5, 0.1, 0.5),
 								6, 0.5, 0.1, 0.5, 0);
-						top.setType(toPlant);
+						top.setType(getFarmable(new ItemStack(toPlant)));
 						return true;
 					}
 				}
@@ -184,23 +187,43 @@ public class Planter extends CustomEnchant {
 	
 	private Material getFarmable(ItemStack is) {
 		if (is == null) return null;
-		switch(is.getType()) {
-		case POTATO:
-			return Material.POTATOES;
-		case CARROT:
-			return Material.CARROTS;
-		case SWEET_BERRIES:
-			return Material.SWEET_BERRY_BUSH;
-		case PUMPKIN_SEEDS:
-			return Material.PUMPKIN_STEM;
-		case MELON_SEEDS:
-			return Material.MELON_STEM;
-		case WHEAT_SEEDS:
-			return Material.WHEAT;
-		case BEETROOT_SEEDS:
-			return Material.BEETROOTS;
-		default:
-			return null;
+		if (Main.isOn1_13()) {
+			Log.info("nice");
+			switch(is.getType()) {
+			case POTATO:
+				return Material.POTATOES;
+			case CARROT:
+				return Material.CARROTS;
+			case PUMPKIN_SEEDS:
+				return Material.PUMPKIN_STEM;
+			case MELON_SEEDS:
+				return Material.MELON_STEM;
+			case WHEAT_SEEDS:
+				return Material.WHEAT;
+			case BEETROOT_SEEDS:
+				return Material.BEETROOTS;
+			default:
+				return null;
+			}
+		} else {
+			switch(is.getType()) {
+			case POTATO:
+				return Material.POTATOES;
+			case CARROT:
+				return Material.CARROTS;
+			case SWEET_BERRIES:
+				return Material.SWEET_BERRY_BUSH;
+			case PUMPKIN_SEEDS:
+				return Material.PUMPKIN_STEM;
+			case MELON_SEEDS:
+				return Material.MELON_STEM;
+			case WHEAT_SEEDS:
+				return Material.WHEAT;
+			case BEETROOT_SEEDS:
+				return Material.BEETROOTS;
+			default:
+				return null;
+			}
 		}
 	}
 

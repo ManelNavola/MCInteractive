@@ -1,6 +1,7 @@
 package com.manelnavola.mcinteractive.adventure.customevents;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -12,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -205,8 +207,10 @@ public class FavoriteMob extends CustomEvent {
 		for(Vector v : vs) {
 		    if (i == item) {
 		    	l.add(v).add(0.5, 1, 0.5);
-		    	if (!l.getWorld().getNearbyEntities(l, 4.0, 4.0, 4.0,
-		    			e -> e.getType() == EntityType.VILLAGER).isEmpty()) return;
+		    	Collection<Entity> ce = l.getWorld().getNearbyEntities(l, 4.0, 4.0, 4.0);
+		    	for (Entity en : ce) {
+		    		if (en.getType() == EntityType.VILLAGER) return;
+		    	}
 		    	l.getWorld().spawnParticle(Particle.SPELL_WITCH, l.getX(), l.getY(), l.getZ(), 5, 0.5, 0.5, 0.5, 0.5);
 		    	Mob mo = (Mob) l.getWorld().spawnEntity(l, et);
 		    	if (mo.getType() == EntityType.ZOMBIE || mo.getType() == EntityType.SKELETON) {

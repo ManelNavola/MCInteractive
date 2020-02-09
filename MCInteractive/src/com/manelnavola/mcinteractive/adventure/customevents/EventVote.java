@@ -6,11 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.manelnavola.mcinteractive.adventure.EventManager;
+import com.manelnavola.mcinteractive.utils.ActionBar;
 import com.manelnavola.mcinteractive.voting.Vote;
-
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 
 public class EventVote extends Vote {
 	
@@ -54,9 +51,8 @@ public class EventVote extends Vote {
 		int i = (int) (((double) time/(EventManager.EVENT_LENGTH_S - 1))*25.0);
 		String send = "Event time: " + "|||||||||||||||||||||||||".substring(i)
 				+ ChatColor.BLACK + "|||||||||||||||||||||||||".substring(25-i);
-		BaseComponent[] bc = new ComponentBuilder(send).create();
 		for (Player p : getPlayerList()) {
-			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, bc);
+			ActionBar.sendHotBarMessage(p, send);
 		}
 	}
 	

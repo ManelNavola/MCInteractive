@@ -1,5 +1,6 @@
 package com.manelnavola.mcinteractive.adventure;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Dispenser;
@@ -10,8 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class SubGift extends CustomItem {
 	
@@ -24,7 +23,7 @@ public class SubGift extends CustomItem {
 		{ 35, 30, 20, 15 }
 	};
 
-	private Sound[] sounds = new Sound[] { Sound.BLOCK_BARREL_OPEN, Sound.BLOCK_CHEST_OPEN,
+	private Sound[] sounds = new Sound[] { Sound.BLOCK_CHEST_OPEN, Sound.BLOCK_CHEST_OPEN,
 			Sound.BLOCK_ENDER_CHEST_OPEN, Sound.BLOCK_SHULKER_BOX_OPEN };
 
 	public SubGift() {

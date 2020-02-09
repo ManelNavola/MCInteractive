@@ -20,7 +20,7 @@ import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
 public class CustomItemsGUI {
 	
 	private static final String TITLE = ChatColor.RED + "Custom Items " + ChatColor.WHITE + "- ";
-	private static Sound[] sounds = new Sound[] { Sound.BLOCK_BARREL_OPEN, Sound.BLOCK_CHEST_OPEN,
+	private static Sound[] sounds = new Sound[] { Sound.BLOCK_CHEST_OPEN, Sound.BLOCK_CHEST_OPEN,
 			Sound.BLOCK_ENDER_CHEST_OPEN, Sound.BLOCK_SHULKER_BOX_OPEN };
 	
 	public static void open(Player p, int actual) {

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>MCInteractive</groupId>
 	<artifactId>MCInteractive</artifactId>
-	<version>1.0</version>
+	<version>b1.0.1</version>
 	<name>MC Interactive</name>
 	<description>Enables Twitch interaction with customizable in-game features</description>
 	<build>
@@ -20,36 +20,31 @@
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>3.2.1</version>
-				<configuration>
-					<transformers>
-						<transformer
-							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<manifestEntries>
-								<Main-Class>com.manelnavola.mcinteractive.Main</Main-Class>
-								<Build-Number>1.0</Build-Number>
-							</manifestEntries>
-						</transformer>
-					</transformers>
-					<createDependencyReducedPom>false</createDependencyReducedPom>
-					<minimizeJar>true</minimizeJar>
-				</configuration>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>
+						<configuration>
+							<minimizeJar>true</minimizeJar>
+							<artifactSet>
+								<excludes>
+									<exclude>com.google.guava:*</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -63,19 +58,33 @@
 		</repository>
 		<!--Bungeecord Repo -->
 		<!--Only include if using the Spigot API dependency -->
-		<repository>
+		<!-- <repository>
 			<id>bungeecord-repo</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</repository>
+		</repository> -->
 	</repositories>
 	<dependencies>
 		<!-- Spigot API -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
 			<version>1.15.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
+		</dependency> -->
+		<!-- XSeries API -->
+		<dependency>
+		    <groupId>com.github.cryptomorin</groupId>
+		    <artifactId>XSeries</artifactId>
+		    <version>5.3.1</version>
+		    <scope>compile</scope>
 		</dependency>
+		<!-- Bukkit API -->
+		<dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.15.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+    	</dependency>
 		<!-- SLF4J NOP -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -85,9 +94,9 @@
 		</dependency>
 		<!-- TwitchBotX -->
 		<dependency>
-		  <groupId>TwitchBotX</groupId>
-		  <artifactId>TwitchBotX</artifactId>
-		  <version>1.0</version>
+			<groupId>TwitchBotX</groupId>
+			<artifactId>TwitchBotX</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>

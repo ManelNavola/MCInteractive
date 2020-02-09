@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.bukkit.Material;
 
+import com.cryptomorin.xseries.XMaterial;
+
 public class ConfigManager {
 	
 	private static Map<String, String> nameToID;
@@ -34,7 +36,7 @@ public class ConfigManager {
 		register(new Config("Show notices",
 				new String[] {"Displays important Twitch events", "as Minecraft titles"},
 				"noticetitle",
-				true, Material.OAK_SIGN), list);
+				true, XMaterial.OAK_SIGN.parseMaterial()), list);
 		configContainers.add(new ConfigContainer("Chat", list));
 		
 		// Adventure
@@ -42,7 +44,7 @@ public class ConfigManager {
 		register(new Config("Twitch Rewards",
 				new String[] {"Enables rewards from", "subscriptions and cheers"},
 				"rewards",
-				false, Material.BARREL), list);
+				false, XMaterial.BARREL.parseMaterial(true)), list);
 		register(new Config("Custom items",
 				"Enables using and obtaining custom items",
 				"customitems",

@@ -31,16 +31,15 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.adventure.customenchants.*;
 import com.manelnavola.mcinteractive.adventure.customitems.*;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemFlag;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem.CustomItemType;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
+import com.manelnavola.mcinteractive.utils.ActionBar;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
 import com.manelnavola.mcinteractive.utils.MessageSender;
-
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 
 public class CustomItemManager {
 	
@@ -239,14 +238,12 @@ public class CustomItemManager {
 		if (!cii.isSingleUse() && p != null) {
 			if (item == null) {
 				p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1.1F);
-				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("").create());
+				ActionBar.sendHotBarMessage(p, "");
 			} else {
 				if (amount == 1) {
-					p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
-							new ComponentBuilder(ChatColor.GRAY + "" + amount + " use remaining").create());
+					ActionBar.sendHotBarMessage(p, ChatColor.GRAY + "" + amount + " use remaining");
 				} else {
-					p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
-							new ComponentBuilder(ChatColor.GRAY + "" + amount + " uses remaining").create());
+					ActionBar.sendHotBarMessage(p, ChatColor.GRAY + "" + amount + " uses remaining");
 				}
 			}
 		}
@@ -350,7 +347,11 @@ public class CustomItemManager {
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}
-			f.setCookTimeTotal((short) 200);
+			if (Main.isOn1_13()) {
+				f.setCookTime((short) 200);
+			} else {
+				f.setCookTimeTotal((short) 200);
+			}
 			f.update();
 			cii.getCustomItem().onBurn(f, e, cii);
 		}

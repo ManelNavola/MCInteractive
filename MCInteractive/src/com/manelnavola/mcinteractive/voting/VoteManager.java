@@ -8,6 +8,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -22,8 +23,6 @@ import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 import com.manelnavola.mcinteractive.voting.Vote.VoteType;
 import com.manelnavola.twitchbotx.TwitchUser;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class VoteManager {
 	

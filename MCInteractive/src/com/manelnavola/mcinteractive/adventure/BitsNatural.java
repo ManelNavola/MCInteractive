@@ -3,11 +3,13 @@ package com.manelnavola.mcinteractive.adventure;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
@@ -39,6 +41,7 @@ public class BitsNatural {
 		// Uncommon mobs
 		entityBitsDataMap.put(EntityType.PIG_ZOMBIE,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		entityBitsDataMap.put(EntityType.DROWNED,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		if (!Main.isOn1_13())
 		entityBitsDataMap.put(EntityType.PILLAGER,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		entityBitsDataMap.put(EntityType.VINDICATOR,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Mid rare mobs
@@ -56,6 +59,7 @@ public class BitsNatural {
 		entityBitsDataMap.put(EntityType.GUARDIAN,			new EntityBitsData( 5, 30,  4,  20, 4,  300));
 		// Rare mobs
 		entityBitsDataMap.put(EntityType.GHAST,				new EntityBitsData( 5, 30,  4, 100, 3,  500));
+		if (!Main.isOn1_13())
 		entityBitsDataMap.put(EntityType.RAVAGER,			new EntityBitsData( 5, 30,  4, 100, 3,  500));
 		
 		entityBitsDataMap.put(EntityType.EVOKER,			new EntityBitsData(50, 120,  8, 600, 2,  500));

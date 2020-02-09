@@ -37,7 +37,7 @@ public abstract class CustomItem {
 	}
 	
 	public enum CustomItemTier {
-		COMMON("Common", 0, ChatColor.GREEN, Material.BARREL),
+		COMMON("Common", 0, ChatColor.GREEN, Material.CRAFTING_TABLE),
 		UNCOMMON("Uncommon", 1, ChatColor.AQUA, Material.CHEST),
 		RARE("Rare", 2, ChatColor.LIGHT_PURPLE, Material.ENDER_CHEST),
 		LEGENDARY("Legendary", 3, ChatColor.YELLOW, Material.YELLOW_SHULKER_BOX);

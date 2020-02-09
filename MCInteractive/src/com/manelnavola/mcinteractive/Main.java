@@ -37,6 +37,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
+
 import com.manelnavola.mcinteractive.adventure.BitsGUI;
 import com.manelnavola.mcinteractive.adventure.BitsNatural;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
@@ -56,6 +57,7 @@ import com.manelnavola.mcinteractive.voting.VoteManager;
 public class Main extends JavaPlugin implements Listener {
 	
 	public static Plugin plugin;
+	private static boolean ON_1_13 = false;
 	
 	private static HashMap<Player, Integer> lastArrowSlot = new HashMap<>();
 	
@@ -65,6 +67,8 @@ public class Main extends JavaPlugin implements Listener {
 		
 		// Register events
 		getServer().getPluginManager().registerEvents(this, this);
+		
+		ON_1_13 = Bukkit.getVersion().contains("1.13");
 		
 		// Init managers
 		ConfigManager.init();
@@ -165,10 +169,11 @@ public class Main extends JavaPlugin implements Listener {
 				if (mv.getOwningPlugin().equals(this)) {
 					float[] data = (float[]) mv.value();
 					Location l = ent.getLocation();
-					for (Entity ent2 : ent.getWorld().getNearbyEntities(l, data[0], data[0], data[0],
-							ne -> ne instanceof Monster || ne.getType() == EntityType.PLAYER)) {
-						if (ent2.getLocation().distance(l) <= data[0]) {
-							((LivingEntity) ent2).damage(data[1]);
+					for (Entity ent2 : ent.getWorld().getNearbyEntities(l, data[0], data[0], data[0])) {
+						if (ent2 instanceof Monster || ent2.getType() == EntityType.PLAYER) {
+							if (ent2.getLocation().distance(l) <= data[0]) {
+								((LivingEntity) ent2).damage(data[1]);
+							}
 						}
 					}
 					l.getWorld().playSound(l, Sound.ENTITY_GENERIC_EXPLODE, 1F, 1F);
@@ -191,10 +196,11 @@ public class Main extends JavaPlugin implements Listener {
 					e.setCancelled(true);
 					
 					float[] data = (float[]) mv.value();
-					for (Entity ent : fb.getWorld().getNearbyEntities(l, data[0], data[0], data[0],
-							ne -> ne instanceof Monster || ne.getType() == EntityType.PLAYER)) {
-						if (ent.getLocation().distance(l) <= data[0]) {
-							((LivingEntity) ent).damage(data[1]);
+					for (Entity ent : fb.getWorld().getNearbyEntities(l, data[0], data[0], data[0])) {
+						if (ent instanceof Monster || ent.getType() == EntityType.PLAYER) {
+							if (ent.getLocation().distance(l) <= data[0]) {
+								((LivingEntity) ent).damage(data[1]);
+							}
 						}
 					}
 					if (fb.getName().equals("stone")) {
@@ -340,6 +346,10 @@ public class Main extends JavaPlugin implements Listener {
 		PlayerManager.playerQuit(e.getPlayer());
 		CommandValidator.removePlayer(p);
 		VoteManager.removePlayer(p);
+	}
+
+	public static boolean isOn1_13() {
+		return ON_1_13;
 	}
 	
 }

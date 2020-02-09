@@ -6,17 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.manelnavola.mcinteractive.generic.ChatManager;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
+import com.manelnavola.mcinteractive.utils.ActionBar;
 import com.manelnavola.twitchbotx.TwitchUser;
-
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 
 public class Vote {
 	
@@ -75,10 +72,9 @@ public class Vote {
 		procOptions[iter] = procOptions[iter].substring(0, procOptions[iter].length() - 2);
 		procOptionsSize = iter;
 		
-		BaseComponent[] bc = new ComponentBuilder("").create();
 		for (Player p : playerList) {
 			p.sendTitle(title, subtitle, 10, 50, 10);
-			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, bc);
+			ActionBar.sendHotBarMessage(p, "");
 		}
 	}
 
@@ -171,10 +167,8 @@ public class Vote {
 			send += ChatColor.RESET + "(" + userChoice.size() + " votes)";
 		}
 		
-		
-		BaseComponent[] bc = new ComponentBuilder(send).create();
 		for (Player p : playerList) {
-			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, bc);
+			ActionBar.sendHotBarMessage(p, send);
 		}
 	}
 	

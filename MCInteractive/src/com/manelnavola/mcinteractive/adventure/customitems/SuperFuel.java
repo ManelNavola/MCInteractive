@@ -26,8 +26,8 @@ public class SuperFuel extends CustomItemStackable {
 	
 	@Override
 	public void onBurn(Furnace f, FurnaceBurnEvent e, CustomItemInfo cii) {
-		if (f.getCookTimeTotal() == 200) {
-			f.setCookTimeTotal((short) 4);
+		if (Main.isOn1_13()) {
+			f.setCookTime((short) 196);
 			e.setBurnTime((short) 4);
 			ItemStack is = f.getInventory().getFuel();
 			if (is.getAmount() == 1) {
@@ -42,6 +42,24 @@ public class SuperFuel extends CustomItemStackable {
 				}, 1L);
 			}
 			f.update();
+		} else {
+			if (f.getCookTimeTotal() == 200) {
+				f.setCookTimeTotal((short) 4);
+				e.setBurnTime((short) 4);
+				ItemStack is = f.getInventory().getFuel();
+				if (is.getAmount() == 1) {
+					f.getInventory().setFuel(null);
+				} else {
+					is.setAmount(is.getAmount() - 1);
+					Bukkit.getScheduler().runTaskLater(Main.plugin, new Runnable() {
+						@Override
+						public void run() {
+							f.getInventory().setFuel(is);
+						}
+					}, 1L);
+				}
+				f.update();
+			}
 		}
 	}
 	
