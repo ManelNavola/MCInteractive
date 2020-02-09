@@ -64,9 +64,9 @@ public class Vote {
 		boolean first = true;
 		for (int i = 0; i < options.size(); i++) {
 			totalLen += options.get(i).length() + 3;
-			if (totalLen >= 40 && (!first)) {
+			if (totalLen >= 40 && !first) {
 				totalLen = 0;
-				procOptions[iter] = procOptions[iter].substring(0, procOptions[iter].length() - 3);
+				procOptions[iter] = procOptions[iter].substring(0, procOptions[iter].length() - 2);
 				iter++;
 			}
 			procOptions[iter] += chosenColors[i] + options.get(i) + ChatColor.WHITE + ", ";
@@ -75,8 +75,10 @@ public class Vote {
 		procOptions[iter] = procOptions[iter].substring(0, procOptions[iter].length() - 2);
 		procOptionsSize = iter;
 		
+		BaseComponent[] bc = new ComponentBuilder("").create();
 		for (Player p : playerList) {
 			p.sendTitle(title, subtitle, 10, 50, 10);
+			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, bc);
 		}
 	}
 

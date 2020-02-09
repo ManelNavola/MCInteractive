@@ -33,6 +33,8 @@ public class TwitchBotMCI extends TwitchBotX {
 	}
 	
 	public List<Player> getChannelPlayers(String channel) {
+		List<Player> tr = channelPlayers.get(channel);
+		if (tr == null) return new ArrayList<Player>();
 		return channelPlayers.get(channel);
 	}
 	
@@ -95,15 +97,8 @@ public class TwitchBotMCI extends TwitchBotX {
 		ChatManager.sendMessage(getChannelPlayers(tm.getChannelName()), tm);
 		VoteManager.process(tm.getUser(), tm.getChannelName(), tm.getContents());
 		if (tm.hasBits()) {
-			int bits = tm.getBits();
-			ChatManager.sendNotice(getChannelPlayers(tm.getChannelName()),
-					String.join(" ",
-							ChatColor.AQUA + tm.getUser().getNickname(),
-							ChatColor.WHITE + "has cheered",
-							ChatColor.GREEN + "" + bits,
-							ChatColor.WHITE + "bits!"));
 			RewardManager.processBits(getChannelPlayers(tm.getChannelName()),
-					bits, tm.getUser().getNickname());
+					tm.getBits(), tm.getUser().getNickname());
 		}
 	}
 	

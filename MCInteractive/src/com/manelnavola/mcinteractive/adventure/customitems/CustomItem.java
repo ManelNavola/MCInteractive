@@ -10,7 +10,6 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.block.Furnace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;

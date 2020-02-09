@@ -92,7 +92,7 @@ public class Main extends JavaPlugin implements Listener {
 	private void join(Player p) {
 		PlayerManager.playerJoin(p);
 		CommandValidator.addPlayer(p);
-		String ch = PlayerManager.getConfig().getString("serverconfig.channellock");
+		String ch = PlayerManager.getConfig().getString("channellock");
 		if (ch != null) {
 			ConnectionManager.listen(p, "#" + ch);
 		}

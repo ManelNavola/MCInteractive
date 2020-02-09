@@ -23,45 +23,45 @@ public class BitsNatural {
 		// bitsMin, bitsMax, penalty(s), increasedPenalty(s), increasePenaltyWhen, chancePerThousand(x/1000)
 		
 		// Common mobs
-		entityBitsDataMap.put(EntityType.SILVERFISH,		new EntityBitsData( 1,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.ZOMBIE,			new EntityBitsData( 1,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.ZOMBIE_VILLAGER,	new EntityBitsData( 1,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.SKELETON,			new EntityBitsData( 1,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.SPIDER,			new EntityBitsData( 1,  3,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.SILVERFISH,		new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.ZOMBIE,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.ZOMBIE_VILLAGER,	new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.SKELETON,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.SPIDER,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
 	 	
-		entityBitsDataMap.put(EntityType.HUSK,				new EntityBitsData( 2,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.STRAY,				new EntityBitsData( 2,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.CAVE_SPIDER,		new EntityBitsData( 2,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.ENDERMITE,			new EntityBitsData( 2,  3,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.VEX,				new EntityBitsData( 2,  3,  2,  20, 8,  150));
+		entityBitsDataMap.put(EntityType.HUSK,				new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.STRAY,				new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.CAVE_SPIDER,		new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.ENDERMITE,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.VEX,				new EntityBitsData( 2,  6,  2,  20, 8,  150));
 		
-		entityBitsDataMap.put(EntityType.PHANTOM,			new EntityBitsData( 2,  5,  4,  20, 4,  200));
+		entityBitsDataMap.put(EntityType.PHANTOM,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Uncommon mobs
-		entityBitsDataMap.put(EntityType.PIG_ZOMBIE,		new EntityBitsData( 2,  4,  4,  20, 4,  200));
-		entityBitsDataMap.put(EntityType.DROWNED,			new EntityBitsData( 2,  4,  4,  20, 4,  200));
-		entityBitsDataMap.put(EntityType.PILLAGER,			new EntityBitsData( 2,  4,  4,  20, 4,  200));
-		entityBitsDataMap.put(EntityType.VINDICATOR,		new EntityBitsData( 2,  4,  4,  20, 4,  200));
+		entityBitsDataMap.put(EntityType.PIG_ZOMBIE,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		entityBitsDataMap.put(EntityType.DROWNED,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		entityBitsDataMap.put(EntityType.PILLAGER,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		entityBitsDataMap.put(EntityType.VINDICATOR,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Mid rare mobs
-		entityBitsDataMap.put(EntityType.CREEPER,			new EntityBitsData( 2,  4,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.ENDERMAN,			new EntityBitsData( 2,  4,  4,  20, 4,  300));
+		entityBitsDataMap.put(EntityType.CREEPER,			new EntityBitsData( 2,  8,  4,  20, 4,  300));
+		entityBitsDataMap.put(EntityType.ENDERMAN,			new EntityBitsData( 2,  8,  4,  20, 4,  300));
 		
-		entityBitsDataMap.put(EntityType.SLIME,				new EntityBitsData( 3,  6,  4,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.MAGMA_CUBE,		new EntityBitsData( 3,  6,  4,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.SLIME,				new EntityBitsData( 3,  12,  4,  20, 4,  150));
+		entityBitsDataMap.put(EntityType.MAGMA_CUBE,		new EntityBitsData( 3,  12,  4,  20, 4,  150));
 		
-		entityBitsDataMap.put(EntityType.BLAZE,				new EntityBitsData( 3,  6,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.WITCH,				new EntityBitsData( 3,  6,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.WITHER_SKELETON,	new EntityBitsData( 3,  6,  4,  20, 4,  300));
+		entityBitsDataMap.put(EntityType.BLAZE,				new EntityBitsData( 3,  12,  4,  20, 4,  300));
+		entityBitsDataMap.put(EntityType.WITCH,				new EntityBitsData( 3,  12,  4,  20, 4,  300));
+		entityBitsDataMap.put(EntityType.WITHER_SKELETON,	new EntityBitsData( 3,  12,  4,  20, 4,  300));
 		
-		entityBitsDataMap.put(EntityType.SHULKER,			new EntityBitsData( 5, 10,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.GUARDIAN,			new EntityBitsData( 5, 10,  4,  20, 4,  300));
+		entityBitsDataMap.put(EntityType.SHULKER,			new EntityBitsData( 5, 30,  4,  20, 4,  300));
+		entityBitsDataMap.put(EntityType.GUARDIAN,			new EntityBitsData( 5, 30,  4,  20, 4,  300));
 		// Rare mobs
-		entityBitsDataMap.put(EntityType.GHAST,				new EntityBitsData( 5, 10,  4, 100, 3,  500));
-		entityBitsDataMap.put(EntityType.RAVAGER,			new EntityBitsData( 5, 10,  4, 100, 3,  500));
+		entityBitsDataMap.put(EntityType.GHAST,				new EntityBitsData( 5, 30,  4, 100, 3,  500));
+		entityBitsDataMap.put(EntityType.RAVAGER,			new EntityBitsData( 5, 30,  4, 100, 3,  500));
 		
-		entityBitsDataMap.put(EntityType.EVOKER,			new EntityBitsData(50, 60,  8, 600, 2,  500));
+		entityBitsDataMap.put(EntityType.EVOKER,			new EntityBitsData(50, 120,  8, 600, 2,  500));
 		
 		// Bosses
-		entityBitsDataMap.put(EntityType.ELDER_GUARDIAN,	new EntityBitsData(50, 60, 600, 600, 1, 1000));
+		entityBitsDataMap.put(EntityType.ELDER_GUARDIAN,	new EntityBitsData(50, 120, 600, 600, 1, 1000));
 		entityBitsDataMap.put(EntityType.WITHER,			new EntityBitsData(800, 1600, 1800, 1800, 1, 1000));
 		entityBitsDataMap.put(EntityType.ENDER_DRAGON,		new EntityBitsData(800, 1600, 1800, 1800, 1, 1000));
 		

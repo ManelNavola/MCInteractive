@@ -44,11 +44,11 @@ public class FireWand extends CustomItem {
 		} else {
 			if (tier > 1) {
 				f.setDirection(f.getDirection().multiply(1.5F));
-				f.setYield(2.8F);
+				f.setYield(2.5F);
 			}
 			if (tier == 3) {
 				f.setDirection(f.getDirection().multiply(2F));
-				f.setYield(3.5F);
+				f.setYield(3F);
 			}
 		}
 	}

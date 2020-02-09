@@ -1,15 +1,18 @@
 # ~~[MCInteractive Configuration v1.0]~~
+# 
+#  This is an example configuration
 #
 #  locks:
-#    showchat: false
+#    showchat: true
 #    highlight: false
-#    noticetitle: false
+#    noticetitle: true
 #    showvotes: false
-#    eventsvote: false
-#    specialitems: false
+#    eventsvote: true
+#    customitems: false
+#    bits: true
 #    bitdrops: false
-#    rewards: false
+#    rewards: true
 #
-#  serverConfig:
-#    channellock: '#channelname'
-#    autosave: 10m
+#  channellock: channelname
+#  autosave: 10m
+#  eventforce: false

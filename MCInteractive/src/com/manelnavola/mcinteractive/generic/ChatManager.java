@@ -108,12 +108,16 @@ public class ChatManager {
 
 	public static void sendNotice(List<Player> pl, String msg) {
 		for (Player p : pl) {
-			p.sendMessage(msg);
-			if (PlayerManager.getPlayerData(p).getConfig("noticetitle")) {
-				p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-				if (!VoteManager.isActive(p)) {
-					p.sendTitle("", msg, TITLE_DURATION[0], TITLE_DURATION[1], TITLE_DURATION[2]);
-				}
+			sendNotice(p, msg);
+		}
+	}
+
+	public static void sendNotice(Player p, String msg) {
+		p.sendMessage(msg);
+		if (PlayerManager.getPlayerData(p).getConfig("noticetitle")) {
+			p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+			if (!VoteManager.isActive(p)) {
+				p.sendTitle("", msg, TITLE_DURATION[0], TITLE_DURATION[1], TITLE_DURATION[2]);
 			}
 		}
 	}

@@ -18,7 +18,9 @@ public class CustomEnchant extends CustomItem {
 	        this.value = value;
 	    }
 	}
-
+	
+	private static final String[] USED_ON = new String[] {
+			"Sword", "Arrow", "Pickaxe", "Hoe", "Axe"};
 	public static final String CUSTOM_PREFIX = ChatColor.BLACK + "" + ChatColor.RESET + "" + ChatColor.GRAY;
 	
 	private boolean[] compatibleEnchantsFlags = new boolean[8];
@@ -35,9 +37,16 @@ public class CustomEnchant extends CustomItem {
 	}
 	
 	protected ItemStack getEnchantedBook(String name, String description) {
+		String usedOn = ChatColor.GRAY + "Can be used on: ";
+		for (int i = 0; i < CustomEnchantFlag.values().length; i++) {
+			if (compatibleEnchantsFlags[i]) {
+				usedOn += USED_ON[i] + ", ";
+			}
+		}
 		return new CustomItemStackBuilder<>(Material.ENCHANTED_BOOK)
 				.name(name)
 				.lore(description)
+				.lore(usedOn.substring(0, usedOn.length() - 2))
 				.uses(0)
 				.addEnchantEffect()
 				.build();

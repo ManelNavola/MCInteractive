@@ -27,6 +27,7 @@ public class PlayerManager {
 	private static String error = null;
 	private static FileConfiguration config;
 	private static BukkitTask saveTimer;
+	private static boolean eventForce = false;
 	
 	public static void init(Plugin plg) {
 		plugin = plg;
@@ -44,24 +45,42 @@ public class PlayerManager {
 		plugin.saveDefaultConfig();
 		config = plugin.getConfig();
 		
-		int autoSaveTime = 60*10;
-		String autoSave = config.getString("serverconfig.autosave");
-		if (autoSave != null) {
-			String err = new CommandTime(0, Integer.MAX_VALUE).pass(autoSave);
-			if (err != null) {
-				Log.error("Error setting auto save time from config: " + err);
-				Log.warn("Defaulting to 10 minutes!");
-			} else {
-				autoSaveTime = CommandTime.textToTime(autoSave);
+		String ef = PlayerManager.getConfig().getString("eventforce");
+		if (ef != null) {
+			if (ef.toLowerCase().equals("true")) {
+				eventForce = true;
+			} else if (!ef.toLowerCase().equals("false")) {
+				Log.error("Invalid eventforce configuration value '" + ef + "'!");
+				Log.warn("Defaulting to false");
 			}
 		}
 		
-		saveTimer = Bukkit.getScheduler().runTaskTimer(plg, new Runnable() {
-			@Override
-			public void run() {
-				saveAll();
+		int autoSaveTime = 60*10;
+		String autoSave = config.getString("autosave");
+		if (autoSave != null) {
+			if (!autoSave.toLowerCase().equals("disable")) {
+				String err = new CommandTime(1, Integer.MAX_VALUE).pass(autoSave);
+				if (err != null) {
+					Log.error("Error setting auto save time from config: " + err);
+					Log.warn("Defaulting to 10 minutes!");
+				} else {
+					autoSaveTime = CommandTime.textToTime(autoSave);
+				}
+				saveTimer = Bukkit.getScheduler().runTaskTimer(plg, new Runnable() {
+					@Override
+					public void run() {
+						saveAll();
+					}
+				}, autoSaveTime*20L, autoSaveTime*20L);
 			}
-		}, autoSaveTime*20L, autoSaveTime*20L);
+		} else {
+			saveTimer = Bukkit.getScheduler().runTaskTimer(plg, new Runnable() {
+				@Override
+				public void run() {
+					saveAll();
+				}
+			}, autoSaveTime*20L, autoSaveTime*20L);
+		}
 	}
 	
 	public static FileConfiguration getConfig() {
@@ -148,6 +167,10 @@ public class PlayerManager {
 				p.updateInventory();
 			}
 		}, 01L);
+	}
+
+	public static boolean getEventForce() {
+		return eventForce;
 	}
 	
 }

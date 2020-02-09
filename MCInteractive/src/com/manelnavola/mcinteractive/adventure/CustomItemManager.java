@@ -80,16 +80,17 @@ public class CustomItemManager {
 		for (int i = 0; i < 4; i++) {
 			customItemTierList.put(i, new ArrayList<>());
 		}
-		
+		// Tools
 		register(new Rock());
 		register(new FireWand());
 		register(new Eggscelent());
 		register(new BunnyHop());
 		register(new SuperFuel());
+		register(new Boomer());
+		// Enchants
 		register(new Freezer());
 		register(new Smelter());
 		register(new Planter());
-		register(new Boomer());
 		register(new Timber());
 		
 		subGift = new SubGift();
@@ -171,11 +172,11 @@ public class CustomItemManager {
 	public static void onPlayerInteract(CustomItemInfo cii, Player p, PlayerInteractEvent e) {
 		if (rightClicks.containsKey(cii.getClassName())) {
 			if (cii.isValid()) {
-				Boolean lock = PlayerManager.getLock("specialitems");
+				Boolean lock = PlayerManager.getLock("customitems");
 				if (lock != null && !lock.booleanValue()) {
 					MessageSender.err(p, "Cannot use item: the server has disabled custom items!");
 					return;
-				} else if (!PlayerManager.getPlayerData(p).getConfig("specialitems")) {
+				} else if (!PlayerManager.getPlayerData(p).getConfig("customitems")) {
 					MessageSender.err(p, "Cannot use item: you have disabled custom items!");
 					return;
 				}
@@ -256,7 +257,7 @@ public class CustomItemManager {
 		String s = mv.asString();
 		CustomItem ci = projectiles.get(s.split("/")[0]);
 		if (ci != null) {
-			Boolean lock = PlayerManager.getLock("specialitems");
+			Boolean lock = PlayerManager.getLock("customitems");
 			if (lock != null && !lock.booleanValue()) {
 				customTrailMap.remove(proj);
 				return;
@@ -273,7 +274,7 @@ public class CustomItemManager {
 
 	public static void onEntityDamageByEntity(CustomItemInfo cii, Player p, Entity e) {
 		if (entityHits.containsKey(cii.getClassName())) {
-			Boolean lock = PlayerManager.getLock("specialitems");
+			Boolean lock = PlayerManager.getLock("customitems");
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}
@@ -303,7 +304,7 @@ public class CustomItemManager {
 
 	public static void onBlockDispense(CustomItemInfo cii, BlockDispenseEvent e) {
 		if (blockDispenses.containsKey(cii.getClassName())) {
-			Boolean lock = PlayerManager.getLock("specialitems");
+			Boolean lock = PlayerManager.getLock("customitems");
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}
@@ -345,7 +346,7 @@ public class CustomItemManager {
 
 	public static void onFurnaceBurn(CustomItemInfo cii, Furnace f, FurnaceBurnEvent e) {
 		if (burns.containsKey(cii.getClassName())) {
-			Boolean lock = PlayerManager.getLock("specialitems");
+			Boolean lock = PlayerManager.getLock("customitems");
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}
@@ -357,7 +358,7 @@ public class CustomItemManager {
 	
 	public static void onBlockBreak(CustomItemInfo cii, Player player, BlockBreakEvent e) {
 		if (breaks.containsKey(cii.getClassName())) {
-			Boolean lock = PlayerManager.getLock("specialitems");
+			Boolean lock = PlayerManager.getLock("customitems");
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}
@@ -392,7 +393,7 @@ public class CustomItemManager {
 		
 		if (toEnchant != null && toEnchant.getType() != Material.AIR && toEnchant.getEnchantments().isEmpty()) {
 			if (result == null || result.getType() == Material.AIR) {
-				Boolean lock = PlayerManager.getLock("specialitems");
+				Boolean lock = PlayerManager.getLock("customitems");
 				if (lock != null && !lock.booleanValue()) {
 					return;
 				}
@@ -421,7 +422,7 @@ public class CustomItemManager {
 
 	public static void onEntityShootBow(Player player, Entity proj, CustomItemInfo cii) {
 		if (shoots.containsKey(cii.getClassName())) {
-			Boolean lock = PlayerManager.getLock("specialitems");
+			Boolean lock = PlayerManager.getLock("customitems");
 			if (lock != null && !lock.booleanValue()) {
 				return;
 			}

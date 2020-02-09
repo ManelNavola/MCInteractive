@@ -13,6 +13,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import com.manelnavola.mcinteractive.adventure.customenchants.CustomEnchant;
 import com.manelnavola.mcinteractive.adventure.customitems.CustomItem;
+import com.manelnavola.mcinteractive.generic.ChatManager;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.ItemStackBuilder;
@@ -151,7 +152,7 @@ public class RewardManager {
 		for (Player p : channelPlayers) {
 			PlayerData pd = PlayerManager.getPlayerData(p);
 			if (pd.getConfig("rewards")) {
-				if (pd.getConfig("specialitems")) {
+				if (pd.getConfig("customitems")) {
 					giftCustomItem(p, new SubGift(), tier, gifterNickname);
 				} else {
 					giftRandomItem(p, tier, gifterNickname);
@@ -253,6 +254,13 @@ public class RewardManager {
 	public static void processBits(List<Player> pl, int bits, String sourceName) {
 		for (Player p : pl) {
 			PlayerData pd = PlayerManager.getPlayerData(p);
+			if (!pd.getConfig("bitshop")) continue;
+			ChatManager.sendNotice(p,
+					String.join(" ",
+							ChatColor.GREEN + sourceName,
+							ChatColor.WHITE + "has cheered",
+							ChatColor.AQUA + "" + bits,
+							ChatColor.WHITE + "bits!"));
 			if (pd != null) {
 				pd.setBits(pd.getBits() + bits);
 				if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {

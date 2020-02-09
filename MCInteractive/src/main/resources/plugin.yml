@@ -59,17 +59,17 @@ commands:
       permission-message: You do not have permission to run this command!
    mci vote start:
       description: Starts a custom vote
-      usage: "/mci vote start <player> [voteTime] [option1] [option2] <option3..6>"
+      usage: "/mci vote start [voteTime] [option1] [option2] <option3..6>"
       permission: mci.vote.issue
       permission-message: You do not have permission to run this command!
    mci vote end:
       description: Forces current vote to end
-      usage: "/mci vote end <player>"
+      usage: "/mci vote end"
       permission: mci.vote.issue
       permission-message: You do not have permission to run this command!
    mci vote cancel:
       description: Cancels and invalidates the current vote
-      usage: "/mci vote cancel <player>"
+      usage: "/mci vote cancel"
       permission: mci.vote.cancel
       permission-message: You do not have permission to run this command!
    # Channelvote
@@ -84,7 +84,7 @@ commands:
       permission: mci.channelvote.issue
       permission-message: You do not have permission to run this command!
    mci channelvote forcestart:
-      description: Forces starting a channel vote, cancelling all channel's current player votes
+      description: Forces starting a channel vote
       usage: "/mci channelvote forcestart <channel> [voteTime] [option1] [option2] <option3..6>"
       permission: mci.channelvote.force
       permission-message: You do not have permission to run this command!
@@ -115,7 +115,7 @@ commands:
       permission: mci.eventvote.issue
       permission-message: You do not have permission to run this command!
    mci eventvote cancel:
-      description: Cancels and invalidates the current event vote and its effects
+      description: Cancels the current event vote and its effects
       usage: "/mci eventvote cancel <channel>"
       permission: mci.eventvote.cancel
       permission-message: You do not have permission to run this command!
@@ -141,46 +141,39 @@ commands:
       usage: "/mci bits remove [amount] <player>"
       permission: mci.bits.admin
       permission-message: You do not have permission to run this command!
-   # Adventureitems
-   mci adventureitems:
-      description: Opens the adventure items creative GUI
-      usage: "/mci adventureitems"
-      permission: mci.adventureitems
+   # Customitems
+   mci customitems:
+      description: Opens the custom items creative GUI
+      usage: "/mci customitems"
+      permission: mci.customitems
       permission-message: You do not have permission to run this command!
    
 permissions:
+   # All commands
    mci.*:
       description: Gives access to all MCI commands
       children:
          mci.info: true
          mci.channel.*: true
          mci.vote.*: true
+         mci.channelvote.*: true
+         mci.eventvote.*: true
          mci.config: true
          mci.globalconfig: true
          mci.gift: true
          mci.bits.*: true
-         mci.adventureitems: true
-         mci.channelvote.*: true
-         mci.eventvote.*: true
+         mci.customitems: true
       default: op
+   # Base command
    mci.info:
       description: Allows you to list MCI commands
       default: true
-   mci.adventureitems:
-      description: Allows you to open the adventure items creative GUI
-      default: op
-   # Bits
-   mci.bits.*:
-      children:
-         mci.bits.gui: true
-         mci.bits.change: true
-      description: Gives access to all MCI bits commands
-      default: op
-   mci.bits.gui:
-      description: Allows you to open the bits shop GUI
+   # Configuration
+   mci.config:
+      description: Allows you to change your personal MCI configuration
       default: true
-   mci.bits.change:
-      description: Allows you to change yours or others' bits amount
+   mci.globalconfig:
+      description: Allows you to set the global configuration for MCI
       default: op
    # Channel
    mci.channel.*:
@@ -199,7 +192,7 @@ permissions:
    mci.channel.lock:
       description: Allows you to lock/unlock channel listening server-wide
       default: op
-   # Vote
+   # Player Vote
    mci.vote.*:
       description: Gives access to all voting commands
       children:
@@ -254,12 +247,24 @@ permissions:
    mci.eventvote.cancel:
       description: Allows you to cancel a Twitch event vote
       default: op
-   mci.config:
-      description: Allows you to change your personal MCI configuration
-      default: true
-   mci.globalconfig:
-      description: Allows you to set the global configuration for MCI
-      default: op
+   # Gifts
    mci.gift:
       description: Allows you to freely gift subscription rewards to other players or yourself
+      default: op
+   # Adventure items
+   mci.customitems:
+      description: Allows you to open the custom items creative GUI
+      default: op
+   # Bits
+   mci.bits.*:
+      children:
+         mci.bits.gui: true
+         mci.bits.change: true
+      description: Gives access to all MCI bits commands
+      default: op
+   mci.bits.gui:
+      description: Allows you to open the bits shop GUI
+      default: true
+   mci.bits.change:
+      description: Allows you to change yours or others' bits amount
       default: op

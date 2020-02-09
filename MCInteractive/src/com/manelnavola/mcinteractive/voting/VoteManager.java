@@ -158,10 +158,23 @@ public class VoteManager {
 	public static int startEventVote(String channel, CustomEvent ce) {
 		if (checkOngoingEventVote(channel)) return 0;
 		List<Player> pl = new ArrayList<>();
-		for (Player p : ConnectionManager.getChannelPlayers(channel)) {
-			if (PlayerManager.getPlayerData(p).getConfig("eventsvote")
-					&& playerVotes.get(p) == null && runningEvents.get(p) == null) {
-				pl.add(p);
+		if (PlayerManager.getEventForce()) {
+			for (Player p : ConnectionManager.getChannelPlayers(channel)) {
+				Vote v = playerVotes.get(p);
+				if (v == null) {
+					pl.add(p);
+				} else {
+					MessageSender.warn(p, "Your vote has been cancelled due to an event vote!");
+					removeVote(v);
+					pl.add(p);
+				}
+			}
+		} else {
+			for (Player p : ConnectionManager.getChannelPlayers(channel)) {
+				if (PlayerManager.getPlayerData(p).getConfig("eventsvote")
+						&& playerVotes.get(p) == null && runningEvents.get(p) == null) {
+					pl.add(p);
+				}
 			}
 		}
 		if (pl.isEmpty()) return 0;
@@ -179,9 +192,9 @@ public class VoteManager {
 		if (pa == 0) {
 			MessageSender.err(cs, "There are no available players in this channel!");
 		} else if (pa == 1) {
-			MessageSender.nice(cs, "Started channel vote on " + channel + " for 1 player!");
+			MessageSender.nice(cs, "Started event vote on " + channel + " for 1 player!");
 		} else {
-			MessageSender.nice(cs, "Started channel vote on " + channel + " for " + pa + " players!");
+			MessageSender.nice(cs, "Started event vote on " + channel + " for " + pa + " players!");
 		}
 	}
 

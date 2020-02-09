@@ -84,7 +84,9 @@ public final class ConnectionManager {
 	public static void leave(Player p, boolean logErr) {
 		// Leave if player is already connected
 		PlayerConnection pc = getPlayerConnection(p);
-		if (pc != null) {
+		if (pc == null) {
+			MessageSender.err(p, "You are not connected to a channel!");
+		} else {
 			TwitchBotMCI tbmci = pc.getTwitchBotMCI();
 			tbmci.disconnect(p);
 			playerConnections.remove(p);
