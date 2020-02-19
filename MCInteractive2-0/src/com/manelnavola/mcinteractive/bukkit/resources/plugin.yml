@@ -1,0 +1,8 @@
+name: MCInteractive
+description: Enables Twitch interaction with customizable in-game features
+version: 2.0
+author: Manel Navola
+
+main: com.manelnavola.mcinteractive.bukkit.Main
+load: POSTWORLD
+api-version: 1.13
