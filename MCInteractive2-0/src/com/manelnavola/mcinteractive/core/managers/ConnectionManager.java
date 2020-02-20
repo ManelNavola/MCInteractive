@@ -17,8 +17,8 @@ public class ConnectionManager {
 	private static ConnectionManager INSTANCE;
 	
 	private boolean enabled = false;
-	private Map<String, Collection<WPlayer>> channelToPlayers;
-	private Map<WPlayer, String> playerToChannel;
+	private Map<String, Collection<WPlayer<?>>> channelToPlayers;
+	private Map<WPlayer<?>, String> playerToChannel;
 	
 	/**
 	 * Gets the singleton object
@@ -34,12 +34,12 @@ public class ConnectionManager {
 	 * @param wp The player to connect
 	 * @param channel The name of the Twitch channel, in lowercase
 	 */
-	public void joinChannel(WPlayer wp, String channel) {
+	public void joinChannel(WPlayer<?> wp, String channel) {
 		if (!enabled) return;
 		
-		Collection<WPlayer> currentPlayers = channelToPlayers.get(channel);
+		Collection<WPlayer<?>> currentPlayers = channelToPlayers.get(channel);
 		if (currentPlayers == null) {
-			currentPlayers = new ArrayList<WPlayer>();
+			currentPlayers = new ArrayList<WPlayer<?>>();
 			BotManager.getInstance().joinChannel(channel);
 		}
 		playerToChannel.put(wp, channel);
@@ -50,13 +50,13 @@ public class ConnectionManager {
 	 * Disconnects a player from any Twitch channel
 	 * @param wp The player to disconnect
 	 */
-	public void leaveChannel(WPlayer wp) {
+	public void leaveChannel(WPlayer<?> wp) {
 		if (!enabled) return;
 		
 		String playerChannel = getPlayerChannel(wp);
 		if (playerChannel == null) return;
 		
-		Collection<WPlayer> currentPlayers = channelToPlayers.get(playerChannel);
+		Collection<WPlayer<?>> currentPlayers = channelToPlayers.get(playerChannel);
 		if (currentPlayers != null) {
 			currentPlayers.remove(wp);
 			playerToChannel.remove(wp);
@@ -71,7 +71,7 @@ public class ConnectionManager {
 	 * Gets the channel of a connected player
 	 * @return The name of the connected channel
 	 */
-	public String getPlayerChannel(WPlayer wp) {
+	public String getPlayerChannel(WPlayer<?> wp) {
 		if (!enabled) return null;
 		
 		return playerToChannel.get(wp);
@@ -81,7 +81,7 @@ public class ConnectionManager {
 	 * Checks if the player is connected
 	 * @return True if the player is connected
 	 */
-	public boolean isPlayerConnected(WPlayer wp) {
+	public boolean isPlayerConnected(WPlayer<?> wp) {
 		return playerToChannel.containsKey(wp);
 	}
 	
@@ -90,7 +90,7 @@ public class ConnectionManager {
 	 * @param channelName The name of the channel
 	 * @return A collection of players
 	 */
-	public Collection<WPlayer> getChannelPlayers(String channelName) {
+	public Collection<WPlayer<?>> getChannelPlayers(String channelName) {
 		return channelToPlayers.get(channelName);
 	}
 	

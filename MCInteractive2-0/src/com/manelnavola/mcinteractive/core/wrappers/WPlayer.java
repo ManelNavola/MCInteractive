@@ -5,34 +5,43 @@ package com.manelnavola.mcinteractive.core.wrappers;
  * @author Manel Navola
  *
  */
-public class WPlayer {
+public abstract class WPlayer<T> {
 	
-	private Object APIObject;
-	private boolean op;
+	private T player;
 	
 	/**
 	 * Wrapped player constructor
-	 * @param op Whether the player has operator status
+	 * @param apiObject The object to base the player on
 	 */
-	public WPlayer(Object APIObject, boolean op) {
-		this.APIObject = APIObject;
-		this.op = op;
+	public WPlayer(T player) {
+		this.player = player;
 	}
 	
 	/**
-	 * Gets the player's API Object
-	 * @return The API Object of the player
+	 * Gets the player instance
+	 * @return The player instance
 	 */
-	public Object getAPIObject() {
-		return APIObject;
+	public T getPlayer() {
+		return player;
 	}
 	
 	/**
 	 * Gets whether the player has operator status
 	 * @return True if the player has operator status
 	 */
-	public boolean isOp() {
-		return op;
-	}
+	public abstract boolean isOp();
+	
+	/**
+	 * Gets whether a player has a permission
+	 * @param permission The permission to check
+	 * @return True if the player has that permission
+	 */
+	public abstract boolean checkPermission(String permission);
+	
+	/**
+	 * Sends a message to the player
+	 * @param message The message to send
+	 */
+	public abstract void sendMessage(String message);
 	
 }

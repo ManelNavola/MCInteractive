@@ -1,31 +1,39 @@
 package com.manelnavola.mcinteractive.core.wrappers;
 
-import java.util.Collection;
-
 /**
- * Abstract class for implementation with different Minecraft APIs
+ * Singleton class for general wrapping purposes
  * @author Manel Navola
  *
  */
-public abstract class Wrapper {
+public class Wrapper {
+	
+	private static Wrapper INSTANCE;
+	
+	private WServer<?> wServer;
 	
 	/**
-	 * Obtains a collection of currently online players
-	 * @return A collection of online players
+	 * Gets the singleton object
+	 * @return The singleton object
 	 */
-	public abstract Collection<WPlayer> getOnlinePlayers();
+	public static Wrapper getInstance() {
+		if (INSTANCE == null) INSTANCE = new Wrapper();
+		return INSTANCE;
+	}
 	
 	/**
-	 * Sends a message to a player
-	 * @param wp The player to send the message to
-	 * @param string The message
+	 * Sets the wrapping of the current server
+	 * @param wServer The server wrapping to set
 	 */
-	public abstract void sendMessage(WPlayer wp, String message);
+	public void setServer(WServer<?> wServer) {
+		this.wServer = wServer;
+	}
 	
 	/**
-	 * Sends a message to the console
-	 * @param message The message to send
+	 * Gets the current wrapped server
+	 * @return The server wrapping
 	 */
-	public abstract void sendConsoleMessage(String message);
+	public WServer<?> getServer() {
+		return wServer;
+	}
 	
 }

@@ -1,0 +1,6 @@
+{
+	"mci reload": {
+		"desc": "Reloads the plugin and tries connecting to Twitch servers",
+		"usage": "/mci reload"
+	}
+}

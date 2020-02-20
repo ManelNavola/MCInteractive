@@ -2,9 +2,9 @@ package com.manelnavola.mcinteractive.bukkit;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.manelnavola.mcinteractive.bukkit.wrapper.BukkitWrapper;
+import com.manelnavola.mcinteractive.bukkit.wrapper.BukkitServer;
 import com.manelnavola.mcinteractive.core.LifeCycle;
-import com.manelnavola.mcinteractive.core.wrappers.WUtils;
+import com.manelnavola.mcinteractive.core.wrappers.Wrapper;
 
 /**
  * Main starting point for Bukkit plugins
@@ -15,7 +15,7 @@ public class Main extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
-		WUtils.setWrapper(new BukkitWrapper(this));
+		Wrapper.getInstance().setServer(new BukkitServer(this.getServer()));
 		LifeCycle.getInstance().start();
 	}
 	
