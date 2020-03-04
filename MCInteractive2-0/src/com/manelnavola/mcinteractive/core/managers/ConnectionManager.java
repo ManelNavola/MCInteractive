@@ -12,9 +12,10 @@ import com.manelnavola.mcinteractive.core.wrappers.WPlayer;
  * @author Manel Navola
  *
  */
-public class ConnectionManager {
+public class ConnectionManager extends Manager {
 	
 	private static ConnectionManager INSTANCE;
+	private ConnectionManager() {}
 	
 	private boolean enabled = false;
 	private Map<String, Collection<WPlayer<?>>> channelToPlayers;
@@ -94,24 +95,19 @@ public class ConnectionManager {
 		return channelToPlayers.get(channelName);
 	}
 	
-	/**
-	 * Enables the manager
-	 */
-	public void enable() {
+	@Override
+	public void start() {
 		channelToPlayers = new HashMap<>();
 		playerToChannel = new HashMap<>();
-		
 		enabled = true;
 	}
 	
-	/**
-	 * Disables the manager
-	 */
-	public void disable() {
+	@Override
+	public void stop() {
 		channelToPlayers = null;
 		playerToChannel = null;
-		
 		enabled = false;
+		INSTANCE = null;
 	}
 	
 }

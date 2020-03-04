@@ -4,13 +4,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>MCInteractive</groupId>
 	<artifactId>MCInteractive</artifactId>
-	<version>b1.0.1</version>
+	<version>b2.0</version>
 	<name>MC Interactive</name>
 	<description>Enables Twitch interaction with customizable in-game features</description>
 	<build>
 		<resources>
 			<resource>
-				<directory>${basedir}/src/main/resources</directory>
+				<directory>${basedir}/src/com/manelnavola/mcinteractive/bukkit/resources</directory>
 				<filtering>true</filtering>
 				<includes>
 					<include>*</include>

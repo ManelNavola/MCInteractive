@@ -1,6 +1,7 @@
 package com.manelnavola.mcinteractive.core.wrappers;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * Wrapper class that represents a server
@@ -38,5 +39,11 @@ public abstract class WServer<T> {
 	 * @param message The message to send
 	 */
 	public abstract void sendConsoleMessage(String message);
+	
+	/**
+	 * Runs code in the server thread
+	 * @param runnable The runnable to run
+	 */
+	public abstract void runOnServer(Consumer<WServer<?>> consumer);
 	
 }

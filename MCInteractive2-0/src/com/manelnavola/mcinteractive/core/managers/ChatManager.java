@@ -8,11 +8,12 @@ import com.manelnavola.twitchbotx.domain.TwitchUser;
  * @author Manel Navola
  *
  */
-public class ChatManager {
+public class ChatManager extends Manager {
 	
 	private static ChatManager INSTANCE;
+	private ChatManager() {}
 	
-	private boolean enabled = false;
+	private boolean enabled;
 	
 	/**
 	 * Gets the singleton object
@@ -23,18 +24,15 @@ public class ChatManager {
 		return INSTANCE;
 	}
 	
-	/**
-	 * Enables the manager
-	 */
-	public void enable() {
+	@Override
+	public void start() {
 		enabled = true;
 	}
 	
-	/**
-	 * Disables the manager
-	 */
-	public void disable() {
+	@Override
+	public void stop() {
 		enabled = false;
+		INSTANCE = null;
 	}
 
 	/**

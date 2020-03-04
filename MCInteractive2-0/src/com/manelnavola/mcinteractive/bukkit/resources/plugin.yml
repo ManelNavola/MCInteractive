@@ -6,3 +6,34 @@ author: Manel Navola
 main: com.manelnavola.mcinteractive.bukkit.Main
 load: POSTWORLD
 api-version: 1.13
+
+commands:
+   # Base command
+   mci:
+      description: Lists all Minecraft Interactive commands
+      usage: "/mci"
+      permission: mci.info
+      permission-message: You do not have permission to run this command!
+   # Configuration management
+   mci reload:
+      description: Reloads the MC Interactive plugin and attempts reconnecting to Twitch servers
+      usage: "/mci reload"
+      permission: mci.reload
+      permission-message: You do not have permission to run this command!
+
+permissions:
+   # All commands
+   mci.*:
+      description: Gives access to all MCI commands
+      children:
+         mci.info: true
+         mci.reload: true
+      default: op
+   # Base command
+   mci.info:
+      description: Allows you to list MCI commands
+      default: true
+   # Configuration
+   mci.reload:
+      description: Allows you to reload the MCI plugin
+      default: op

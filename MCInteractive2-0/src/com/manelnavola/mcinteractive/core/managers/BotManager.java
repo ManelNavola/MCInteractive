@@ -1,5 +1,6 @@
 package com.manelnavola.mcinteractive.core.managers;
 
+import com.manelnavola.mcinteractive.core.LifeCycle;
 import com.manelnavola.mcinteractive.core.utils.ChatUtils;
 import com.manelnavola.twitchbotx.TwitchBotX;
 import com.manelnavola.twitchbotx.TwitchBotXListenerAdapter;
@@ -10,11 +11,13 @@ import com.manelnavola.twitchbotx.events.TwitchMessageEvent;
  * @author Manel Navola
  *
  */
-public class BotManager {
+public class BotManager extends Manager {
 	
 	private static BotManager INSTANCE;
+	private BotManager() {}
 	
 	private TwitchBotX twitchBotX;
+	private boolean forcedDisconnect;
 	
 	/**
 	 * Gets the singleton object
@@ -25,13 +28,25 @@ public class BotManager {
 		return INSTANCE;
 	}
 	
-	/**
-	 * Starts the bot
-	 */
+	@Override
 	public void start() {
-		twitchBotX = new TwitchBotX();
-		twitchBotX.setListenerAdapter(new TwitchBotXAdapter());
+		forcedDisconnect = false;
+		if (twitchBotX == null) {
+			twitchBotX = new TwitchBotX();
+			twitchBotX.setListenerAdapter(new TwitchBotXAdapter());
+		}
+		ChatUtils.broadcastOpInfo("Connecting to Twitch servers...");
 		twitchBotX.connectAsync();
+	}
+	
+	@Override
+	public void stop() {
+		forcedDisconnect = true;
+		if (twitchBotX != null) {
+			twitchBotX.disconnect();
+			twitchBotX = null;
+		}
+		INSTANCE = null;
 	}
 	
 	/**
@@ -44,16 +59,6 @@ public class BotManager {
 	}
 	
 	/**
-	 * Ends the bot
-	 */
-	public void end() {
-		if (twitchBotX != null) {
-			twitchBotX.disconnect();
-			twitchBotX = null;
-		}
-	}
-	
-	/**
 	 * Utility class for listening to TwitchBotX events
 	 * @author Manel Navola
 	 *
@@ -62,30 +67,96 @@ public class BotManager {
 		
 		@Override
 		public void onConnectSuccess() {
-			ConnectionManager.getInstance().enable();
-			ChatManager.getInstance().enable();
+			try {
+				startAll();
+				ChatUtils.broadcastOpSuccess("Connected to Twitch servers!");
+			} catch (Exception e) {
+				e.printStackTrace();
+				ChatUtils.broadcastOpError("Internal error! MC Interactive has been disabled");
+				stopAll();
+			}
 		}
 		
 		@Override
 		public void onConnectFail(Exception e) {
-			ChatUtils.broadcastError("Error connecting the bot: " + e.getMessage());
-			ChatUtils.broadcastError("The bot has been disabled, but you can retry connecting using /mci reload");
+			try {
+				ChatUtils.broadcastOpError("Error connecting to Twitch servers: " + e.getMessage());
+				
+				stopAll();
+				
+				if (LifeCycle.getInstance().isCommandManagerEnabled()) {
+					ChatUtils.broadcastOpError("MC Interactive has been disabled, but you can try "
+							+ "reconnecting to Twitch servers using /mci reload");
+				} else {
+					ChatUtils.broadcastOpError("MC Interactive has been disabled!");
+				}
+			} catch (Exception e2) {
+				ChatUtils.broadcastOpError("Internal error! MC Interactive has been disabled");
+				stopAll();
+				e2.printStackTrace();
+			}
 		}
 		
 		@Override
 		public void onDisconnect() {
-			ConnectionManager.getInstance().disable();
-			ChatManager.getInstance().disable();
-			
-			ChatUtils.broadcastError("The bot lost connection to Twitch servers!");
-			ChatUtils.broadcastError("The bot has been disabled, but you can retry connecting using /mci reload");
+			try {
+				if (!forcedDisconnect) {
+					ChatUtils.broadcastOpError("MC Interactive has lost connection to Twitch servers!");
+				}
+				
+				stopAll();
+				
+				if (forcedDisconnect) {
+					forcedDisconnect = false;
+				} else {
+					if (LifeCycle.getInstance().isCommandManagerEnabled()) {
+						ChatUtils.broadcastOpError("MC Interactive has been disabled, but you can try " 
+								+ "reconnecting to Twitch servers using /mci reload");
+					} else {
+						ChatUtils.broadcastOpError("MC Interactive has been disabled!");
+					}
+				}
+			} catch (Exception e) {
+				ChatUtils.broadcastOpError("Internal error! MC Interactive has been disabled");
+				stopAll();
+				e.printStackTrace();
+			}
 		}
 		
 		@Override
 		public void onTwitchMessage(TwitchMessageEvent twitchMessageEvent) {
-			ChatManager.getInstance().onTwitchMessage(twitchMessageEvent.getChannelName(),
-					twitchMessageEvent.getTwitchUser(),
-					twitchMessageEvent.getMessage());
+			try {
+				ChatManager.getInstance().onTwitchMessage(twitchMessageEvent.getChannelName(),
+						twitchMessageEvent.getTwitchUser(),
+						twitchMessageEvent.getMessage());
+			} catch (Exception e) {
+				ChatUtils.broadcastOpError("Internal error! MC Interactive has been disabled");
+				stopAll();
+				e.printStackTrace();
+			}
+		}
+		
+		private void startAll() {
+			ConnectionManager.getInstance().start();
+			ChatManager.getInstance().start();
+			
+			if (LifeCycle.getInstance().isCommandManagerEnabled()) {
+				CommandManager.getInstance().start();
+			}
+		}
+		
+		private void stopAll() {
+			CommandManager.getInstance().stop();
+			ConnectionManager.getInstance().stop();
+			ChatManager.getInstance().stop();
+			
+			if (LifeCycle.getInstance().isCommandManagerEnabled()) {
+				if (forcedDisconnect) {
+					CommandManager.getInstance().stop();
+				} else {
+					CommandManager.getInstance().startReloadOnly();
+				}
+			}
 		}
 		
 	}

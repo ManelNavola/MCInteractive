@@ -1,15 +1,17 @@
 package com.manelnavola.mcinteractive.core;
 
-import com.manelnavola.mcinteractive.core.managers.BotManager;
+import com.manelnavola.mcinteractive.core.managers.*;
 
 /**
  * Singleton class for starting/stopping MCInteractive
  * @author Manel Navola
  *
  */
-public class LifeCycle {
+public class LifeCycle extends Manager {
 	
 	private static LifeCycle INSTANCE;
+	
+	private boolean commandManagerEnabled = false;
 	
 	/**
 	 * Gets the singleton object
@@ -20,18 +22,33 @@ public class LifeCycle {
 		return INSTANCE;
 	}
 	
-	/**
-	 * Starts MCInteractive
-	 */
+	@Override
 	public void start() {
 		BotManager.getInstance().start();
 	}
 	
+	@Override
+	public void stop() {
+		ActionManager.getInstance().stop();
+		BotManager.getInstance().stop();
+		ChatManager.getInstance().stop();
+		CommandManager.getInstance().stop();
+		ConnectionManager.getInstance().stop();
+	}
+	
 	/**
-	 * Stops, saves and disposes MCInteractive
+	 * Enables the command manager
 	 */
-	public void end() {
-		BotManager.getInstance().end();
+	public void enableCommandManager() {
+		commandManagerEnabled = true;
+	}
+	
+	/**
+	 * Gets whether the command manager is enabled or not
+	 * @return True if the command manager is enabled
+	 */
+	public boolean isCommandManagerEnabled() {
+		return commandManagerEnabled;
 	}
 	
 }
