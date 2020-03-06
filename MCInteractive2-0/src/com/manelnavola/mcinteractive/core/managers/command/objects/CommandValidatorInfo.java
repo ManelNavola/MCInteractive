@@ -5,7 +5,7 @@ package com.manelnavola.mcinteractive.core.managers.command.objects;
  * @author Manel Navola
  *
  */
-public class CommandInfo {
+public class CommandValidatorInfo {
 	
 	private String usage;
 	private String description;
@@ -15,7 +15,7 @@ public class CommandInfo {
 	 * Class constructor
 	 * @param object The JsonObject to build the information upon
 	 */
-	public CommandInfo(String usage, String description, String permission) {
+	public CommandValidatorInfo(String usage, String description, String permission) {
 		this.usage = usage;
 		this.description = description;
 		this.permission = permission;

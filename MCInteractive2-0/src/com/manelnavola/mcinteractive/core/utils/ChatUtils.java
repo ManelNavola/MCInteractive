@@ -1,6 +1,7 @@
 package com.manelnavola.mcinteractive.core.utils;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.manelnavola.mcinteractive.core.wrappers.WPlayer;
@@ -18,6 +19,7 @@ public class ChatUtils {
 	private static final MessageColor ERROR_COLOR = MessageColor.RED;
 	private static final MessageColor INFO_COLOR = MessageColor.GOLD;
 	private static final MessageColor SUCCESS_COLOR = MessageColor.GREEN;
+	private static final MessageColor WARN_COLOR = MessageColor.YELLOW;
 	
 	/**
 	 * Sends a message to a player or a console
@@ -61,6 +63,19 @@ public class ChatUtils {
 	}
 	
 	/**
+	 * Sends an informative message to a player or a console
+	 * @param wPlayer The player to send the message to or null if the console is the recipient
+	 * @param message The message to send
+	 */
+	public static void sendSuccess(WPlayer<?> wPlayer, String message) {
+		sendTagged(wPlayer, SUCCESS_COLOR + " " + message);
+	}
+	
+	public static void sendWarn(WPlayer<?> wPlayer, String message) {
+		sendTagged(wPlayer, WARN_COLOR + " " + message);
+	}
+	
+	/**
 	 * Sends an error message to a player or a console
 	 * @param wPlayer The player to send the message to or null if the console is the recipient
 	 * @param message The message to send
@@ -74,7 +89,7 @@ public class ChatUtils {
 	 * @param players The players to send the message to
 	 * @param message The message to send
 	 */
-	public static void broadcast(final Collection<WPlayer<?>> players, String message) {
+	public static void broadcast(final Collection<WPlayer<?>> players, final String message) {
 		if (players == null || message == null) return;
 		
 		Wrapper.getInstance().getServer().runOnServer(new Consumer<WServer<?>>() {
@@ -85,6 +100,14 @@ public class ChatUtils {
 				}
 			}
 		});
+	}
+	
+	/**
+	 * Broadcasts an error to a set of players
+	 * @param message The error to broadcast
+	 */
+	public static void broadcastError(Set<WPlayer<?>> players, String message) {
+		broadcast(players, ERROR_COLOR + CHAT_TAG + " " + message);
 	}
 	
 	/**
@@ -137,7 +160,7 @@ public class ChatUtils {
 	 *
 	 */
 	public enum MessageColor {
-		RED('c'), GOLD('6'), GREEN('a');
+		RED('c'), GOLD('6'), GREEN('a'), YELLOW('4');
 		
 		private String toString;
 		

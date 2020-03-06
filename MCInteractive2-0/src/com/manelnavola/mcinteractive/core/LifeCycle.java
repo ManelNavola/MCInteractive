@@ -33,7 +33,7 @@ public class LifeCycle extends Manager {
 		BotManager.getInstance().stop();
 		ChatManager.getInstance().stop();
 		CommandManager.getInstance().stop();
-		ConnectionManager.getInstance().stop();
+		StreamManager.getInstance().stop();
 	}
 	
 	/**

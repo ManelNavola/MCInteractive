@@ -63,7 +63,7 @@ public abstract class CommandToken {
 	 * @param input The string to parse
 	 * @return True if any excluded command is successfully parsed
 	 */
-	protected boolean isNotA(String input) {
+	protected boolean commandIsNotA(String input) {
 		if (exclusions == null) return false;
 		
 		for (CommandToken ct : exclusions) {

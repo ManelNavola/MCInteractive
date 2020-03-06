@@ -18,7 +18,7 @@ public class CommandValidator {
 	private CommandValidator parent;
 	private boolean playerOnly;
 	private boolean computedCommandInfo;
-	private CommandInfo commandInfo;
+	private CommandValidatorInfo commandInfo;
 	private CommandRunnable runnable;
 	private CommandToken token;
 	private CommandValidator[] validatorList;
@@ -91,7 +91,7 @@ public class CommandValidator {
 		this(token, new CommandValidator[0], runnable, false);
 	}
 	
-	public CommandInfo getCommandInfo() {
+	public CommandValidatorInfo getCommandInfo() {
 		if (!computedCommandInfo) {
 			// Computes the commandInfo for this command, searching for the uppermost parent
 			String commandString = null;
@@ -199,7 +199,7 @@ public class CommandValidator {
 								if (cv.token instanceof CommandStringToken) {
 									CommandStringToken cs = (CommandStringToken) cv.token;
 									String newBuiltCommand = builtParentCommand + " " + cs.getString();
-									CommandInfo cmd = CommandManager.getInstance().getCommandInfo(newBuiltCommand);
+									CommandValidatorInfo cmd = CommandManager.getInstance().getCommandInfo(newBuiltCommand);
 									if (cmd != null && (wPlayer == null || wPlayer.checkPermission(cmd.getPermission()))) {
 										String usage = cmd.getUsage();
 										String description = cmd.getDescription();

@@ -137,7 +137,7 @@ public class BotManager extends Manager {
 		}
 		
 		private void startAll() {
-			ConnectionManager.getInstance().start();
+			StreamManager.getInstance().start();
 			ChatManager.getInstance().start();
 			
 			if (LifeCycle.getInstance().isCommandManagerEnabled()) {
@@ -147,7 +147,7 @@ public class BotManager extends Manager {
 		
 		private void stopAll() {
 			CommandManager.getInstance().stop();
-			ConnectionManager.getInstance().stop();
+			StreamManager.getInstance().stop();
 			ChatManager.getInstance().stop();
 			
 			if (LifeCycle.getInstance().isCommandManagerEnabled()) {

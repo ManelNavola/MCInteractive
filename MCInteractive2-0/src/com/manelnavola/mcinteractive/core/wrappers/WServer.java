@@ -1,6 +1,8 @@
 package com.manelnavola.mcinteractive.core.wrappers;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
@@ -45,5 +47,18 @@ public abstract class WServer<T> {
 	 * @param runnable The runnable to run
 	 */
 	public abstract void runOnServer(Consumer<WServer<?>> consumer);
+	
+	/**
+	 * Loads configuration files
+	 * @return A map containing the loaded configuration
+	 */
+	public abstract ConcurrentHashMap<String, Object> loadConfiguration();
+	
+	/**
+	 * Saves a configuration file
+	 * @param configurationMap The map containing data to save the configuration
+	 * @param b Whether the configuration should be unloaded
+	 */
+	public abstract void saveConfiguration(Map<String, Object> configurationMap, boolean unload);
 	
 }

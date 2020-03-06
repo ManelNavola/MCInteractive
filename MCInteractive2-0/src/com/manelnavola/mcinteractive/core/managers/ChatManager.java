@@ -44,7 +44,7 @@ public class ChatManager extends Manager {
 		if (!enabled) return;
 		
 		// TODO parse twitch message
-		ChatUtils.broadcast(ConnectionManager.getInstance().getChannelPlayers(channelName), message);
+		ChatUtils.broadcast(StreamManager.getInstance().getChannelPlayers(channelName), message);
 	}
 	
 }

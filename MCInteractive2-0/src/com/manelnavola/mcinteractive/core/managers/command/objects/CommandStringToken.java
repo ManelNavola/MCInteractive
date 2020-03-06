@@ -36,7 +36,7 @@ public class CommandStringToken extends CommandToken {
 
 	@Override
 	public String pass(String input) {
-		if (isNotA(input)) return "Invalid argument";
+		if (commandIsNotA(input)) return "Invalid argument";
 		if (string.equals(input.toLowerCase())) {
 			return null;
 		} else {
