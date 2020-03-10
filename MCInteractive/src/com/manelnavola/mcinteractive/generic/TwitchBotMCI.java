@@ -61,7 +61,7 @@ public class TwitchBotMCI extends TwitchBotX {
 				pl = new ArrayList<Player>();
 				pl.add(p);
 				channelPlayers.put(ch, pl);
-				Log.info("Joined " + ch);
+				Log.info("TwitchBotX joined " + ch);
 				joinChannel(ch);
 			} else {
 				pl.add(p);
@@ -85,7 +85,7 @@ public class TwitchBotMCI extends TwitchBotX {
 				List<Player> pl = channelPlayers.get(ch);
 				pl.remove(p);
 				if (pl.isEmpty()) {
-					Log.info("Left " + ch);
+					Log.info("TwitchBotX left " + ch);
 					leaveChannel(ch);
 					channelPlayers.remove(ch);
 				}
@@ -95,53 +95,61 @@ public class TwitchBotMCI extends TwitchBotX {
 	
 	@Override
 	public void onTwitchMessage(final TwitchMessageEvent tm) {
-		List<Player> channelPlayers = getChannelPlayers(tm.getChannelName());
-		ChatManager.sendMessage(channelPlayers, tm);
-		VoteManager.process(tm.getUser(), tm.getChannelName(), tm.getContents());
-		if (tm.hasBits()) {
-			RewardManager.processBits(channelPlayers, tm.getBits(), tm.getUser().getNickname());
+		try {
+			List<Player> channelPlayers = getChannelPlayers(tm.getChannelName());
+			ChatManager.sendMessage(channelPlayers, tm);
+			VoteManager.process(tm.getUser(), tm.getChannelName(), tm.getContents());
+			if (tm.hasBits()) {
+				RewardManager.processBits(channelPlayers, tm.getBits(), tm.getUser().getNickname());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
 	@Override
 	public void onTwitchSubscription(final TwitchSubscriptionEvent te) {
-		List<Player> channelPlayers = getChannelPlayers(te.getChannel());
-		String receiver = te.getReceiverName();
-		if (receiver == null) receiver = "Anon";
-		RewardManager.process(channelPlayers, te.getSubMonths(), te.getSubPlan(), receiver);
-		if (te.isGifted()) {
-			if (te.isAnon()) {
-				ChatManager.sendNotice(channelPlayers,
-						String.join(" ",
-								ChatColor.AQUA + te.getReceiverName(),
-								ChatColor.WHITE + "has been gifted",
-								ChatColor.GREEN + "" + te.getSubMonths(),
-								ChatColor.WHITE + "sub " + moms(te.getSubMonths()) + "!"));
+		try {
+			List<Player> channelPlayers = getChannelPlayers(te.getChannel());
+			String receiver = te.getReceiverName();
+			if (receiver == null) receiver = "Anon";
+			RewardManager.process(channelPlayers, te.getSubMonths(), te.getSubPlan(), receiver);
+			if (te.isGifted()) {
+				if (te.isAnon()) {
+					ChatManager.sendNotice(channelPlayers,
+							String.join(" ",
+									ChatColor.AQUA + te.getReceiverName(),
+									ChatColor.WHITE + "has been gifted",
+									ChatColor.GREEN + "" + te.getSubMonths(),
+									ChatColor.WHITE + "sub " + moms(te.getSubMonths()) + "!"));
+				} else {
+					ChatManager.sendNotice(channelPlayers,
+							String.join(" ",
+									ChatColor.LIGHT_PURPLE + te.getGifterName(),
+									ChatColor.WHITE + "gifted",
+									ChatColor.GREEN + "" + te.getSubMonths(),
+									ChatColor.WHITE + "sub " + moms(te.getSubMonths()) + " to",
+									ChatColor.AQUA + te.getReceiverName()));
+				}
 			} else {
-				ChatManager.sendNotice(channelPlayers,
-						String.join(" ",
-								ChatColor.LIGHT_PURPLE + te.getGifterName(),
-								ChatColor.WHITE + "gifted",
-								ChatColor.GREEN + "" + te.getSubMonths(),
-								ChatColor.WHITE + "sub " + moms(te.getSubMonths()) + " to",
-								ChatColor.AQUA + te.getReceiverName()));
+				if (te.isResub()) {
+					ChatManager.sendNotice(channelPlayers,
+							String.join(" ",
+									ChatColor.AQUA + te.getReceiverName(),
+									ChatColor.WHITE + "has resubbed for",
+									ChatColor.GREEN + "" + te.getSubMonths(),
+									ChatColor.WHITE + moms(te.getSubMonths()) + "!"));
+				} else {
+					ChatManager.sendNotice(channelPlayers,
+							String.join(" ",
+									ChatColor.AQUA + te.getReceiverName(),
+									ChatColor.WHITE + "has subbed for",
+									ChatColor.GREEN + "" + te.getSubMonths(),
+									ChatColor.WHITE + moms(te.getSubMonths()) + "!"));
+				}
 			}
-		} else {
-			if (te.isResub()) {
-				ChatManager.sendNotice(channelPlayers,
-						String.join(" ",
-								ChatColor.AQUA + te.getReceiverName(),
-								ChatColor.WHITE + "has resubbed for",
-								ChatColor.GREEN + "" + te.getSubMonths(),
-								ChatColor.WHITE + moms(te.getSubMonths()) + "!"));
-			} else {
-				ChatManager.sendNotice(channelPlayers,
-						String.join(" ",
-								ChatColor.AQUA + te.getReceiverName(),
-								ChatColor.WHITE + "has subbed for",
-								ChatColor.GREEN + "" + te.getSubMonths(),
-								ChatColor.WHITE + moms(te.getSubMonths()) + "!"));
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -154,17 +162,21 @@ public class TwitchBotMCI extends TwitchBotX {
 	
 	@Override
 	public void onTwitchGiftUpgrade(final TwitchGiftUpgradeEvent tgue) {
-		if (tgue.isAnon()) {
-			ChatManager.sendNotice(getChannelPlayers(tgue.getChannel()),
-					String.join(" ",
-							ChatColor.AQUA + tgue.getReceiverName(),
-							ChatColor.WHITE + "Has been gifted an ugprade!"));
-		} else {
-			ChatManager.sendNotice(getChannelPlayers(tgue.getChannel()),
-					String.join(" ",
-							ChatColor.LIGHT_PURPLE + tgue.getGifterName(),
-							ChatColor.WHITE + "has gifted an ugprade to",
-							ChatColor.AQUA + tgue.getReceiverName() + ChatColor.WHITE + "!"));
+		try {
+			if (tgue.isAnon()) {
+				ChatManager.sendNotice(getChannelPlayers(tgue.getChannel()),
+						String.join(" ",
+								ChatColor.AQUA + tgue.getReceiverName(),
+								ChatColor.WHITE + "Has been gifted an ugprade!"));
+			} else {
+				ChatManager.sendNotice(getChannelPlayers(tgue.getChannel()),
+						String.join(" ",
+								ChatColor.LIGHT_PURPLE + tgue.getGifterName(),
+								ChatColor.WHITE + "has gifted an ugprade to",
+								ChatColor.AQUA + tgue.getReceiverName() + ChatColor.WHITE + "!"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -178,18 +190,22 @@ public class TwitchBotMCI extends TwitchBotX {
 	
 	@Override
 	public void onTwitchRaid(final TwitchRaidEvent tre) {
-		if (tre.hasRaidEnded()) {
-			ChatManager.sendNotice(getChannelPlayers(tre.getChannel()),
-					String.join(" ",
-							ChatColor.RED + tre.getRaiderName() + ChatColor.WHITE + "'s",
-							ChatColor.WHITE + "raid has ended!"));
-		} else {
-			ChatManager.sendNotice(getChannelPlayers(tre.getChannel()),
-					String.join(" ",
-							ChatColor.RED + tre.getRaiderName(),
-							ChatColor.WHITE + "is raiding with",
-							ChatColor.GREEN + "" + tre.getRaidSize(),
-							ChatColor.WHITE + "viewers!"));
+		try {
+			if (tre.hasRaidEnded()) {
+				ChatManager.sendNotice(getChannelPlayers(tre.getChannel()),
+						String.join(" ",
+								ChatColor.RED + tre.getRaiderName() + ChatColor.WHITE + "'s",
+								ChatColor.WHITE + "raid has ended!"));
+			} else {
+				ChatManager.sendNotice(getChannelPlayers(tre.getChannel()),
+						String.join(" ",
+								ChatColor.RED + tre.getRaiderName(),
+								ChatColor.WHITE + "is raiding with",
+								ChatColor.GREEN + "" + tre.getRaidSize(),
+								ChatColor.WHITE + "viewers!"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

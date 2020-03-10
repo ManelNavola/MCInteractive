@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -31,7 +29,7 @@ public class VoteManager {
 	private static Map<Player, Vote> playerVotes;
 	private static Map<Player, Vote> runningEvents;
 	private static int voteLoop;
-	private static Lock voteLock = new ReentrantLock();
+	private static Object voteLock = new Object();
 	
 	public static void init(Plugin plg) {
 		plugin = plg;
@@ -43,9 +41,7 @@ public class VoteManager {
 			List<Vote> toRemove = new ArrayList<>();
 			@Override
 			public void run() {
-				voteLock.lock();
-				
-				try {
+				synchronized(voteLock) {
 					toRemove.clear();
 					for (List<Vote> vl : channelVotes.values()) {
 						for (Vote v : vl) {
@@ -57,17 +53,13 @@ public class VoteManager {
 					for (Vote v : toRemove) {
 						removeVote(v);
 					}
-				} finally {
-					voteLock.unlock();
 				}
 			}
 		}, 0L, 20L);
 	}
 	
 	private static void addVote(Vote v) {
-		voteLock.lock();
-		
-		try {
+		synchronized(voteLock) {
 			for (Player p : v.getPlayerList()) {
 				playerVotes.put(p, v);
 			}
@@ -79,15 +71,11 @@ public class VoteManager {
 			} else {
 				vl.add(v);
 			}
-		} finally {
-			voteLock.unlock();
 		}
 	}
 	
 	private static void removeVote(Vote v) {
-		voteLock.lock();
-		
-		try {
+		synchronized(voteLock) {
 			if (v.getVoteType() == VoteType.EVENT) {
 				EventVote ev = (EventVote) v;
 				if (ev.finishedVoting()) {
@@ -128,29 +116,32 @@ public class VoteManager {
 					channelVotes.remove(v.getChannel());
 				}
 			}
-		} finally {
-			voteLock.unlock();
 		}
 	}
 	
 	public static void process(TwitchUser tu, String channel, String message) {
-		for (Vote v : channelVotes.get(channel)) {
-			v.process(tu, channel, message);
+		if (!channelVotes.containsKey(channel)) return;
+		synchronized(voteLock) {
+			for (Vote v : channelVotes.get(channel)) {
+				v.process(tu, channel, message);
+			}
 		}
 	}
 	
 	// EVENT VOTES
 	// Checking
 	private static boolean checkOngoingEventVote(String channel) {
-		List<Vote> vl = channelVotes.get(channel);
-		if (vl != null) {
-			for (Vote v : vl) {
-				if (v.getVoteType() == VoteType.EVENT) {
-					return true;
+		synchronized(voteLock) {
+			List<Vote> vl = channelVotes.get(channel);
+			if (vl != null) {
+				for (Vote v : vl) {
+					if (v.getVoteType() == VoteType.EVENT) {
+						return true;
+					}
 				}
 			}
+			return false;
 		}
-		return false;
 	}
 	
 	// Start
@@ -506,17 +497,15 @@ public class VoteManager {
 	}
 
 	public static Vote getVote(Player p) {
-		return playerVotes.get(p);
+		synchronized(voteLock) {
+			return playerVotes.get(p);
+		}
 	}
 
 	public static void removePlayer(Player p) {
-		voteLock.lock();
-		
-		try {
+		synchronized(voteLock) {
 			playerVotes.remove(p);
 			runningEvents.remove(p);
-		} finally {
-			voteLock.unlock();
 		}
 	}
 	

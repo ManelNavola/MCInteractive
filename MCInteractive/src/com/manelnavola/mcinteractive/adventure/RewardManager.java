@@ -261,11 +261,9 @@ public class RewardManager {
 							ChatColor.WHITE + "has cheered",
 							ChatColor.AQUA + "" + bits,
 							ChatColor.WHITE + "bits!"));
-			if (pd != null) {
-				pd.addBits(bits);
-				if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
-					BitsGUI.open(p);
-				}
+			pd.addBits(bits);
+			if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
+				BitsGUI.open(p);
 			}
 		}
 	}

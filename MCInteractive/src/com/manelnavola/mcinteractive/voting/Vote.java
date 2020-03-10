@@ -13,6 +13,7 @@ import com.manelnavola.mcinteractive.generic.ChatManager;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.ActionBar;
+import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.twitchbotx.TwitchUser;
 
 public class Vote {
@@ -80,9 +81,7 @@ public class Vote {
 
 	public void process(TwitchUser tu, String ch, String message) {
 		if (time < 0) return;
-		
 		if (!channel.equals(ch)) return;
-		
 		message = message.toLowerCase();
 		if (options.contains(message)) {
 			String msg;

@@ -1,6 +1,5 @@
 package com.manelnavola.mcinteractive.adventure.customenchants;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -188,7 +187,6 @@ public class Planter extends CustomEnchant {
 	private Material getFarmable(ItemStack is) {
 		if (is == null) return null;
 		if (Main.isOn1_13()) {
-			Log.info("nice");
 			switch(is.getType()) {
 			case POTATO:
 				return Material.POTATOES;
