@@ -41,7 +41,7 @@ public class MCICommand implements CommandExecutor {
 			@Override
 			public void run(CommandSender sender, String[] args) {
 				String ch = "#" + args[3].toLowerCase();
-				PlayerManager.getConfig().set("channellock", args[3].toLowerCase());
+				PlayerManager.setConfigString("channellock", args[3].toLowerCase());
 				MessageSender.nice(sender, "Channel lock has been set to listen "
 						+ ChatColor.AQUA + ch);
 				Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
@@ -75,8 +75,8 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelUnlock = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				if (PlayerManager.getConfig().get("channellock") != null) {
-					PlayerManager.getConfig().set("channellock", null);
+				if (PlayerManager.getConfigString("channellock") != null) {
+					PlayerManager.setConfigString("channellock", null);
 					MessageSender.nice(sender, "Channel lock has been removed!");
 				} else {
 					MessageSender.err(sender, "There is no current channel lock!");
@@ -91,7 +91,7 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelListen = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				String ch = PlayerManager.getConfig().getString("channellock");
+				String ch = PlayerManager.getConfigString("channellock");
 				if (ch != null) {
 					MessageSender.err(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
 						+ ChatColor.GOLD + "!");
@@ -111,7 +111,7 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelLeave = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				String ch = PlayerManager.getConfig().getString("channellock");
+				String ch = PlayerManager.getConfigString("channellock");
 				if (ch != null) {
 					MessageSender.err(sender, "This server has been locked to listen to " + ChatColor.AQUA + ch
 						+ ChatColor.GOLD + "!");
@@ -507,7 +507,7 @@ public class MCICommand implements CommandExecutor {
 					if (pd.getBits() - n < 0) {
 						pd.setBits(0);
 					} else {
-						pd.setBits(pd.getBits() - n);
+						pd.addBits(-n);
 					}
 					if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
 						BitsGUI.open(p);
@@ -525,7 +525,7 @@ public class MCICommand implements CommandExecutor {
 						if (pd.getBits() - n < 0) {
 							pd.setBits(0);
 						} else {
-							pd.setBits(pd.getBits() - n);
+							pd.addBits(-n);
 						}
 						if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
 							BitsGUI.open(p);
@@ -557,7 +557,7 @@ public class MCICommand implements CommandExecutor {
 					Player p = (Player) sender;
 					pl.add(p);
 					PlayerData pd = PlayerManager.getPlayerData(p);
-					pd.setBits(pd.getBits() + n);
+					pd.addBits(n);
 					if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
 						BitsGUI.open(p);
 					}
@@ -568,11 +568,12 @@ public class MCICommand implements CommandExecutor {
 						MessageSender.err(sender, "This player is not online anymore!");
 					} else {
 						MessageSender.nice(other, "You were sent " + n + " bits!");
+						MessageSender.nice(sender, "Given " + n + " bits to " + other.getName());
 						List<Player> pl = new ArrayList<>();
 						pl.add(other);
 						Player p = (Player) sender;
-						PlayerData pd = PlayerManager.getPlayerData(p);
-						pd.setBits(pd.getBits() + n);
+						PlayerData pd = PlayerManager.getPlayerData(other);
+						pd.addBits(n);
 						if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
 							BitsGUI.open(p);
 						}

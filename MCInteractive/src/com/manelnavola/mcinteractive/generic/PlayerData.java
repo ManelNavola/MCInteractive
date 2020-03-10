@@ -10,6 +10,7 @@ public class PlayerData extends PlayerManager {
 	private Map<String, Boolean> configMap;
 	private int bits = 0;
 	private String playerUUID;
+	private Object lock = new Object();
 	
 	public PlayerData(FileConfiguration fc, String uuid) {
 		fileConfig = fc;
@@ -35,11 +36,15 @@ public class PlayerData extends PlayerManager {
 	}
 	
 	public int getBits() {
-		return bits;
+		synchronized (lock) {
+			return bits;
+		}
 	}
 	
 	public void setBits(int bb) {
-		bits = bb;
+		synchronized (lock) {
+			bits = bb;
+		}
 	}
 	
 	public boolean getConfig(String config) {
@@ -47,17 +52,31 @@ public class PlayerData extends PlayerManager {
 		if (b != null) {
 			return b.booleanValue();
 		}
-		return configMap.get(config);
+		synchronized(configMap) {
+			return configMap.get(config);
+		}
 	}
 	
-	public void setConfig(String config, boolean value) { configMap.put(config, value); }
+	public void setConfig(String config, boolean value) {
+		synchronized(configMap) {
+			configMap.put(config, value);
+		}
+	}
 	
 	public void save() {
-		fileConfig.set(playerUUID, null);
-		for (String config : configMap.keySet()) {
-			fileConfig.set(playerUUID + "." + config, getConfig(config));
+		synchronized(fileConfig) {
+			fileConfig.set(playerUUID, null);
+			for (String config : configMap.keySet()) {
+				fileConfig.set(playerUUID + "." + config, getConfig(config));
+			}
+			fileConfig.set(playerUUID + ".bits", bits);
 		}
-		fileConfig.set(playerUUID + ".bits", bits);
+	}
+
+	public void addBits(int n) {
+		synchronized (lock) {
+			bits += n;
+		}
 	}
 	
 }

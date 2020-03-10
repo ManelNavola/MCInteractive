@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -13,28 +12,28 @@ import com.manelnavola.mcinteractive.utils.MessageSender;
 
 public final class ConnectionManager {
 	
-	private static Map<TwitchBotMCI, List<Player>> botToPlayers;
+	private static List<Player> botPlayers;
 	private static Map<Player, PlayerConnection> playerConnections;
 	private static TwitchBotMCI anonTwitchBotX;
+	private static Object safetyLock = new Object();
 	
 	/**
 	 * Initializes the Manager values
 	 */
 	public static void init(Plugin plg) {
-		anonTwitchBotX = new TwitchBotMCI(plg);
+		anonTwitchBotX = new TwitchBotMCI();
 		boolean connected = anonTwitchBotX.waitForStartup();
 		if (!connected) {
 			// Try one more time...
 			Log.warn("Could not connect anon bot to Twitch servers, retrying...");
-			anonTwitchBotX = new TwitchBotMCI(plg);
+			anonTwitchBotX = new TwitchBotMCI();
 			connected = anonTwitchBotX.waitForStartup();
 			if (!connected) {
 				Log.error("Could not connect anon bot to Twitch servers!");
 			}
 		}
-		botToPlayers = new HashMap<>();
+		botPlayers = new ArrayList<>();
 		playerConnections = new HashMap<>();
-		botToPlayers.put(anonTwitchBotX, new ArrayList<>());
 	}
 	
 	/**
@@ -54,27 +53,29 @@ public final class ConnectionManager {
 	}
 	
 	public static void listen(Player p, String ch) {
-		// Leave if player is already connected
-		PlayerConnection pbc = getPlayerConnection(p);
-		if (pbc != null) {
-			if (pbc.getChannel().equals(ch)) {
-				MessageSender.warn(p, "You are already connected to " + ch + "!");
-				return;
-			} else {
-				leave(p);
+		synchronized(safetyLock) {
+			// Leave if player is already connected
+			PlayerConnection pbc = getPlayerConnection(p);
+			if (pbc != null) {
+				if (pbc.getChannel().equals(ch)) {
+					MessageSender.warn(p, "You are already connected to " + ch + "!");
+					return;
+				} else {
+					leave(p);
+				}
 			}
+			
+			// Create new player connection
+			pbc = new PlayerConnection(anonTwitchBotX, ch);
+			playerConnections.put(p, pbc);
+			
+			// Connect anonymous TwitchBotX if it's not connected already
+			// if (!anonTwitchBotX.isConnectedTo(ch)) anonTwitchBotX.joinChannel(ch);
+			
+			// Connect player to channel
+			botPlayers.add(p);
+			anonTwitchBotX.connect(p, ch);
 		}
-		
-		// Create new player connection
-		pbc = new PlayerConnection(anonTwitchBotX, ch);
-		playerConnections.put(p, pbc);
-		
-		// Connect anonymous TwitchBotX if it's not connected already
-		// if (!anonTwitchBotX.isConnectedTo(ch)) anonTwitchBotX.joinChannel(ch);
-		
-		// Connect player to channel
-		botToPlayers.get(anonTwitchBotX).add(p);
-		anonTwitchBotX.connect(p, ch);
 	}
 	
 	public static void leave(Player p) {
@@ -82,18 +83,16 @@ public final class ConnectionManager {
 	}
 	
 	public static void leave(Player p, boolean logErr) {
-		// Leave if player is already connected
-		PlayerConnection pc = getPlayerConnection(p);
-		if (pc == null) {
-			MessageSender.err(p, "You are not connected to a channel!");
-		} else {
-			TwitchBotMCI tbmci = pc.getTwitchBotMCI();
-			tbmci.disconnect(p);
-			playerConnections.remove(p);
-			botToPlayers.get(tbmci).remove(p);
-			if (botToPlayers.get(tbmci).isEmpty() && tbmci != anonTwitchBotX) {
-				tbmci.dispose();
-				botToPlayers.remove(tbmci);
+		synchronized(safetyLock) {
+			// Leave if player is already connected
+			PlayerConnection pc = getPlayerConnection(p);
+			if (pc == null) {
+				MessageSender.err(p, "You are not connected to a channel!");
+			} else {
+				TwitchBotMCI tbmci = pc.getTwitchBotMCI();
+				tbmci.disconnect(p);
+				playerConnections.remove(p);
+				botPlayers.remove(p);
 			}
 		}
 	}
@@ -103,11 +102,15 @@ public final class ConnectionManager {
 	}
 	
 	public static PlayerConnection getPlayerConnection(Player p) {
-		return playerConnections.get(p);
+		synchronized(safetyLock) {
+			return playerConnections.get(p);
+		}
 	}
 	
 	public static boolean isConnected(Player p) {
-		return playerConnections.containsKey(p);
+		synchronized(safetyLock) {
+			return playerConnections.containsKey(p);
+		}
 	}
 	
 }

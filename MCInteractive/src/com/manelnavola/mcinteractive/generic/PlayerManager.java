@@ -45,7 +45,7 @@ public class PlayerManager {
 		plugin.saveDefaultConfig();
 		config = plugin.getConfig();
 		
-		String ef = PlayerManager.getConfig().getString("eventforce");
+		String ef = config.getString("eventforce");
 		if (ef != null) {
 			if (ef.toLowerCase().equals("true")) {
 				eventForce = true;
@@ -83,37 +83,53 @@ public class PlayerManager {
 		}
 	}
 	
-	public static FileConfiguration getConfig() {
-		return config;
+	public static void setConfigString(String field, String value) {
+		synchronized(config) {
+			config.set(field, value);
+		}
+	}
+	
+	public static String getConfigString(String field) {
+		synchronized(config) {
+			return config.getString(field);
+		}
 	}
 	
 	public static void setLock(String configID, Boolean b) {
-		if (b != null) {
-			config.set("locks." + configID, b);
-		} else {
-			config.set("locks." + configID, null);
+		synchronized(config) {
+			if (b != null) {
+				config.set("locks." + configID, b);
+			} else {
+				config.set("locks." + configID, null);
+			}
 		}
 	}
 	
 	public static Boolean getLock(String configID) {
 		String ccc = "locks." + configID;
-		if (config.contains(ccc, true)) {
-			return new Boolean(config.getBoolean(ccc));
+		synchronized(config) {
+			if (config.contains(ccc, true)) {
+				return new Boolean(config.getBoolean(ccc));
+			}
 		}
 		return null;
 	}
 	
 	public static void playerJoin(Player p) {
 		String uuid = p.getUniqueId().toString();
-		playerDataMap.put(uuid, new PlayerData(playerSave, uuid));
+		synchronized(playerDataMap) {
+			playerDataMap.put(uuid, new PlayerData(playerSave, uuid));
+		}
 	}
 	
 	public static PlayerData getPlayerData(Player p) {
 		String uuid = p.getUniqueId().toString();
-		if (playerDataMap.containsKey(uuid)) {
-			return playerDataMap.get(uuid);
-		} else {
-			return null;
+		synchronized(playerDataMap) {
+			if (playerDataMap.containsKey(uuid)) {
+				return playerDataMap.get(uuid);
+			} else {
+				return null;
+			}
 		}
 	}
 
@@ -126,13 +142,17 @@ public class PlayerManager {
 	}
 	
 	public static synchronized void saveAll() {
-		for (String uuid : playerDataMap.keySet()) {
-			playerDataMap.get(uuid).save();
+		synchronized(playerDataMap) {
+			for (String uuid : playerDataMap.keySet()) {
+				playerDataMap.get(uuid).save();
+			}
 		}
-		if (config.isConfigurationSection("locks")) {
-			Set<String> ss = config.getConfigurationSection("locks").getKeys(false);
-			if (ss.isEmpty()) {
-				config.set("locks", null);
+		synchronized(config) {
+			if (config.isConfigurationSection("locks")) {
+				Set<String> ss = config.getConfigurationSection("locks").getKeys(false);
+				if (ss.isEmpty()) {
+					config.set("locks", null);
+				}
 			}
 		}
 		plugin.saveConfig();

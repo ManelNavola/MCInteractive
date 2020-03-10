@@ -3,7 +3,6 @@ package com.manelnavola.mcinteractive.adventure;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
@@ -107,7 +106,7 @@ public class BitsNatural {
 			int range = ebd.getBitsMax() - min;
 			PlayerData pd = PlayerManager.getPlayerData(p);
 			int fb = min + (int) (Math.random()*(range+1));
-			pd.setBits(pd.getBits() + fb);
+			pd.addBits(fb);
 			p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 2);
 			MessageSender.send(p, "You found " + ChatColor.AQUA + fb + " bits" + ChatColor.RESET + "!");
 		}

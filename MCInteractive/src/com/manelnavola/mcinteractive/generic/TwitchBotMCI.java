@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import com.manelnavola.mcinteractive.adventure.RewardManager;
 import com.manelnavola.mcinteractive.utils.Log;
@@ -19,13 +17,12 @@ import com.manelnavola.twitchbotx.events.*;
 
 public class TwitchBotMCI extends TwitchBotX {
 	
-	private Plugin plugin;
 	private Map<Player, String> playerToChannel = new HashMap<>();
 	private Map<String, List<Player>> channelPlayers = new HashMap<>();
+	private Object safetyLock = new Object();
 	
-	public TwitchBotMCI(Plugin plg) {
+	public TwitchBotMCI() {
 		super();
-		plugin = plg;
 	}
 	
 	private String moms(int a) {
@@ -33,13 +30,17 @@ public class TwitchBotMCI extends TwitchBotX {
 	}
 	
 	public List<Player> getChannelPlayers(String channel) {
-		List<Player> tr = channelPlayers.get(channel);
-		if (tr == null) return new ArrayList<Player>();
-		return channelPlayers.get(channel);
+		synchronized(safetyLock) {
+			List<Player> tr = channelPlayers.get(channel);
+			if (tr == null) return new ArrayList<Player>();
+			return new ArrayList<Player>(channelPlayers.get(channel));
+		}
 	}
 	
 	public String getPlayerChannel(Player p) {
-		return playerToChannel.get(p);
+		synchronized(safetyLock) {
+			return playerToChannel.get(p);
+		}
 	}
 	
 	public void connect(Player p, String ch) {
@@ -51,70 +52,73 @@ public class TwitchBotMCI extends TwitchBotX {
 			}
 			disconnect(p);
 		}
-		playerToChannel.put(p, ch);
-		MessageSender.nice(p, "Connected to " + ch);
 		
-		List<Player> pl = channelPlayers.get(ch);
-		if (pl == null) {
-			pl = new ArrayList<Player>();
-			pl.add(p);
-			channelPlayers.put(ch, pl);
+		synchronized(safetyLock) {
+			playerToChannel.put(p, ch);
 			
-			Bukkit.getScheduler().runTask(plugin, new Runnable() {
-				@Override
-				public void run() {
-					Log.info("Joined " + ch);
-					joinChannel(ch);
-				}
-			});
-		} else {
-			pl.add(p);
+			List<Player> pl = channelPlayers.get(ch);
+			if (pl == null) {
+				pl = new ArrayList<Player>();
+				pl.add(p);
+				channelPlayers.put(ch, pl);
+				Log.info("Joined " + ch);
+				joinChannel(ch);
+			} else {
+				pl.add(p);
+			}
 		}
+		
+		MessageSender.nice(p, "Connected to " + ch);
 	}
 	
 	public void disconnect(Player p) {
-		String ch = playerToChannel.remove(p);
+		synchronized(safetyLock) {
+			String ch = playerToChannel.remove(p);
 
-		if (ch == null) {
-			Log.warn("Cannot disconnect player, not connected!");
-			return;
-		}
+			if (ch == null) {
+				Log.warn("Cannot disconnect player, not connected!");
+				return;
+			}
 
-		MessageSender.nice(p, "Disconnected from " + ch);
-		if (isConnectedTo(ch)) {
-			List<Player> pl = channelPlayers.get(ch);
-			pl.remove(p);
-			if (pl.isEmpty()) {
-				Log.info("Left " + ch);
-				leaveChannel(ch);
-				channelPlayers.remove(ch);
+			MessageSender.nice(p, "Disconnected from " + ch);
+			if (isConnectedTo(ch)) {
+				List<Player> pl = channelPlayers.get(ch);
+				pl.remove(p);
+				if (pl.isEmpty()) {
+					Log.info("Left " + ch);
+					leaveChannel(ch);
+					channelPlayers.remove(ch);
+				}
 			}
 		}
 	}
 	
 	@Override
 	public void onTwitchMessage(final TwitchMessageEvent tm) {
-		ChatManager.sendMessage(getChannelPlayers(tm.getChannelName()), tm);
+		List<Player> channelPlayers = getChannelPlayers(tm.getChannelName());
+		ChatManager.sendMessage(channelPlayers, tm);
 		VoteManager.process(tm.getUser(), tm.getChannelName(), tm.getContents());
 		if (tm.hasBits()) {
-			RewardManager.processBits(getChannelPlayers(tm.getChannelName()),
-					tm.getBits(), tm.getUser().getNickname());
+			RewardManager.processBits(channelPlayers, tm.getBits(), tm.getUser().getNickname());
 		}
 	}
 	
 	@Override
 	public void onTwitchSubscription(final TwitchSubscriptionEvent te) {
-		RewardManager.process(getChannelPlayers(te.getChannel()), te.getSubMonths(), te.getSubPlan(), te.getReceiverName());
+		List<Player> channelPlayers = getChannelPlayers(te.getChannel());
+		String receiver = te.getReceiverName();
+		if (receiver == null) receiver = "Anon";
+		RewardManager.process(channelPlayers, te.getSubMonths(), te.getSubPlan(), receiver);
 		if (te.isGifted()) {
 			if (te.isAnon()) {
-				ChatManager.sendNotice(getChannelPlayers(te.getChannel()),
+				ChatManager.sendNotice(channelPlayers,
 						String.join(" ",
 								ChatColor.AQUA + te.getReceiverName(),
 								ChatColor.WHITE + "has been gifted",
 								ChatColor.GREEN + "" + te.getSubMonths(),
 								ChatColor.WHITE + "sub " + moms(te.getSubMonths()) + "!"));
 			} else {
-				ChatManager.sendNotice(getChannelPlayers(te.getChannel()),
+				ChatManager.sendNotice(channelPlayers,
 						String.join(" ",
 								ChatColor.LIGHT_PURPLE + te.getGifterName(),
 								ChatColor.WHITE + "gifted",
@@ -124,14 +128,14 @@ public class TwitchBotMCI extends TwitchBotX {
 			}
 		} else {
 			if (te.isResub()) {
-				ChatManager.sendNotice(getChannelPlayers(te.getChannel()),
+				ChatManager.sendNotice(channelPlayers,
 						String.join(" ",
 								ChatColor.AQUA + te.getReceiverName(),
 								ChatColor.WHITE + "has resubbed for",
 								ChatColor.GREEN + "" + te.getSubMonths(),
 								ChatColor.WHITE + moms(te.getSubMonths()) + "!"));
 			} else {
-				ChatManager.sendNotice(getChannelPlayers(te.getChannel()),
+				ChatManager.sendNotice(channelPlayers,
 						String.join(" ",
 								ChatColor.AQUA + te.getReceiverName(),
 								ChatColor.WHITE + "has subbed for",
