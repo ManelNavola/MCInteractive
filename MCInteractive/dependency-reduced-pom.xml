@@ -4,7 +4,7 @@
   <groupId>MCInteractive</groupId>
   <artifactId>MCInteractive</artifactId>
   <name>MC Interactive</name>
-  <version>b1.0.1</version>
+  <version>b1.0.2</version>
   <description>Enables Twitch interaction with customizable in-game features</description>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>

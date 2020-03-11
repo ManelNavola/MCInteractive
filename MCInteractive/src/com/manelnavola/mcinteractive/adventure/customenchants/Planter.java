@@ -22,7 +22,6 @@ import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.adventure.CustomItemInfo;
 import com.manelnavola.mcinteractive.adventure.CustomItemManager;
 import com.manelnavola.mcinteractive.adventure.CustomTrail;
-import com.manelnavola.mcinteractive.utils.Log;
 
 public class Planter extends CustomEnchant {
 	

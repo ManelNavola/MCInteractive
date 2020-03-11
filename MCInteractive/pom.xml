@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>MCInteractive</groupId>
 	<artifactId>MCInteractive</artifactId>
-	<version>b1.0.1</version>
+	<version>b1.0.2</version>
 	<name>MC Interactive</name>
 	<description>Enables Twitch interaction with customizable in-game features</description>
 	<build>

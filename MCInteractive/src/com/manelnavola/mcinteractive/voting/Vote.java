@@ -13,7 +13,6 @@ import com.manelnavola.mcinteractive.generic.ChatManager;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.ActionBar;
-import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.twitchbotx.TwitchUser;
 
 public class Vote {
