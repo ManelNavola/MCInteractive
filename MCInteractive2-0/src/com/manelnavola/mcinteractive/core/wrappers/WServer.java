@@ -1,7 +1,6 @@
 package com.manelnavola.mcinteractive.core.wrappers;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -59,6 +58,25 @@ public abstract class WServer<T> {
 	 * @param configurationMap The map containing data to save the configuration
 	 * @param b Whether the configuration should be unloaded
 	 */
-	public abstract void saveConfiguration(Map<String, Object> configurationMap, boolean unload);
+	public abstract void saveConfiguration(ConcurrentHashMap<String, Object> configurationMap, boolean unload);
+
+	/**
+	 * Loads a player configuration file
+	 * @param id The player to load the configuration from
+	 * @return A map containing the loaded configuration
+	 */
+	public abstract ConcurrentHashMap<String, Object> loadPlayerConfiguration(String id);
+	
+	/**
+	 * Saves a player configuration file
+	 * @param configurationMap The map containing data to save the configuration
+	 */
+	public abstract void savePlayerConfiguration(WPlayer<?> wp, ConcurrentHashMap<String, Object> configMap);
+
+	/**
+	 * Returns whether server logging is available
+	 * @return True if server logging is enabled
+	 */
+	public abstract boolean isServerLoggingAvailable();
 	
 }

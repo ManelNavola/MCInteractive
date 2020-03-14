@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>MCInteractive</groupId>
 	<artifactId>MCInteractive</artifactId>
-	<version>b2.0</version>
+	<version>2.0</version>
 	<name>MC Interactive</name>
 	<description>Enables Twitch interaction with customizable in-game features</description>
 	<build>
@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>TwitchBotX</groupId>
 			<artifactId>TwitchBotX</artifactId>
-			<version>1.1.2</version>
+			<version>1.1.4</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -1,7 +1,9 @@
 package com.manelnavola.mcinteractive.core.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.manelnavola.mcinteractive.core.wrappers.WPlayer;
@@ -10,32 +12,40 @@ import com.manelnavola.mcinteractive.core.wrappers.Wrapper;
 
 /**
  * Utils class
+ * 
  * @author Manel Navola
  *
  */
 public class ChatUtils {
-	
+
 	private static final String CHAT_TAG = "[MCI]";
-	private static final MessageColor ERROR_COLOR = MessageColor.RED;
-	private static final MessageColor INFO_COLOR = MessageColor.GOLD;
-	private static final MessageColor SUCCESS_COLOR = MessageColor.GREEN;
-	private static final MessageColor WARN_COLOR = MessageColor.YELLOW;
-	
+
 	/**
 	 * Sends a message to a player or a console
-	 * @param wPlayer The player to send the message to or null if the console is the recipient
+	 * 
+	 * @param wPlayer The player to send the message to or null if the console is
+	 *                the recipient
 	 * @param message The message to send
 	 */
-	public static void sendRaw(final WPlayer<?> wPlayer, final String message) {
+	public static void sendRaw(WPlayer<?> wPlayer, String message) {
+		Objects.requireNonNull(message);
+
 		if (wPlayer == null) {
-			Wrapper.getInstance().getServer().runOnServer(new Consumer<WServer<?>>() {
-				@Override
-				public void accept(WServer<?> server) {
-					server.sendConsoleMessage(message);
-				}
-			});
+			if (Wrapper.getInstance().getServer().isServerLoggingAvailable()) {
+				// Send to server console
+				Wrapper.getInstance().runOnServer(new Consumer<WServer<?>>() {
+					@Override
+					public void accept(WServer<?> server) {
+						server.sendConsoleMessage(message);
+					}
+				});
+			} else {
+				// Send directly to console
+				printToSystem(message, LogMessageType.INFO);
+			}
 		} else {
-			Wrapper.getInstance().getServer().runOnServer(new Consumer<WServer<?>>() {
+			// Send to player
+			Wrapper.getInstance().runOnServer(new Consumer<WServer<?>>() {
 				@Override
 				public void accept(WServer<?> server) {
 					wPlayer.sendMessage(message);
@@ -43,134 +53,207 @@ public class ChatUtils {
 			});
 		}
 	}
-	
+
 	/**
 	 * Sends a tagged message to a player or a console
-	 * @param wPlayer The player to send the message to or null if the console is the recipient
+	 * 
+	 * @param wPlayer The player to send the message to or null if the console is
+	 *                the recipient
 	 * @param message The message to send
 	 */
-	public static void sendTagged(final WPlayer<?> wPlayer, final String message) {
-		sendRaw(wPlayer, CHAT_TAG + message);
+	public static void send(WPlayer<?> wPlayer, String message, LogMessageType type) {
+		Objects.requireNonNull(message);
+		Objects.requireNonNull(type);
+
+		sendRaw(wPlayer, type.getColor() + CHAT_TAG + " " + message);
 	}
 	
 	/**
-	 * Sends an informative message to a player or a console
-	 * @param wPlayer The player to send the message to or null if the console is the recipient
-	 * @param message The message to send
+	 * Broadcasts a raw message to a collection of players
+	 * 
+	 * @param wPlayers The players to send the message to
+	 * @param message  The message to send
 	 */
-	public static void sendInfo(WPlayer<?> wPlayer, String message) {
-		sendTagged(wPlayer, INFO_COLOR + " " + message);
-	}
-	
-	/**
-	 * Sends an informative message to a player or a console
-	 * @param wPlayer The player to send the message to or null if the console is the recipient
-	 * @param message The message to send
-	 */
-	public static void sendSuccess(WPlayer<?> wPlayer, String message) {
-		sendTagged(wPlayer, SUCCESS_COLOR + " " + message);
-	}
-	
-	public static void sendWarn(WPlayer<?> wPlayer, String message) {
-		sendTagged(wPlayer, WARN_COLOR + " " + message);
-	}
-	
-	/**
-	 * Sends an error message to a player or a console
-	 * @param wPlayer The player to send the message to or null if the console is the recipient
-	 * @param message The message to send
-	 */
-	public static void sendError(WPlayer<?> wPlayer, String message) {
-		sendTagged(wPlayer, ERROR_COLOR + " " + message);
-	}
-	
-	/**
-	 * Broadcasts a message to a collection of players
-	 * @param players The players to send the message to
-	 * @param message The message to send
-	 */
-	public static void broadcast(final Collection<WPlayer<?>> players, final String message) {
-		if (players == null || message == null) return;
+	public static void broadcastRaw(Collection<WPlayer<?>> wPlayers, String message) {
+		Objects.requireNonNull(wPlayers);
+		Objects.requireNonNull(message);
 		
-		Wrapper.getInstance().getServer().runOnServer(new Consumer<WServer<?>>() {
+		WPlayer<?>[] wPlayersArray = wPlayers.toArray(new WPlayer<?>[wPlayers.size()]);
+		String sendMessage = new String(message);
+		Wrapper.getInstance().runOnServer(new Consumer<WServer<?>>() {
 			@Override
 			public void accept(WServer<?> t) {
-				for (WPlayer<?> wp : players) {
-					wp.sendMessage(message);
+				for (WPlayer<?> wp : wPlayersArray) {
+					wp.sendMessage(sendMessage);
 				}
 			}
 		});
 	}
-	
+
 	/**
-	 * Broadcasts an error to a set of players
-	 * @param message The error to broadcast
+	 * Broadcasts a message to a collection of players
+	 * 
+	 * @param wPlayers The players to send the message to
+	 * @param message  The message to send
 	 */
-	public static void broadcastError(Set<WPlayer<?>> players, String message) {
-		broadcast(players, ERROR_COLOR + CHAT_TAG + " " + message);
+	public static void broadcast(Collection<WPlayer<?>> wPlayers, String message, LogMessageType type) {
+		Objects.requireNonNull(wPlayers);
+		Objects.requireNonNull(message);
+		Objects.requireNonNull(type);
+
+		WPlayer<?>[] wPlayersArray = wPlayers.toArray(new WPlayer<?>[wPlayers.size()]);
+		String sendMessage = type.getColor() + CHAT_TAG + " " + message;
+		Wrapper.getInstance().runOnServer(new Consumer<WServer<?>>() {
+			@Override
+			public void accept(WServer<?> t) {
+				for (WPlayer<?> wp : wPlayersArray) {
+					wp.sendMessage(sendMessage);
+				}
+			}
+		});
 	}
-	
+
 	/**
 	 * Broadcasts a message to all op players and the console
+	 * 
 	 * @param message The message to broadcast
 	 */
-	public static void broadcastOp(final String message) {
-		if (message == null) return;
-		
-		Wrapper.getInstance().getServer().runOnServer(new Consumer<WServer<?>>() {
+	public static void logOperators(String message, LogMessageType type) {
+		Objects.requireNonNull(message);
+		Objects.requireNonNull(type);
+
+		String sendMessage = type.getColor() + CHAT_TAG + " " + message;
+		if (Wrapper.getInstance().getServer().isServerLoggingAvailable()) {
+			Wrapper.getInstance().runOnServer(new Consumer<WServer<?>>() {
+				@Override
+				public void accept(WServer<?> t) {
+					for (WPlayer<?> wp : t.getOnlinePlayers()) {
+						if (wp.isOp()) {
+							wp.sendMessage(sendMessage);
+						}
+					}
+					t.sendConsoleMessage(sendMessage);
+				}
+			});
+		} else {
+			printToSystem(sendMessage, type);
+		}
+	}
+
+	/**
+	 * Broadcasts an exception to all op players and the console
+	 * 
+	 * @param e The exception to broadcast
+	 */
+	public static void logOperators(Exception e) {
+		Objects.requireNonNull(e);
+
+		StringWriter writer = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(writer);
+		e.printStackTrace(printWriter);
+		printWriter.flush();
+
+		String sendMessage = LogMessageType.ERROR.getColor() + CHAT_TAG + " " + writer.toString();
+		Wrapper.getInstance().runOnServer(new Consumer<WServer<?>>() {
 			@Override
 			public void accept(WServer<?> t) {
 				for (WPlayer<?> wp : t.getOnlinePlayers()) {
 					if (wp.isOp()) {
-						wp.sendMessage(message);
+						wp.sendMessage(sendMessage);
 					}
 				}
-				t.sendConsoleMessage(message);
 			}
 		});
+
+		e.printStackTrace();
 	}
-	
+
 	/**
-	 * Broadcasts an error to all op players and the console
-	 * @param message The error to broadcast
+	 * Prints a message to the standard output
+	 * 
+	 * @param message The message
+	 * @param type    The message severity
 	 */
-	public static void broadcastOpError(String message) {
-		broadcastOp(ERROR_COLOR + CHAT_TAG + " " + message);
+	private static void printToSystem(String message, LogMessageType type) {
+		String strippedMessage = MessageColor.stripColors(message);
+		switch (type) {
+		case INFO:
+			System.out.println("[MCI Info] " + strippedMessage);
+			break;
+		case NICE:
+			System.out.println("[MCI Success] " + strippedMessage);
+			break;
+		case WARN:
+			System.out.println("[MCI Warn] " + strippedMessage);
+			break;
+		case ERROR:
+			System.err.println("[MCI Error] " + strippedMessage);
+			break;
+		}
 	}
-	
-	/**
-	 * Broadcasts info to all op players and the console
-	 * @param message The info to broadcast
-	 */
-	public static void broadcastOpInfo(String message) {
-		broadcastOp(INFO_COLOR + CHAT_TAG + " " + message);
-	}
-	
-	/**
-	 * Broadcasts a success message to all op players and the console
-	 * @param message The success message to broadcast
-	 */
-	public static void broadcastOpSuccess(String message) {
-		broadcastOp(SUCCESS_COLOR + CHAT_TAG + " " + message);
-	}
-	
+
 	/**
 	 * Enum for formatted chat color codes
+	 * 
 	 * @author Manel Navola
 	 *
 	 */
 	public enum MessageColor {
-		RED('c'), GOLD('6'), GREEN('a'), YELLOW('4');
-		
+		BLACK('0'), DARK_BLUE('1'), DARK_GREEN('2'), DARK_AQUA('3'), DARK_RED('4'), DARK_PURPLE('5'), GOLD('6'),
+		GRAY('7'), DARK_GRAY('8'), BLUE('9'), GREEN('a'), AQUA('b'), RED('c'), LIGHT_PURPLE('d'), YELLOW('e'),
+		WHITE('f'), OBFUSCATED('k'), BOLD('l'), STRIKETHROUGH('m'), UNDERLINE('n'), ITALIC('o'), RESET('r'),;
+
 		private String toString;
-		
+
+		/**
+		 * Main constructor
+		 * 
+		 * @param colorChar The char that references the color
+		 */
 		MessageColor(char colorChar) {
-			this.toString = String.valueOf(new char[] {'\u00A7', colorChar});
+			this.toString = String.valueOf(new char[] { '§', colorChar });
 		}
-		
+
+		/**
+		 * Removes all colors from a string
+		 * 
+		 * @param message The string to remove the colors from
+		 * @return String without colors
+		 */
+		public static String stripColors(String message) {
+			Objects.requireNonNull(message);
+
+			return message.replaceAll("§[A-z0-9]", "");
+		}
+
 		public String toString() {
 			return toString;
 		}
 	}
-	
+
+	/**
+	 * Enum for message logging types
+	 * 
+	 * @author Manel Navola
+	 *
+	 */
+	public enum LogMessageType {
+		INFO(MessageColor.GOLD), NICE(MessageColor.GREEN), WARN(MessageColor.YELLOW), ERROR(MessageColor.RED);
+
+		private MessageColor color;
+
+		LogMessageType(MessageColor color) {
+			this.color = color;
+		}
+
+		/**
+		 * Gets the color of the message log
+		 * 
+		 * @return
+		 */
+		public MessageColor getColor() {
+			return color;
+		}
+	}
+
 }

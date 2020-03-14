@@ -43,5 +43,32 @@ public abstract class WPlayer<T> {
 	 * @param message The message to send
 	 */
 	public abstract void sendMessage(String message);
+
+	/**
+	 * Gets the unique ID for this player in string form
+	 * @return
+	 */
+	public abstract String getUUID();
+	
+	/**
+	 * Sends a title+subtitle message
+	 * @param title The title of the message
+	 * @param subtitle The subtitle of the message
+	 */
+	public abstract void sendTitle(String title, String subtitle);
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof WPlayer<?>) {
+			return ((WPlayer<?>)obj).getUUID().equals(this.getUUID());
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return getUUID().hashCode();
+	}
 	
 }

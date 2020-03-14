@@ -29,11 +29,10 @@ public class LifeCycle extends Manager {
 	
 	@Override
 	public void stop() {
-		ActionManager.getInstance().stop();
 		BotManager.getInstance().stop();
-		ChatManager.getInstance().stop();
-		CommandManager.getInstance().stop();
-		StreamManager.getInstance().stop();
+		BotManager.getInstance().stopAll();
+		
+		INSTANCE = null;
 	}
 	
 	/**

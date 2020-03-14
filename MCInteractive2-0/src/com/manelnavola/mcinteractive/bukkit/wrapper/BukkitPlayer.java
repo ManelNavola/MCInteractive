@@ -34,4 +34,14 @@ public class BukkitPlayer extends WPlayer<Player> {
 		getPlayer().sendMessage(message);
 	}
 
+	@Override
+	public String getUUID() {
+		return getPlayer().getUniqueId().toString();
+	}
+
+	@Override
+	public void sendTitle(String title, String subtitle) {
+		getPlayer().sendTitle(title, subtitle, 10, 70, 20);
+	}
+
 }

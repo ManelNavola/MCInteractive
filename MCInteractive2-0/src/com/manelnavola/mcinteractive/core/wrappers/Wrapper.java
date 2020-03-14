@@ -1,5 +1,7 @@
 package com.manelnavola.mcinteractive.core.wrappers;
 
+import java.util.function.Consumer;
+
 /**
  * Singleton class for general wrapping purposes
  * @author Manel Navola
@@ -34,6 +36,14 @@ public class Wrapper {
 	 */
 	public WServer<?> getServer() {
 		return wServer;
+	}
+	
+	/**
+	 * Runs code on the server side
+	 * @param consumer The code to run
+	 */
+	public void runOnServer(Consumer<WServer<?>> consumer) {
+		wServer.runOnServer(consumer);
 	}
 	
 }

@@ -20,6 +20,22 @@ commands:
       usage: "/mci reload"
       permission: mci.reload
       permission-message: You do not have permission to run this command!
+   # Stream management
+   mci stream:
+      description: Command for managing stream management
+      usage: "/mci stream"
+      permission: mci.stream
+      permission-message: You do not have permission to run this command!
+   mci stream register:
+      description: Registers a Twitch channel on your player
+      usage: "/mci register [channelName]"
+      permission: mci.stream.register
+      permission-message: You do not have permission to run this command!
+   mci stream unregister:
+      description: Unregisters a Twitch channel on your player
+      usage: "/mci unregister"
+      permission: mci.stream.register
+      permission-message: You do not have permission to run this command!
 
 permissions:
    # All commands

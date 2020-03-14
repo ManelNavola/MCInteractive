@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import com.manelnavola.mcinteractive.core.managers.CommandManager;
 import com.manelnavola.mcinteractive.core.managers.command.CommandRunnable;
 import com.manelnavola.mcinteractive.core.utils.ChatUtils;
+import com.manelnavola.mcinteractive.core.utils.ChatUtils.LogMessageType;
 import com.manelnavola.mcinteractive.core.wrappers.WPlayer;
 
 /**
@@ -91,6 +92,10 @@ public class CommandValidator {
 		this(token, new CommandValidator[0], runnable, false);
 	}
 	
+	public CommandValidator(CommandStringToken token, CommandValidator[] commandValidators, boolean playerOnly) {
+		this(token, commandValidators, null, playerOnly);
+	}
+
 	public CommandValidatorInfo getCommandInfo() {
 		if (!computedCommandInfo) {
 			// Computes the commandInfo for this command, searching for the uppermost parent
@@ -186,10 +191,10 @@ public class CommandValidator {
 					} else {
 						if (incorrectUsage || !showInformation) {
 							// Show command type
-							ChatUtils.sendError(wPlayer, "Incorrect command usage!");
+							ChatUtils.send(wPlayer, "Incorrect command usage!", LogMessageType.ERROR);
 							String usage = CommandManager.getInstance().getCommandInfo(builtParentCommand).getUsage();
 							if (usage != null) {
-								ChatUtils.sendInfo(wPlayer, usage);
+								ChatUtils.send(wPlayer, usage, LogMessageType.INFO);
 							}
 							return "";
 						} else {
@@ -237,7 +242,7 @@ public class CommandValidator {
 				}
 				return "Invalid command option!";
 			} else {
-				ChatUtils.sendError(wPlayer, "Invalid argument!");
+				ChatUtils.send(wPlayer, "Invalid argument!", LogMessageType.ERROR);
 				return passError;
 			}
 		}
@@ -255,7 +260,7 @@ public class CommandValidator {
 			return;
 		}
 		if (getCommandInfo() != null) {
-			if (wPlayer != null && wPlayer.checkPermission(getCommandInfo().getPermission())) {
+			if (wPlayer != null && !wPlayer.checkPermission(getCommandInfo().getPermission())) {
 				return;
 			}
 		}
