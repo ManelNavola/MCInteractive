@@ -16,7 +16,6 @@ import com.manelnavola.mcinteractive.adventure.EventManager;
 import com.manelnavola.mcinteractive.adventure.customevents.CustomEvent;
 import com.manelnavola.mcinteractive.adventure.customevents.EventVote;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
-import com.manelnavola.mcinteractive.generic.PlayerConnection;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 import com.manelnavola.mcinteractive.voting.Vote.VoteType;
@@ -192,12 +191,12 @@ public class VoteManager {
 		if (isActive(p)) {
 			MessageSender.err(p, "A vote is already operative!");
 		} else {
-			PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
-			if (pc == null) {
+			String listeningChannel = ConnectionManager.getPlayerChannel(p);
+			if (listeningChannel == null) {
 				MessageSender.err(p, "You must be connected to a channel!");
 				return;
 			}
-			startEventVote(p, pc.getChannel());
+			startEventVote(p, listeningChannel);
 		}
 	}
 	
@@ -226,15 +225,15 @@ public class VoteManager {
 	}
 	
 	public static void endEventVote(Player p) {
-		PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
-		if (pc == null) {
+		String listeningChannel = ConnectionManager.getPlayerChannel(p);
+		if (listeningChannel == null) {
 			MessageSender.err(p, "You must be connected to a channel!");
 			return;
 		}
 		if (!isActive(p) && !runningEvents.containsKey(p)) {
 			MessageSender.err(p, "There's no operative vote!");
 		} else {
-			endEventVote(p, pc.getChannel());
+			endEventVote(p, listeningChannel);
 		}
 	}
 	
@@ -255,15 +254,15 @@ public class VoteManager {
 	}
 
 	public static void cancelEventVote(Player p) {
-		PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
-		if (pc == null) {
+		String listeningChannel = ConnectionManager.getPlayerChannel(p);
+		if (listeningChannel == null) {
 			MessageSender.err(p, "You must be connected to a channel!");
 			return;
 		}
 		if (!isActive(p) && !runningEvents.containsKey(p)) {
 			MessageSender.err(p, "There's no operative vote!");
 		} else {
-			cancelEventVote(p, pc.getChannel());
+			cancelEventVote(p, listeningChannel);
 		}
 	}
 	
@@ -319,10 +318,9 @@ public class VoteManager {
 		}
 	}
 	public static void startChannelVote(Player p, int duration, List<String> options, boolean force) {
-		PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
-		if (pc != null) {
-			String ch = pc.getChannel();
-			List<Vote> vl = channelVotes.get(ch);
+		String listeningChannel = ConnectionManager.getPlayerChannel(p);
+		if (listeningChannel != null) {
+			List<Vote> vl = channelVotes.get(listeningChannel);
 			if (vl != null) {
 				for (Vote v : vl) {
 					if (v.getVoteType() == VoteType.EVENT) {
@@ -339,7 +337,7 @@ public class VoteManager {
 			}
 			List<Player> pl = new ArrayList<>();
 			int st = 0;
-			for (Player pp : ConnectionManager.getChannelPlayers(ch)) {
+			for (Player pp : ConnectionManager.getChannelPlayers(listeningChannel)) {
 				Vote v = playerVotes.get(pp);
 				if (v == null) {
 					pl.add(pp);
@@ -357,7 +355,7 @@ public class VoteManager {
 				MessageSender.err(p, "There are no available players in this channel!");
 				return;
 			}
-			Vote v = new Vote(VoteType.CHANNEL, pl, ch, duration,
+			Vote v = new Vote(VoteType.CHANNEL, pl, listeningChannel, duration,
 					ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Channel Vote",
 					ChatColor.GREEN + "Vote in twitch chat!",
 					options);
@@ -387,9 +385,9 @@ public class VoteManager {
 		MessageSender.err(cs, ch + " has no currently running channel vote!");
 	}
 	public static void endChannelVote(Player p) {
-		PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
-		if (pc != null) {
-			endChannelVote(p, pc.getChannel());
+		String listeningChannel = ConnectionManager.getPlayerChannel(p);
+		if (listeningChannel != null) {
+			endChannelVote(p, listeningChannel);
 		} else {
 			MessageSender.err(p, "You are not connected to a channel!");
 		}
@@ -409,9 +407,9 @@ public class VoteManager {
 		MessageSender.err(cs, ch + " has no currently running channel vote!");
 	}
 	public static void cancelChannelVote(Player p) {
-		PlayerConnection pc = ConnectionManager.getPlayerConnection(p);
-		if (pc != null) {
-			cancelChannelVote(p, pc.getChannel());
+		String listeningChannel = ConnectionManager.getPlayerChannel(p);
+		if (listeningChannel != null) {
+			cancelChannelVote(p, listeningChannel);
 		} else {
 			MessageSender.err(p, "You are not connected to a channel!");
 		}
@@ -423,13 +421,13 @@ public class VoteManager {
 		if (isActive(p)) {
 			MessageSender.err(p, "A vote is already operative!");
 		} else {
-			if (ConnectionManager.getPlayerConnection(p) == null) {
+			if (ConnectionManager.getPlayerChannel(p) == null) {
 				MessageSender.err(p, "You must be connected to a channel!");
 				return;
 			}
 			List<Player> pl = new ArrayList<Player>();
 			pl.add(p);
-			addVote(new Vote(VoteType.PLAYER, pl, ConnectionManager.getPlayerConnection(p).getChannel(), duration,
+			addVote(new Vote(VoteType.PLAYER, pl, ConnectionManager.getPlayerChannel(p), duration,
 					ChatColor.ITALIC + "" + ChatColor.LIGHT_PURPLE + "Vote",
 					ChatColor.GREEN + "in twitch chat!", options));
 			MessageSender.nice(p, "Vote started!");

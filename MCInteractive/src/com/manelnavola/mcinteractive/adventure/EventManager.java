@@ -29,7 +29,7 @@ public class EventManager {
 
 			@Override
 			public void run() {
-				for (String ch : ConnectionManager.getAnonConnectedChannels()) {
+				for (String ch : ConnectionManager.getConnectedChannels()) {
 					if (Math.random() < 0.4) {
 						startRandomEvent(ch);
 					}

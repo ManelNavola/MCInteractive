@@ -149,14 +149,20 @@ public class RewardManager {
 		
 		gifterNickname = gifterNickname.replace(' ', '_');
 		
+		//LoggingManager.l("Processing tier " + tier + " subscription with gifter " + gifterNickname);
 		for (Player p : channelPlayers) {
+			//LoggingManager.l(p.getName() + " check...");
 			PlayerData pd = PlayerManager.getPlayerData(p);
 			if (pd.getConfig("rewards")) {
 				if (pd.getConfig("customitems")) {
+					//LoggingManager.l("Gifted custom item");
 					giftCustomItem(p, new SubGift(), tier, gifterNickname);
 				} else {
+					//LoggingManager.l("customitems disabled");
 					giftRandomItem(p, tier, gifterNickname);
 				}
+			} else {
+				//LoggingManager.l("rewards disabled");
 			}
 		}
 	}
@@ -233,35 +239,41 @@ public class RewardManager {
 	public static void giftCustomItem(Player p, CustomItem ci, int tier, String gifterNickname) {
 		ItemStack is = ci.getRarity(tier);
 		ci.fixDisplayName(is, gifterNickname, tier);
+		String cn = "SubGift";
 		if (ci.getClass() != SubGift.class) {
-			String cn = ci.getCustomName(gifterNickname, tier);
-			if (cn != null) {
-				MessageSender.info(p, "You found " + cn);
-			} else {
-				MessageSender.info(p, "You found " + is.getItemMeta().getDisplayName());
-			}
+			cn = ci.getCustomName(gifterNickname, tier);
+			if (cn == null) cn = is.getItemMeta().getDisplayName();
+			MessageSender.info(p, "You found " + cn);
 		}
 		if (p.getInventory().firstEmpty() == -1) {
 			// Full
 			p.getWorld().dropItemNaturally(p.getLocation(), is);
 			MessageSender.info(p, "Inventory full! Sub reward dropped on ground");
+			//LoggingManager.l("Thrown " + cn + " at " + p.getName());
 		} else {
 			p.getInventory().addItem(is);
 			PlayerManager.updateInventory(p);
+			//LoggingManager.l("Gave item " + cn + " to " + p.getName());
 		}
 	}
 
 	public static void processBits(List<Player> pl, int bits, String sourceName) {
+		//LoggingManager.l("Processing bits to players: ");
 		for (Player p : pl) {
-			PlayerData pd = PlayerManager.getPlayerData(p);
-			if (!pd.getConfig("bitshop")) continue;
+			//LoggingManager.l(p.getName());
 			ChatManager.sendNotice(p,
 					String.join(" ",
 							ChatColor.GREEN + sourceName,
 							ChatColor.WHITE + "has cheered",
 							ChatColor.AQUA + "" + bits,
 							ChatColor.WHITE + "bits!"));
+			PlayerData pd = PlayerManager.getPlayerData(p);
+			if (!pd.getConfig("bitshop")) {
+				//LoggingManager.l("bitshop not enabled");
+				continue;
+			}
 			pd.addBits(bits);
+			//LoggingManager.l("added " + bits);
 			if (p.getOpenInventory().getTitle().equals(BitsGUI.getTitle())) {
 				BitsGUI.open(p);
 			}

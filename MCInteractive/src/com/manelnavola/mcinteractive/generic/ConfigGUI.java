@@ -39,6 +39,9 @@ public class ConfigGUI {
 			for (Config c : cc.getConfigs()) {
 				int slot = row*9 + column;
 				Boolean b = PlayerManager.getLock(c.getID());
+				if (c.globalConfig) {
+					continue;
+				}
 				Config pre = c.getPrequisite();
 				if (pre != null) {
 					if (!pd.getConfig(pre.getID())) {

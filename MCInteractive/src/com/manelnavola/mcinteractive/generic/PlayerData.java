@@ -10,7 +10,7 @@ public class PlayerData extends PlayerManager {
 	private Map<String, Boolean> configMap;
 	private int bits = 0;
 	private String playerUUID;
-	private Object lock = new Object();
+	private Object bitsLock = new Object();
 	
 	public PlayerData(FileConfiguration fc, String uuid) {
 		fileConfig = fc;
@@ -36,13 +36,13 @@ public class PlayerData extends PlayerManager {
 	}
 	
 	public int getBits() {
-		synchronized (lock) {
+		synchronized (bitsLock) {
 			return bits;
 		}
 	}
 	
 	public void setBits(int bb) {
-		synchronized (lock) {
+		synchronized (bitsLock) {
 			bits = bb;
 		}
 	}
@@ -74,7 +74,7 @@ public class PlayerData extends PlayerManager {
 	}
 
 	public void addBits(int n) {
-		synchronized (lock) {
+		synchronized (bitsLock) {
 			bits += n;
 		}
 	}

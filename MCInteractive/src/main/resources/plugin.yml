@@ -1,6 +1,6 @@
 name: MCInteractive
 description: Enables Twitch interaction with customizable in-game features
-version: 1.0.2
+version: 1.0.2-beta
 author: Manel Navola
 
 main: com.manelnavola.mcinteractive.Main
@@ -141,6 +141,12 @@ commands:
       usage: "/mci bits remove [amount] <player>"
       permission: mci.bits.admin
       permission-message: You do not have permission to run this command!
+   # Version
+   mci version:
+      description: Checks the current MCInteractive version
+      usage: "/mci version"
+      permission: mci.version
+      permission-message: You do not have permission to run this command!
    # Customitems
    mci customitems:
       description: Opens the custom items creative GUI
@@ -163,6 +169,7 @@ permissions:
          mci.gift: true
          mci.bits.*: true
          mci.customitems: true
+         mci.version: true
       default: op
    # Base command
    mci.info:
@@ -254,6 +261,10 @@ permissions:
    # Adventure items
    mci.customitems:
       description: Allows you to open the custom items creative GUI
+      default: op
+   # Version
+   mci.version:
+      description: Allows you to check MCInteractive's version
       default: op
    # Bits
    mci.bits.*:

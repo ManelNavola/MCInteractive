@@ -14,6 +14,8 @@ public class Config {
 	private Material icon;
 	private Config prequisite;
 	
+	protected boolean globalConfig = false;
+	
 	public Config(String l_name, String[] desc, String l_id, boolean l_def, Material mat, Config p) {
 		name = l_name;
 		description = new ArrayList<>();

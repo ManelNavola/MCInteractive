@@ -13,18 +13,22 @@ public class Log {
 	private static final String PLUGIN_TAG = "[MCInteractive]";
 	
 	public static void error(Object msg) {
+		//LoggingManager.l("<log> " + msg.toString());
 		Bukkit.getConsoleSender().sendMessage(ChatColor.RED + PLUGIN_TAG + " " + msg.toString());
 	}
 	
 	public static void warn(Object msg) {
+		//LoggingManager.l("<log> " + msg.toString());
 		Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + PLUGIN_TAG + " " + msg.toString());
 	}
 	
 	public static void nice(Object msg) {
+		//LoggingManager.l("<log> " + msg.toString());
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + PLUGIN_TAG + " " + msg.toString());
 	}
 	
 	public static void info(Object msg) {
+		//LoggingManager.l("<log> " + msg.toString());
 		Bukkit.getConsoleSender().sendMessage(PLUGIN_TAG + " " + msg.toString());
 	}
 

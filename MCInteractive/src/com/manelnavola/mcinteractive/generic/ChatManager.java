@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.voting.Vote;
 import com.manelnavola.mcinteractive.voting.VoteManager;
 import com.manelnavola.twitchbotx.TwitchUser;
@@ -89,21 +91,26 @@ public class ChatManager {
 		}
 	}
 	
-	public static void sendMessage(List<Player> pl, TwitchMessageEvent tme) {
-		for (Player p : pl) {
-			PlayerData pd = PlayerManager.getPlayerData(p);
-			
-			Vote v = VoteManager.getVote(p);
-			if (v != null && v.isValidOption(tme.getContents())) return; // Is a vote, handle automatically
-			
-			if (pd.getConfig("showchat")) {
-				TwitchUser tu = tme.getUser();
-				String tag = parseUserTag(tu);
-				String user = parseUsername(pd, tu, true);
-				String msg = parseMessage(pd, tu, tme.getContents());
-				p.sendMessage(tag + " " + user + " " + msg);
+	public static void sendMessage(final List<Player> pl, final TwitchMessageEvent tme) {
+		Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
+			@Override
+			public void run() {
+				for (Player p : pl) {
+					PlayerData pd = PlayerManager.getPlayerData(p);
+					
+					Vote v = VoteManager.getVote(p);
+					if (v != null && v.isValidOption(tme.getContents())) return; // Is a vote, handle automatically
+					
+					if (pd.getConfig("showchat")) {
+						TwitchUser tu = tme.getUser();
+						String tag = parseUserTag(tu);
+						String user = parseUsername(pd, tu, true);
+						String msg = parseMessage(pd, tu, tme.getContents());
+						p.sendMessage(tag + " " + user + " " + msg);
+					}
+				}
 			}
-		}
+		});
 	}
 
 	public static void sendNotice(List<Player> pl, String msg) {

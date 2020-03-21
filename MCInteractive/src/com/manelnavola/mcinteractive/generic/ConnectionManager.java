@@ -1,21 +1,17 @@
 package com.manelnavola.mcinteractive.generic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.manelnavola.mcinteractive.utils.Log;
-import com.manelnavola.mcinteractive.utils.MessageSender;
 
 public final class ConnectionManager {
 	
-	private static List<Player> botPlayers;
-	private static Map<Player, PlayerConnection> playerConnections;
+	//private static List<Player> botPlayers;
+	//private static Map<Player, String> playerConnections;
 	private static TwitchBotMCI anonTwitchBotX;
-	private static Object safetyLock = new Object();
+	//private static Object safetyLock = new Object();
 	
 	/**
 	 * Initializes the Manager values
@@ -32,8 +28,8 @@ public final class ConnectionManager {
 				Log.error("Could not connect anon bot to Twitch servers!");
 			}
 		}
-		botPlayers = new ArrayList<>();
-		playerConnections = new HashMap<>();
+		//botPlayers = new ArrayList<>();
+		//playerConnections = new HashMap<>();
 	}
 	
 	/**
@@ -53,64 +49,65 @@ public final class ConnectionManager {
 	}
 	
 	public static void listen(Player p, String ch) {
-		synchronized(safetyLock) {
-			// Leave if player is already connected
-			PlayerConnection pbc = getPlayerConnection(p);
-			if (pbc != null) {
-				if (pbc.getChannel().equals(ch)) {
-					MessageSender.warn(p, "You are already connected to " + ch + "!");
-					return;
-				} else {
-					leave(p);
-				}
+		anonTwitchBotX.connect(p, ch);
+		/*LoggingManager.l("Attempting to listen " + p.getName() + " to " + ch);
+		
+		// Leave if player is already connected
+		String listeningChannel = getPlayerChannel(p);
+		if (listeningChannel != null) {
+			if (listeningChannel.equals(ch)) {
+				MessageSender.warn(p, "You are already connected to " + ch + "!");
+				return;
+			} else {
+				leave(p);
 			}
-			
+		}
+		listeningChannel = ch;
+		
+		synchronized(safetyLock) {
 			// Create new player connection
-			pbc = new PlayerConnection(anonTwitchBotX, ch);
-			playerConnections.put(p, pbc);
-			
-			// Connect anonymous TwitchBotX if it's not connected already
-			// if (!anonTwitchBotX.isConnectedTo(ch)) anonTwitchBotX.joinChannel(ch);
+			playerConnections.put(p, listeningChannel);
 			
 			// Connect player to channel
 			botPlayers.add(p);
 			anonTwitchBotX.connect(p, ch);
-		}
+		}*/
 	}
 	
 	public static void leave(Player p) {
-		leave(p, true);
+		anonTwitchBotX.disconnect(p);
+		//leave(p, true);
 	}
 	
-	public static void leave(Player p, boolean logErr) {
-		synchronized(safetyLock) {
-			// Leave if player is already connected
-			PlayerConnection pc = getPlayerConnection(p);
-			if (pc == null) {
-				MessageSender.err(p, "You are not connected to a channel!");
-			} else {
-				TwitchBotMCI tbmci = pc.getTwitchBotMCI();
-				tbmci.disconnect(p);
+	/*public static void leave(Player p, boolean logErr) {
+		String listeningChannel = getPlayerChannel(p);
+		if (listeningChannel == null) {
+			MessageSender.err(p, "You are not connected to a channel!");
+		} else {
+			synchronized(safetyLock) {
+				anonTwitchBotX.disconnect(p);
 				playerConnections.remove(p);
 				botPlayers.remove(p);
 			}
 		}
-	}
+	}*/
 	
-	public static List<String> getAnonConnectedChannels() {
+	public static List<String> getConnectedChannels() {
 		return anonTwitchBotX.getConnectedChannels();
 	}
 	
-	public static PlayerConnection getPlayerConnection(Player p) {
-		synchronized(safetyLock) {
+	public static String getPlayerChannel(Player p) {
+		return anonTwitchBotX.getPlayerChannel(p);
+		/*synchronized(safetyLock) {
 			return playerConnections.get(p);
-		}
+		}*/
 	}
 	
 	public static boolean isConnected(Player p) {
-		synchronized(safetyLock) {
+		return anonTwitchBotX.getPlayerChannel(p) != null;
+		/*synchronized(safetyLock) {
 			return playerConnections.containsKey(p);
-		}
+		}*/
 	}
 	
 }

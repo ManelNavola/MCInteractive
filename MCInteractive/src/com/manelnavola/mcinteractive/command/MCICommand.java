@@ -12,6 +12,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.adventure.BitsGUI;
 import com.manelnavola.mcinteractive.adventure.CustomItemsGUI;
 import com.manelnavola.mcinteractive.adventure.RewardManager;
@@ -53,17 +54,6 @@ public class MCICommand implements CommandExecutor {
 						}
 					}
 				}, 20L);
-				Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-					@Override
-					public void run() {
-						for (Player p : Bukkit.getOnlinePlayers()) {
-							if (!ConnectionManager.getPlayerConnection(p).getChannel().equals(ch)) {
-								ConnectionManager.leave(p);
-								ConnectionManager.listen(p, ch);
-							}
-						}
-					}
-				}, 60L);
 			}
 		};
 		CommandValidator channelLock = new CommandValidator(new CommandString("lock"),
@@ -117,7 +107,8 @@ public class MCICommand implements CommandExecutor {
 						+ ChatColor.GOLD + "!");
 					return;
 				}
-				ConnectionManager.leave((Player) sender, false);
+				//ConnectionManager.leave((Player) sender, false);
+				ConnectionManager.leave((Player) sender);
 			}
 		};
 		CommandValidator channelLeave =
@@ -602,6 +593,19 @@ public class MCICommand implements CommandExecutor {
 				},
 				mciBits, true);
 		
+		// Version
+		CommandRunnable mciVersion = new CommandRunnable() {
+			@Override
+			public void run(CommandSender sender, String[] args) {
+				if (Main.versionMismatch != null) {
+					MessageSender.warn(sender, Main.versionMismatch);
+				} else {
+					MessageSender.nice(sender, "Running on latest version " + Main.INTERNAL_NAME);
+				}
+			}
+		};
+		CommandValidator version = new CommandValidator(new CommandString("version"), mciVersion);
+		
 		// Main
 		main = new CommandValidatorInfo(
 			new CommandString("mci"), new CommandValidator[] {
@@ -613,7 +617,8 @@ public class MCICommand implements CommandExecutor {
 				bits,
 				customitems,
 				channelvote,
-				eventvote
+				eventvote,
+				version
 			});
 	}
 	

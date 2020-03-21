@@ -65,7 +65,8 @@ public class Main extends JavaPlugin implements Listener {
 
 	public static Plugin plugin;
 	private static boolean ON_1_13 = false;
-	private static String[] versionCheckers;
+	public static String versionMismatch;
+	public static final String INTERNAL_NAME = "Beta-1.0.2";
 
 	private static HashMap<Player, Integer> lastArrowSlot = new HashMap<>();
 
@@ -73,38 +74,43 @@ public class Main extends JavaPlugin implements Listener {
 	public void onEnable() {
 		plugin = this;
 
-		// Register events
-		getServer().getPluginManager().registerEvents(this, this);
-
 		ON_1_13 = Bukkit.getVersion().contains("1.13");
 
 		// Init managers
 		ConfigManager.init();
 		PlayerManager.init(this);
+		//LoggingManager.init(this);
 		CustomItemManager.init(this);
 		ConnectionManager.init(this);
 		VoteManager.init(this);
 		CommandValidator.init(this);
 		BitsNatural.init();
 		EventManager.init(this);
-
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			join(p);
-		}
-
+		//LoggingManager.l("Registered managers");
+		
 		// Register commands
 		MCICommand mcic = new MCICommand(this);
 		this.getCommand("mci").setExecutor(mcic);
 		this.getCommand("mci").setTabCompleter(new MCITabCompleter(mcic));
+		//LoggingManager.l("Registered commands");
+		
+		// Register events
+		getServer().getPluginManager().registerEvents(this, this);
+		//LoggingManager.l("Registered events");
+		
+		//LoggingManager.l("Try joining already existing players:");
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			join(p);
+		}
 
 		// Nice!
 		Log.nice("Enabled MCInteractive successfully!");
-
-		// Check latest version
+		//LoggingManager.l("Enabled MCInteractive successfully!");
+		
 		try {
 			URL url = new URL("https://api.spiget.org/v2/resources/75068/versions?sort=-releaseDate&fields=name");
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.addRequestProperty("User-Agent", "ManelNavola");// Set User-Agent
+			connection.addRequestProperty("User-Agent", "ManelNavola"); // Set User-Agent
 
 			// If you're not sure if the request will be successful,
 			// you need to check the response code and use #getErrorStream if it returned an
@@ -115,31 +121,30 @@ public class Main extends JavaPlugin implements Listener {
 			// This could be either a JsonArray or JsonObject
 			JsonElement element = new JsonParser().parse(reader);
 			String latestVersion = element.getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString();
-			String currentVersion = this.getDescription().getVersion();
-			if (latestVersion.equals(currentVersion)) {
-				Log.nice("Running on latest version " + currentVersion);
+			if (latestVersion.equals(INTERNAL_NAME)) {
+				Log.nice("Running on latest version " + INTERNAL_NAME);
 			} else {
-				Log.warn("Outdated version! Current version is " + currentVersion + ", found new version "
-						+ latestVersion);
-				versionCheckers = new String[] { currentVersion, latestVersion };
+				versionMismatch = "Outdated version! Current version is " + INTERNAL_NAME + ", found new version " + latestVersion;
+				Log.warn(versionMismatch);
 			}
 		} catch (Exception e) {
 			Log.error("Could not fetch latest version!");
 			e.printStackTrace();
 		}
+		 
 	}
 
 	private void join(Player p) {
-		PlayerManager.playerJoin(p);
-		CommandValidator.addPlayer(p);
+		//LoggingManager.l("Performed join event on " + p.getName());
 		String ch = PlayerManager.getConfigString("channellock");
 		if (ch != null) {
 			ConnectionManager.listen(p, "#" + ch);
 		}
+		PlayerManager.playerJoin(p);
+		CommandValidator.addPlayer(p);
 		clearEventEffects(p);
-		if (p.isOp() && versionCheckers != null) {
-			MessageSender.warn(p, "Outdated version! Current version is " + versionCheckers[0] + ", found new version "
-					+ versionCheckers[1]);
+		if (p.isOp() && versionMismatch != null) {
+			MessageSender.warn(p, versionMismatch);
 		}
 	}
 
@@ -164,12 +169,15 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
+		//LoggingManager.l("Disabling plugin...");
 		PlayerManager.dispose();
 		ConnectionManager.dispose();
 		CustomItemManager.dispose();
 		CommandValidator.dispose();
 		VoteManager.dispose();
 		EventManager.dispose();
+		//LoggingManager.l("Plugin disabled");
+		//LoggingManager.dispose();
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)

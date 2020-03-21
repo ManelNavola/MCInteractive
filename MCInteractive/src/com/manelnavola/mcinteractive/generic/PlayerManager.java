@@ -32,6 +32,7 @@ public class PlayerManager {
 	public static void init(Plugin plg) {
 		plugin = plg;
 		playerSave = new YamlConfiguration();
+		
 		try {
 			playerSaveFile = new File(plugin.getDataFolder(), "players.yml");
 			if (!playerSaveFile.exists()) {
@@ -125,19 +126,17 @@ public class PlayerManager {
 	public static PlayerData getPlayerData(Player p) {
 		String uuid = p.getUniqueId().toString();
 		synchronized(playerDataMap) {
-			if (playerDataMap.containsKey(uuid)) {
-				return playerDataMap.get(uuid);
-			} else {
-				return null;
-			}
+			return playerDataMap.get(uuid);
 		}
 	}
 
 	public static void playerQuit(Player p) {
 		String uuid = p.getUniqueId().toString();
-		if (playerDataMap.containsKey(uuid)) {
-			playerDataMap.get(uuid).save();
-			playerDataMap.remove(uuid);
+		synchronized(playerDataMap) {
+			if (playerDataMap.containsKey(uuid)) {
+				playerDataMap.get(uuid).save();
+				playerDataMap.remove(uuid);
+			}
 		}
 	}
 	

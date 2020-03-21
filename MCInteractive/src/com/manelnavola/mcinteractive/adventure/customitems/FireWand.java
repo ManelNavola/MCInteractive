@@ -24,14 +24,17 @@ public class FireWand extends CustomItem {
 		ItemStack uncommon = new CustomItemStackBuilder<>(Material.STICK)
 				.name("Fire wand")
 				.lore("Right click to shoot a weak fireball")
+				.lore("that explodes upon impact")
 				.uses(5)
 				.addEnchantEffect()
 				.build();
 		ItemStack rare = new CustomItemStackBuilder<>(uncommon)
-				.newLore("Richt click to shoot a fireball!")
+				.newLore("Richt click to shoot a fireball")
+				.lore("that creates a large explosion upon impact!")
 				.build();
 		ItemStack legendary = new CustomItemStackBuilder<>(uncommon)
-				.newLore("Richt click to shoot a powerful fireball!")
+				.newLore("Richt click to shoot a powerful fireball")
+				.lore("that creates a large explosion upon impact!")
 				.build();
 		setRarities(null, uncommon, rare, legendary);
 	}

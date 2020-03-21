@@ -40,8 +40,9 @@ public class BitsNatural {
 		// Uncommon mobs
 		entityBitsDataMap.put(EntityType.PIG_ZOMBIE,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		entityBitsDataMap.put(EntityType.DROWNED,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
-		if (!Main.isOn1_13())
-		entityBitsDataMap.put(EntityType.PILLAGER,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		if (!Main.isOn1_13()) {
+			entityBitsDataMap.put(EntityType.PILLAGER,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		}
 		entityBitsDataMap.put(EntityType.VINDICATOR,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Mid rare mobs
 		entityBitsDataMap.put(EntityType.CREEPER,			new EntityBitsData( 2,  8,  4,  20, 4,  300));
