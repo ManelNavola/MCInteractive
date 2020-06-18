@@ -12,9 +12,8 @@ public class CommandChannel extends CommandObject {
 	public void validate(String input, List<String> list) {
 		input = input.toLowerCase();
 		for (String s : ConnectionManager.getConnectedChannels()) {
-			String ss = s.substring(1);
-			if (ss.startsWith(input))
-				list.add(ss);
+			if (s.startsWith(input))
+				list.add(s);
 		}
 	}
 	

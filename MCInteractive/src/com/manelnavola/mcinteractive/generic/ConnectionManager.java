@@ -1,6 +1,8 @@
 package com.manelnavola.mcinteractive.generic;
 
 import java.util.List;
+import java.util.Set;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -17,16 +19,11 @@ public final class ConnectionManager {
 	 * Initializes the Manager values
 	 */
 	public static void init(Plugin plg) {
-		anonTwitchBotX = new TwitchBotMCI();
-		boolean connected = anonTwitchBotX.waitForStartup();
-		if (!connected) {
-			// Try one more time...
-			Log.warn("Could not connect anon bot to Twitch servers, retrying...");
+		try {
 			anonTwitchBotX = new TwitchBotMCI();
-			connected = anonTwitchBotX.waitForStartup();
-			if (!connected) {
-				Log.error("Could not connect anon bot to Twitch servers!");
-			}
+		} catch (Exception e) {
+			Log.error("Could not start bot! Restart the plugin and if the issue persists contact the developer");
+			Log.error(e);
 		}
 		//botPlayers = new ArrayList<>();
 		//playerConnections = new HashMap<>();
@@ -92,7 +89,7 @@ public final class ConnectionManager {
 		}
 	}*/
 	
-	public static List<String> getConnectedChannels() {
+	public static Set<String> getConnectedChannels() {
 		return anonTwitchBotX.getConnectedChannels();
 	}
 	

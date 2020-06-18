@@ -62,6 +62,7 @@ public class CommandTime extends CommandObject {
 			tr = Integer.parseInt(input);
 		} catch(NumberFormatException nfe) {
 			Pattern p = Pattern.compile("^([0-9]+h)?([0-9]+m)?([0-9]+s)?$");
+			input = input.toLowerCase();
 			Matcher mat = p.matcher(input);
 			if (mat.matches()) {
 				int h = 0, m = 0, s = 0, hi, mi, si, sss;

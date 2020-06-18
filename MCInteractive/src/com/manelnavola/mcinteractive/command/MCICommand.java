@@ -25,6 +25,7 @@ import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
+import com.manelnavola.mcinteractive.voting.Vote;
 import com.manelnavola.mcinteractive.voting.VoteManager;
 import com.manelnavola.twitchbotx.events.TwitchSubscriptionEvent.SubPlan;
 
@@ -41,7 +42,7 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciChannelLock = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				String ch = "#" + args[3].toLowerCase();
+				String ch = args[3].toLowerCase();
 				PlayerManager.setConfigString("channellock", args[3].toLowerCase());
 				MessageSender.nice(sender, "Channel lock has been set to listen "
 						+ ChatColor.AQUA + ch);
@@ -49,8 +50,29 @@ public class MCICommand implements CommandExecutor {
 					@Override
 					public void run() {
 						for (Player p : Bukkit.getOnlinePlayers()) {
-							ConnectionManager.leave(p);
-							ConnectionManager.listen(p, ch);
+							String cc = ConnectionManager.getPlayerChannel(p);
+							if (cc != null && cc.equals(ch)) {
+								// Good
+							} else {
+								if (VoteManager.isActive(p)) {
+									Vote v = VoteManager.getVote(p);
+									switch(v.getVoteType()) {
+									case PLAYER:
+										VoteManager.endPlayerVote(p);
+										break;
+									case CHANNEL:
+										VoteManager.endChannelVote(p);
+										break;
+									case EVENT:
+										VoteManager.endEventVote(p);
+										break;
+									default:
+										break;
+									}
+								}
+								ConnectionManager.leave(p);
+								ConnectionManager.listen(p, ch);
+							}
 						}
 					}
 				}, 20L);
@@ -87,7 +109,7 @@ public class MCICommand implements CommandExecutor {
 						+ ChatColor.GOLD + "!");
 					return;
 				}
-				ConnectionManager.listen((Player) sender, "#" + args[3].toLowerCase());
+				ConnectionManager.listen((Player) sender, args[3].toLowerCase());
 			}
 		};
 		CommandValidator channelListen = new CommandValidator(new CommandString("listen"),
@@ -137,7 +159,7 @@ public class MCICommand implements CommandExecutor {
 		CommandRunnable mciEventvoteStartwcn = new CommandRunnable() {
 			@Override
 			public void run(CommandSender sender, String[] args) {
-				VoteManager.startEventVote(sender, "#" + args[3]);
+				VoteManager.startEventVote(sender, args[3]);
 			}
 		};
 		CommandRunnable mciEventvoteStart = new CommandRunnable() {
@@ -164,7 +186,7 @@ public class MCICommand implements CommandExecutor {
 						MessageSender.err(sender, "You must specify a channel!");
 					}
 				} else {
-					VoteManager.endEventVote(sender, "#" + args[3]);
+					VoteManager.endEventVote(sender, args[3]);
 				}
 			}
 		};
@@ -184,7 +206,7 @@ public class MCICommand implements CommandExecutor {
 						MessageSender.err(sender, "You must specify a channel!");
 					}
 				} else {
-					VoteManager.cancelEventVote(sender, "#" + args[3]);
+					VoteManager.cancelEventVote(sender, args[3]);
 				}
 			}
 		};
@@ -209,7 +231,7 @@ public class MCICommand implements CommandExecutor {
 				int time = CommandTime.textToTime(args[4]);
 				List<String> options = new ArrayList<>();
 				for (int i = 5; i < args.length; i++) options.add(args[i]);
-				VoteManager.startChannelVote(sender, "#" + args[3], time, options, true);
+				VoteManager.startChannelVote(sender, args[3], time, options, true);
 			}
 		};
 		CommandRunnable mciChannelvoteForcestart = new CommandRunnable() {
@@ -244,7 +266,7 @@ public class MCICommand implements CommandExecutor {
 				int time = CommandTime.textToTime(args[4]);
 				List<String> options = new ArrayList<>();
 				for (int i = 5; i < args.length; i++) options.add(args[i]);
-				VoteManager.startChannelVote(sender, "#" + args[3], time, options, false);
+				VoteManager.startChannelVote(sender, args[3], time, options, false);
 			}
 		};
 		CommandRunnable mciChannelvoteStart = new CommandRunnable() {
@@ -282,7 +304,7 @@ public class MCICommand implements CommandExecutor {
 						MessageSender.err(sender, "You must specify a channel!");
 					}
 				} else {
-					VoteManager.endChannelVote(sender, "#" + args[3]);
+					VoteManager.endChannelVote(sender, args[3]);
 				}
 			}
 		};
@@ -302,7 +324,7 @@ public class MCICommand implements CommandExecutor {
 						MessageSender.err(sender, "You must specify a channel!");
 					}
 				} else {
-					VoteManager.cancelChannelVote(sender, "#" + args[3]);
+					VoteManager.cancelChannelVote(sender, args[3]);
 				}
 			}
 		};
@@ -638,254 +660,7 @@ public class MCICommand implements CommandExecutor {
 			MessageSender.err(sender, error);
 		}
 		return true;
-		/*
-		// Check permissions
-		if (sender instanceof Player) {
-			if (!sender.isOp()) {
-				MessageSender.error(sender, "Only operators can execute this command!");
-				return true;
-			}
-		}
-		
-		args = CommandParser.parseCommas(args, sender);
-		if (args == null) {
-			MessageSender.warn(sender, "Invalid command parsing!");
-			MessageSender.warn(sender, "Ensure sentences with \"\" are correctly wrapped!");
-		}
-		
-		if (args.length == 0) {
-			MessageSender.send(sender, ChatColor.YELLOW + "--------- " + ChatColor.WHITE + "MCInteractive Help " + ChatColor.YELLOW + "------------------");
-			MessageSender.send(sender, ChatColor.GRAY + "Type /mci [option] to get help about a command");
-			for (int i = 0; i < actions.size(); i++) {
-				MessageSender.send(sender, ChatColor.GOLD + "/mci " + actions.get(i) + ": "
-						+ ChatColor.RESET + Bukkit.getPluginCommand("mci " + actions.get(i)).getDescription());
-			}
-			return true;
-		}
-		
-		// Check command
-		switch (args[0].toLowerCase()) {
-		case "channel":
-			return channel(sender, args);
-		case "vote":
-			return vote(sender, args);
-		case "config":
-			return config(sender, args);
-		case "gift":
-			return gift(sender, args);
-		case "listen":
-			return listen(sender, args);
-		case "leave":
-			return leave(sender, args);
-		case "startvote":
-			return startVote(sender, args);
-		case "endvote":
-			return endVote(sender, args);
-		case "cancelvote":
-			return cancelVote(sender, args);
-		case "config":
-			return config(sender, args);
-		case "reward":
-			return reward(sender, args);
-		}
-		
-		MessageSender.error(sender, "Only operators can execute this command!");*/
 	}
-	
-	/*private boolean channel(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
-			return false;
-		}
-		
-		if (args.length > 1) {
-			int months = Integer.parseInt(args[1]);
-			List<Player> pl = new ArrayList<Player>();
-			pl.add((Player) sender);
-			RewardManager.process(pl, months, SubPlan.LEVEL_1, "<command>");
-			return true;
-		}
-		
-		return false;
-	}
-
-	private boolean gift(CommandSender sender, String[] args) {
-		// mci [gift common player]
-		if (args.length == 2 || args.length == 3) {
-			Player toSend = null;
-			if (args.length == 2) {
-				if (sender instanceof Player) {
-					toSend = (Player) sender;
-				} else {
-					MessageSender.error(sender, "You must specify the player to be gifted!");
-					return true;
-				}
-			} else {
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					if (p.getName().equals(args[2])) {
-						toSend = p;
-						break;
-					}
-				}
-				if (toSend == null) {
-					MessageSender.error(sender, "Player is not online!");
-					return true;
-				}
-			}
-			
-			CustomItemTier cit = CustomItemTier.find(args[1]);
-			if (cit == null) {
-				MessageSender.error(sender, "Unknown gift rarity!");
-				return true;
-			}
-			RewardManager.giftCustomItem(toSend, CustomItemManager.getSubGift(), cit.getValue(), sender.getName());
-			MessageSender.nice(sender, cit.getName() + " gift successfully sent to " + toSend.getName());
-			return true;
-		} else {
-			MessageSender.error(sender, "This command takes 2 arguments!");
-			return true;
-		}
-	}
-	
-	private boolean config(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
-			MessageSender.error(sender, "This command cannot be run from the console!");
-			return true;
-		}
-		
-		if (args.length == 1) {
-			// One arg
-			ConfigGUI.open((Player) sender);
-			return true;
-		} else {
-			MessageSender.error(sender, "This command takes no arguments!");
-			return true;
-		}
-	}
-
-	private boolean endVote(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
-			MessageSender.error(sender, "This command cannot be run from the console!");
-			return true;
-		}
-		
-		if (args.length > 1) {
-			MessageSender.error(sender, "This command takes no arguments!");
-			return true;
-		}
-		VoteManager.endVote((Player) sender);
-		return true;
-	}
-
-	private boolean cancelVote(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
-			MessageSender.error(sender, "This command cannot be run from the console!");
-			return true;
-		}
-		
-		if (args.length > 1) {
-			MessageSender.error(sender, "This command takes no arguments!");
-			return true;
-		}
-		VoteManager.cancelVote((Player) sender);
-		return true;
-	}
-	
-	private boolean startVote(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
-			MessageSender.error(sender, "This command cannot be run from the console!");
-			return true;
-		}
-		
-		Player p = (Player) sender;
-		
-		if (!ConnectionManager.isConnected(p)) {
-			MessageSender.error(sender, "You must be connected to a Twitch channel first!");
-			MessageSender.error(sender, CommandParser.getCommandUsage("mci listen"));
-			return true;
-		}
-		
-		if (VoteManager.isActive(p)) {
-			MessageSender.error(sender, "A vote is already operative!");
-			return true;
-		}
-		
-		if (args.length < 5) {
-			MessageSender.error(sender, "A vote needs a description, a duration and at least two options!");
-			MessageSender.error(sender, CommandParser.getCommandUsage("mci startvote"));
-			return true;
-		}
-		
-		if (args.length > 9) {
-			MessageSender.error(sender, "Too many options! The currently allowed maximum is 6");
-			return true;
-		}
-		
-		float duration;
-		try {
-			duration = Float.parseFloat(args[2]);
-		} catch (NumberFormatException nfe) {
-			MessageSender.error(sender, "Duration must be a number!");
-			// Quick check if there's a number later
-			for (int i = 3; i < args.length; i++) {
-				try {
-					Float.parseFloat(args[i]);
-					MessageSender.warn(sender, "Are you wrapping sentences with \"\" ?");
-					break;
-				} catch (NumberFormatException nfe1) {
-				}
-			}
-			return true;
-		}
-
-		if (duration < 0) {
-			MessageSender.error(sender, "Duration must be higher than 0!");
-			return true;
-		}
-
-		// Fill options array
-		List<String> options = new ArrayList<>();
-		for (int i = 3; i < args.length; i++) {
-			options.add(args[i].toLowerCase());
-		}
-		VoteManager.createPlayerVote(p, args[1], duration, options);
-		return true;
-	}
-	
-	private boolean listen(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
-			MessageSender.error(sender, "This command cannot be run from the console!");
-			return true;
-		}
-		
-		if (args.length > 1) {
-			ConnectionManager.listen((Player) sender, "#" + args[1].toLowerCase());
-			return true;
-		} else {
-			MessageSender.error(sender, "You must enter the channel name to connect to!");
-			MessageSender.error(sender, CommandParser.getCommandUsage("mci listen"));
-			return true;
-		}
-	}
-	
-	private boolean leave(CommandSender sender, String[] args) {
-		if (!(sender instanceof Player)) {
-			MessageSender.error(sender, "This command cannot be run from the console!");
-			return true;
-		}
-		
-		if (args.length > 1) {
-			MessageSender.error(sender, "This command takes no arguments!");
-			return true;
-		}
-		
-		if (!ConnectionManager.isConnected((Player) sender)) {
-			MessageSender.warn(sender, "You are not connected to any channel!");
-			return true;
-		}
-		
-		ConnectionManager.leave((Player) sender);
-		return true;
-	}*/
 	
 }
 

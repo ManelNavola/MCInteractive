@@ -12,7 +12,8 @@ import org.bukkit.entity.Player;
 import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.voting.Vote;
 import com.manelnavola.mcinteractive.voting.VoteManager;
-import com.manelnavola.twitchbotx.TwitchUser;
+import com.manelnavola.twitchbotx.domain.TwitchUser;
+import com.manelnavola.twitchbotx.domain.TwitchUser.Badge;
 import com.manelnavola.twitchbotx.events.TwitchMessageEvent;
 
 public class ChatManager {
@@ -30,16 +31,18 @@ public class ChatManager {
 	public static String parseUserTag(TwitchUser tu) {
 		String tag = DEFAULT_TAG;
 
-		if (tu.hasBadge()) {
-			if (tu.isBroadcaster()) {
-				tag = ChatColor.AQUA + "[Streamer]";
-			} else if (tu.isAdmin()) {
-				tag = ChatColor.YELLOW + "[Admin]";
-			} else if (tu.isModerator()) {
-				tag = ChatColor.RED + "[Mod]";
-			} else if (tu.isSubscriber()) {
-				tag = ChatColor.LIGHT_PURPLE + "[Sub]";
-			}
+		if (tu.hasBadge(Badge.BROADCASTER)) {
+			tag = ChatColor.AQUA + "[Streamer]";
+		} else if (tu.hasBadge(Badge.ADMIN)) {
+			tag = ChatColor.YELLOW + "[Admin]";
+		} else if (tu.hasBadge(Badge.STAFF)) {
+			tag = ChatColor.YELLOW + "[Staff]";
+		} else if (tu.hasBadge(Badge.MODERATOR)) {
+			tag = ChatColor.RED + "[Mod]";
+		} else if (tu.hasBadge(Badge.GLOBAL_MOD)) {
+			tag = ChatColor.RED + "[GlobalMod]";
+		} else if (tu.hasBadge(Badge.SUBSCRIBER)) {
+			tag = ChatColor.LIGHT_PURPLE + "[Sub]";
 		}
 
 		return tag;
@@ -47,26 +50,27 @@ public class ChatManager {
 
 	// Username tag
 	public static String parseUsername(PlayerData pd, TwitchUser tu, boolean tags) {
-		if (!USER_CHAT_COLORS.containsKey(tu.getUUID())) {
+		if (!USER_CHAT_COLORS.containsKey(tu.getUserId())) {
 			randomChatColorIndex++;
 			if (randomChatColorIndex >= ALLOWED_CHAT_COLORS.length) randomChatColorIndex = 0;
-			USER_CHAT_COLORS.put(tu.getUUID(), ALLOWED_CHAT_COLORS[randomChatColorIndex]);
+			USER_CHAT_COLORS.put(tu.getUserId(), ALLOWED_CHAT_COLORS[randomChatColorIndex]);
 		}
-		String name = USER_CHAT_COLORS.get(tu.getUUID()) + tu.getNickname();
+		String name = USER_CHAT_COLORS.get(tu.getUserId()) + tu.getDisplayName();
 		if (tags) {
 			ChatColor tagsColor;
-			if (tu.hasBadge()) {
-				if (tu.isSubscriber()) {
-					if (pd.getConfig("highlight")) {
-						tagsColor = ChatColor.WHITE;
-					} else {
-						tagsColor = ChatColor.GRAY;
-					}
-				} else {
+			if (tu.hasBadge(Badge.SUBSCRIBER)) {
+				if (pd.getConfig("highlight")) {
 					tagsColor = ChatColor.WHITE;
+				} else {
+					tagsColor = ChatColor.GRAY;
 				}
 			} else {
-				tagsColor = ChatColor.GRAY;
+				if (tu.hasBadge(Badge.BROADCASTER) || tu.hasBadge(Badge.ADMIN) || tu.hasBadge(Badge.STAFF)
+						|| tu.hasBadge(Badge.MODERATOR) || tu.hasBadge(Badge.GLOBAL_MOD)) {
+					tagsColor = ChatColor.WHITE;
+				} else {
+					tagsColor = ChatColor.GRAY;
+				}
 			}
 			return tagsColor + "<" + name + "" + tagsColor + ">";
 		} else {
@@ -76,18 +80,19 @@ public class ChatManager {
 
 	// Message color
 	public static String parseMessage(PlayerData pd, TwitchUser tu, String message) {
-		if (tu.hasBadge()) {
-			if (tu.isSubscriber()) {
-				if (pd.getConfig("highlight")) {
-					return ChatColor.WHITE + message;
-				} else {
-					return ChatColor.GRAY + message;
-				}
-			} else {
+		if (tu.hasBadge(Badge.SUBSCRIBER)) {
+			if (pd.getConfig("highlight")) {
 				return ChatColor.WHITE + message;
+			} else {
+				return ChatColor.GRAY + message;
 			}
 		} else {
-			return ChatColor.GRAY + message;
+			if (tu.hasBadge(Badge.BROADCASTER) || tu.hasBadge(Badge.ADMIN) || tu.hasBadge(Badge.STAFF)
+					|| tu.hasBadge(Badge.MODERATOR) || tu.hasBadge(Badge.GLOBAL_MOD)) {
+				return ChatColor.WHITE + message;
+			} else {
+				return ChatColor.GRAY + message;
+			}
 		}
 	}
 	
@@ -99,13 +104,13 @@ public class ChatManager {
 					PlayerData pd = PlayerManager.getPlayerData(p);
 					
 					Vote v = VoteManager.getVote(p);
-					if (v != null && v.isValidOption(tme.getContents())) return; // Is a vote, handle automatically
+					if (v != null && v.isValidOption(tme.getMessage())) return; // Is a vote, handle automatically
 					
 					if (pd.getConfig("showchat")) {
-						TwitchUser tu = tme.getUser();
+						TwitchUser tu = tme.getTwitchUser();
 						String tag = parseUserTag(tu);
 						String user = parseUsername(pd, tu, true);
-						String msg = parseMessage(pd, tu, tme.getContents());
+						String msg = parseMessage(pd, tu, tme.getMessage());
 						p.sendMessage(tag + " " + user + " " + msg);
 					}
 				}

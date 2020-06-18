@@ -19,7 +19,7 @@ import com.manelnavola.mcinteractive.generic.ConnectionManager;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 import com.manelnavola.mcinteractive.voting.Vote.VoteType;
-import com.manelnavola.twitchbotx.TwitchUser;
+import com.manelnavola.twitchbotx.domain.TwitchUser;
 
 public class VoteManager {
 	

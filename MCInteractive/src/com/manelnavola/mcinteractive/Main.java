@@ -66,7 +66,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static Plugin plugin;
 	private static boolean ON_1_13 = false;
 	public static String versionMismatch;
-	public static final String INTERNAL_NAME = "Beta-1.0.2";
+	public static final String INTERNAL_NAME = "Beta-1.0.3";
 
 	private static HashMap<Player, Integer> lastArrowSlot = new HashMap<>();
 
@@ -113,7 +113,7 @@ public class Main extends JavaPlugin implements Listener {
 			connection.addRequestProperty("User-Agent", "ManelNavola"); // Set User-Agent
 
 			// If you're not sure if the request will be successful,
-			// you need to check the response code and use #getErrorStream if it returned an
+			// you need to check the response code and use getErrorStream if it returned an
 			// error code
 			InputStream inputStream = connection.getInputStream();
 			InputStreamReader reader = new InputStreamReader(inputStream);
@@ -138,7 +138,7 @@ public class Main extends JavaPlugin implements Listener {
 		//LoggingManager.l("Performed join event on " + p.getName());
 		String ch = PlayerManager.getConfigString("channellock");
 		if (ch != null) {
-			ConnectionManager.listen(p, "#" + ch);
+			ConnectionManager.listen(p, ch);
 		}
 		PlayerManager.playerJoin(p);
 		CommandValidator.addPlayer(p);

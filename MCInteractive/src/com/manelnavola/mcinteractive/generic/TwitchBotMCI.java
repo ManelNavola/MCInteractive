@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,16 +16,28 @@ import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 import com.manelnavola.mcinteractive.voting.VoteManager;
 import com.manelnavola.twitchbotx.TwitchBotX;
+import com.manelnavola.twitchbotx.TwitchBotXListenerAdapter;
 import com.manelnavola.twitchbotx.events.*;
 
-public class TwitchBotMCI extends TwitchBotX {
+public class TwitchBotMCI extends TwitchBotXListenerAdapter {
 
+	private TwitchBotX twitchBotX;
 	private Map<Player, String> playerToChannel = new HashMap<>();
 	private Map<String, List<Player>> channelPlayers = new HashMap<>();
 	private Object safetyLock = new Object();
 
-	public TwitchBotMCI() {
-		super();
+	public TwitchBotMCI() throws Exception {
+		twitchBotX = new TwitchBotX();
+		twitchBotX.setListenerAdapter(this);
+		twitchBotX.connect();
+	}
+	
+	public void dispose() {
+		twitchBotX.disconnect();
+	}
+	
+	public Set<String> getConnectedChannels() {
+		return channelPlayers.keySet();
 	}
 
 	private String moms(int a) {
@@ -69,7 +82,7 @@ public class TwitchBotMCI extends TwitchBotX {
 				pl.add(p);
 				channelPlayers.put(ch, pl);
 				Log.info("TwitchBotX joined " + ch);
-				joinChannel(ch);
+				twitchBotX.joinChannel(ch);
 			} else {
 				//LoggingManager.l("TwitchBotX was already listening to that channel...");
 				pl.add(p);
@@ -85,23 +98,29 @@ public class TwitchBotMCI extends TwitchBotX {
 			String ch = playerToChannel.remove(p);
 
 			if (ch == null) {
-				Log.warn("Cannot disconnect player, not connected!");
+				MessageSender.warn(p, "You aren't connected to any channel!");
 				return;
 			}
 			
 			//LoggingManager.l("Disconnecting player from " + ch);
 			MessageSender.nice(p, "Disconnected from " + ch);
-			if (isConnectedTo(ch)) {
+			if (twitchBotX.isConnectedTo(ch)) {
 				List<Player> pl = channelPlayers.get(ch);
 				pl.remove(p);
 				//LoggingManager.l("Player disconnected!");
 				if (pl.isEmpty()) {
 					Log.info("TwitchBotX left " + ch);
-					leaveChannel(ch);
+					twitchBotX.partChannel(ch);
 					channelPlayers.remove(ch);
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void onConnectFail(Exception e) {
+		super.onConnectFail(e);
+		Log.error("Could not start bot! Restart the plugin and if the issue persists contact the developer");
 	}
 
 	@Override
@@ -110,13 +129,26 @@ public class TwitchBotMCI extends TwitchBotX {
 			Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
 				@Override
 				public void run() {
-					List<Player> channelPlayers = getChannelPlayers(tm.getChannelName());
-					ChatManager.sendMessage(channelPlayers, tm);
-					if (tm.hasBits()) {
-						//LoggingManager.l(tm.getUser().getNickname() + " cheered " + tm.getBits());
-						RewardManager.processBits(channelPlayers, tm.getBits(), tm.getUser().getNickname());
-					}
-					VoteManager.process(tm.getUser(), tm.getChannelName(), tm.getContents());
+					List<Player> cp = getChannelPlayers(tm.getChannelName());
+					ChatManager.sendMessage(cp, tm);
+					VoteManager.process(tm.getTwitchUser(), tm.getChannelName(), tm.getMessage());
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	@Override
+	public void onTwitchCheer(final TwitchCheerEvent tc) {
+		try {
+			Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
+				@Override
+				public void run() {
+					//LoggingManager.l(tm.getUser().getNickname() + " cheered " + tm.getBits());
+					List<Player> cp = getChannelPlayers(tc.getChannelName());
+					RewardManager.processBits(cp, tc.getBits(), tc.getTwitchUser().getDisplayName());
 				}
 			});
 		} catch (Exception e) {
@@ -132,32 +164,32 @@ public class TwitchBotMCI extends TwitchBotX {
 				@Override
 				public void run() {
 					//LoggingManager.l("Processing subscription on " + te.getChannel());
-					List<Player> channelPlayers = getChannelPlayers(te.getChannel());
-					String receiver = te.getReceiverName();
+					List<Player> channelPlayers = getChannelPlayers(te.getChannelName());
+					String receiver = te.getReceiverDisplayName();
 					if (receiver == null)
 						receiver = "Anon";
-					if (te.isGifted()) {
-						if (te.isAnon()) {
+					if (te.isGift()) {
+						if (te.isAnonymous()) {
 							ChatManager.sendNotice(channelPlayers,
-									String.join(" ", ChatColor.AQUA + te.getReceiverName(),
+									String.join(" ", ChatColor.AQUA + receiver,
 											ChatColor.WHITE + "has been gifted", ChatColor.GREEN + "" + te.getSubMonths(),
 											ChatColor.WHITE + "sub " + moms(te.getSubMonths()) + "!"));
 						} else {
 							ChatManager.sendNotice(channelPlayers,
-									String.join(" ", ChatColor.LIGHT_PURPLE + te.getGifterName(),
+									String.join(" ", ChatColor.LIGHT_PURPLE + te.getGifterDisplayName(),
 											ChatColor.WHITE + "gifted", ChatColor.GREEN + "" + te.getSubMonths(),
 											ChatColor.WHITE + "sub " + moms(te.getSubMonths()) + " to",
-											ChatColor.AQUA + te.getReceiverName()));
+											ChatColor.AQUA + receiver));
 						}
 					} else {
 						if (te.isResub()) {
 							ChatManager.sendNotice(channelPlayers,
-									String.join(" ", ChatColor.AQUA + te.getReceiverName(),
+									String.join(" ", ChatColor.AQUA + receiver,
 											ChatColor.WHITE + "has resubbed for", ChatColor.GREEN + "" + te.getSubMonths(),
 											ChatColor.WHITE + moms(te.getSubMonths()) + "!"));
 						} else {
 							ChatManager.sendNotice(channelPlayers,
-									String.join(" ", ChatColor.AQUA + te.getReceiverName(),
+									String.join(" ", ChatColor.AQUA + receiver,
 											ChatColor.WHITE + "has subbed for", ChatColor.GREEN + "" + te.getSubMonths(),
 											ChatColor.WHITE + moms(te.getSubMonths()) + "!"));
 						}
@@ -184,10 +216,10 @@ public class TwitchBotMCI extends TwitchBotX {
 				@Override
 				public void run() {
 					if (tgue.isAnon()) {
-						ChatManager.sendNotice(getChannelPlayers(tgue.getChannel()), String.join(" ",
+						ChatManager.sendNotice(getChannelPlayers(tgue.getChannelName()), String.join(" ",
 								ChatColor.AQUA + tgue.getReceiverName(), ChatColor.WHITE + "Has been gifted an upgrade!"));
 					} else {
-						ChatManager.sendNotice(getChannelPlayers(tgue.getChannel()),
+						ChatManager.sendNotice(getChannelPlayers(tgue.getChannelName()),
 								String.join(" ", ChatColor.LIGHT_PURPLE + tgue.getGifterName(),
 										ChatColor.WHITE + "has gifted an upgrade to",
 										ChatColor.AQUA + tgue.getReceiverName() + ChatColor.WHITE + "!"));
@@ -218,12 +250,12 @@ public class TwitchBotMCI extends TwitchBotX {
 				@Override
 				public void run() {
 					if (tre.hasRaidEnded()) {
-						ChatManager.sendNotice(getChannelPlayers(tre.getChannel()),
-								String.join(" ", ChatColor.RED + tre.getRaiderName() + ChatColor.WHITE + "'s",
+						ChatManager.sendNotice(getChannelPlayers(tre.getChannelName()),
+								String.join(" ", ChatColor.RED + tre.getRaiderDisplayName() + ChatColor.WHITE + "'s",
 										ChatColor.WHITE + "raid has ended!"));
 					} else {
-						ChatManager.sendNotice(getChannelPlayers(tre.getChannel()),
-								String.join(" ", ChatColor.RED + tre.getRaiderName(), ChatColor.WHITE + "is raiding with",
+						ChatManager.sendNotice(getChannelPlayers(tre.getChannelName()),
+								String.join(" ", ChatColor.RED + tre.getRaiderDisplayName(), ChatColor.WHITE + "is raiding with",
 										ChatColor.GREEN + "" + tre.getRaidSize(), ChatColor.WHITE + "viewers!"));
 					}
 				}
