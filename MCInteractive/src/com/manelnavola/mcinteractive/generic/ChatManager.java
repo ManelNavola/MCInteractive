@@ -43,6 +43,8 @@ public class ChatManager {
 			tag = ChatColor.RED + "[GlobalMod]";
 		} else if (tu.hasBadge(Badge.SUBSCRIBER)) {
 			tag = ChatColor.LIGHT_PURPLE + "[Sub]";
+		} else if (tu.hasBadge(Badge.FOUNDER)) {
+			tag = ChatColor.LIGHT_PURPLE + "[Founder]";
 		}
 
 		return tag;
@@ -58,7 +60,7 @@ public class ChatManager {
 		String name = USER_CHAT_COLORS.get(tu.getUserId()) + tu.getDisplayName();
 		if (tags) {
 			ChatColor tagsColor;
-			if (tu.hasBadge(Badge.SUBSCRIBER)) {
+			if (tu.isSubscribed()) {
 				if (pd.getConfig("highlight")) {
 					tagsColor = ChatColor.WHITE;
 				} else {
@@ -80,7 +82,7 @@ public class ChatManager {
 
 	// Message color
 	public static String parseMessage(PlayerData pd, TwitchUser tu, String message) {
-		if (tu.hasBadge(Badge.SUBSCRIBER)) {
+		if (tu.isSubscribed()) {
 			if (pd.getConfig("highlight")) {
 				return ChatColor.WHITE + message;
 			} else {

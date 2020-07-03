@@ -1,6 +1,6 @@
 name: MCInteractive
 description: Enables Twitch interaction with customizable in-game features
-version: 1.0.3-beta
+version: 1.0.4-beta
 author: Manel Navola
 
 main: com.manelnavola.mcinteractive.Main

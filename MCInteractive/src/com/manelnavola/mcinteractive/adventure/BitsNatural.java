@@ -8,14 +8,13 @@ import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import com.manelnavola.mcinteractive.Main;
 import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.MessageSender;
 
 public class BitsNatural {
 	
-	private static Map<EntityType, EntityBitsData> entityBitsDataMap;
+	private static Map<String, EntityBitsData> entityBitsDataMap;
 	private static Map<String, Map<EntityType, EntityPenaltyTrack>> delays;
 	
 	public static void init() {
@@ -24,56 +23,57 @@ public class BitsNatural {
 		// bitsMin, bitsMax, penalty(s), increasedPenalty(s), increasePenaltyWhen, chancePerThousand(x/1000)
 		
 		// Common mobs
-		entityBitsDataMap.put(EntityType.SILVERFISH,		new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.ZOMBIE,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.ZOMBIE_VILLAGER,	new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.SKELETON,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.SPIDER,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("SILVERFISH",			new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("ZOMBIE",				new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("ZOMBIE_VILLAGER",	new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("SKELETON",			new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("SPIDER",				new EntityBitsData( 2,  6,  2,  20, 4,  150));
 	 	
-		entityBitsDataMap.put(EntityType.HUSK,				new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.STRAY,				new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.CAVE_SPIDER,		new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.ENDERMITE,			new EntityBitsData( 2,  6,  2,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.VEX,				new EntityBitsData( 2,  6,  2,  20, 8,  150));
+		entityBitsDataMap.put("HUSK",				new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("STRAY",				new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("CAVE_SPIDER",		new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("ENDERMITE",			new EntityBitsData( 2,  6,  2,  20, 4,  150));
+		entityBitsDataMap.put("VEX",				new EntityBitsData( 2,  6,  2,  20, 8,  150));
 		
-		entityBitsDataMap.put(EntityType.PHANTOM,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		entityBitsDataMap.put("PHANTOM",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Uncommon mobs
-		entityBitsDataMap.put(EntityType.PIG_ZOMBIE,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
-		entityBitsDataMap.put(EntityType.DROWNED,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
-		if (!Main.isOn1_13()) {
-			entityBitsDataMap.put(EntityType.PILLAGER,			new EntityBitsData( 2,  8,  4,  20, 4,  200));
-		}
-		entityBitsDataMap.put(EntityType.VINDICATOR,		new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		entityBitsDataMap.put("PIG_ZOMBIE",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		entityBitsDataMap.put("PIGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
+		entityBitsDataMap.put("ZOMBIFIED_PIGLIN",	new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
+		entityBitsDataMap.put("ZOGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
+		entityBitsDataMap.put("HOGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
+		entityBitsDataMap.put("DROWNED",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
+		entityBitsDataMap.put("PILLAGER",			new EntityBitsData( 2,  8,  4,  20, 4,  200)); 		// 1.13
+		entityBitsDataMap.put("VINDICATOR",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Mid rare mobs
-		entityBitsDataMap.put(EntityType.CREEPER,			new EntityBitsData( 2,  8,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.ENDERMAN,			new EntityBitsData( 2,  8,  4,  20, 4,  300));
+		entityBitsDataMap.put("CREEPER",			new EntityBitsData( 2,  8,  4,  20, 4,  300));
+		entityBitsDataMap.put("ENDERMAN",			new EntityBitsData( 2,  8,  4,  20, 4,  300));
 		
-		entityBitsDataMap.put(EntityType.SLIME,				new EntityBitsData( 3,  12,  4,  20, 4,  150));
-		entityBitsDataMap.put(EntityType.MAGMA_CUBE,		new EntityBitsData( 3,  12,  4,  20, 4,  150));
+		entityBitsDataMap.put("SLIME",				new EntityBitsData( 3,  12,  4,  20, 4,  150));
+		entityBitsDataMap.put("MAGMA_CUBE",			new EntityBitsData( 3,  12,  4,  20, 4,  150));
 		
-		entityBitsDataMap.put(EntityType.BLAZE,				new EntityBitsData( 3,  12,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.WITCH,				new EntityBitsData( 3,  12,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.WITHER_SKELETON,	new EntityBitsData( 3,  12,  4,  20, 4,  300));
+		entityBitsDataMap.put("BLAZE",				new EntityBitsData( 3,  12,  4,  20, 4,  300));
+		entityBitsDataMap.put("WITCH",				new EntityBitsData( 3,  12,  4,  20, 4,  300));
+		entityBitsDataMap.put("WITHER_SKELETON",	new EntityBitsData( 3,  12,  4,  20, 4,  300));
 		
-		entityBitsDataMap.put(EntityType.SHULKER,			new EntityBitsData( 5, 30,  4,  20, 4,  300));
-		entityBitsDataMap.put(EntityType.GUARDIAN,			new EntityBitsData( 5, 30,  4,  20, 4,  300));
+		entityBitsDataMap.put("SHULKER",			new EntityBitsData( 5, 30,  4,  20, 4,  300));
+		entityBitsDataMap.put("GUARDIAN",			new EntityBitsData( 5, 30,  4,  20, 4,  300));
 		// Rare mobs
-		entityBitsDataMap.put(EntityType.GHAST,				new EntityBitsData( 5, 30,  4, 100, 3,  500));
-		if (!Main.isOn1_13())
-		entityBitsDataMap.put(EntityType.RAVAGER,			new EntityBitsData( 5, 30,  4, 100, 3,  500));
+		entityBitsDataMap.put("GHAST",				new EntityBitsData( 5, 30,  4, 100, 3,  500));
+		entityBitsDataMap.put("RAVAGER",			new EntityBitsData( 5, 30,  4, 100, 3,  500)); 	// 1.13
 		
-		entityBitsDataMap.put(EntityType.EVOKER,			new EntityBitsData(50, 120,  8, 600, 2,  500));
+		entityBitsDataMap.put("EVOKER",				new EntityBitsData(50, 120,  8, 600, 2,  500));
 		
 		// Bosses
-		entityBitsDataMap.put(EntityType.ELDER_GUARDIAN,	new EntityBitsData(50, 120, 600, 600, 1, 1000));
-		entityBitsDataMap.put(EntityType.WITHER,			new EntityBitsData(800, 1600, 1800, 1800, 1, 1000));
-		entityBitsDataMap.put(EntityType.ENDER_DRAGON,		new EntityBitsData(800, 1600, 1800, 1800, 1, 1000));
+		entityBitsDataMap.put("ELDER_GUARDIAN",		new EntityBitsData(50, 120, 600, 600, 1, 1000));
+		entityBitsDataMap.put("WITHER",				new EntityBitsData(800, 1600, 1800, 1800, 1, 1000));
+		entityBitsDataMap.put("ENDER_DRAGON",		new EntityBitsData(800, 1600, 1800, 1800, 1, 1000));
 		
 		delays = new HashMap<>();
 	}
 
 	public static void killEvent(Player p, EntityType et) {
-		if (!getEntityBitsDataMap().containsKey(et)) return;
+		if (!getEntityBitsDataMap().containsKey(et.name())) return;
 		Map<EntityType, EntityPenaltyTrack> eptm = delays.get(p.getUniqueId().toString());
 		if (eptm == null) {
 			eptm = new HashMap<>();
@@ -95,12 +95,15 @@ public class BitsNatural {
 		eptm.put(et, new EntityPenaltyTrack(et));
 	}
 
-	public static Map<EntityType, EntityBitsData> getEntityBitsDataMap() {
+	public static Map<String, EntityBitsData> getEntityBitsDataMap() {
 		return entityBitsDataMap;
 	}
 	
 	private static void tryRewardBits(Player p, EntityType et) {
-		EntityBitsData ebd = getEntityBitsDataMap().get(et);
+		EntityBitsData ebd = getEntityBitsDataMap().get(et.name());
+		if (ebd == null) {
+			return;
+		}
 		int r = (int) (Math.random()*1000);
 		if (r <= ebd.getChancePerThousand()) {
 			int min = ebd.getBitsMin();
@@ -161,7 +164,10 @@ class EntityPenaltyTrack {
 	private int kills = 0;
 	
 	public EntityPenaltyTrack(EntityType et) {
-		ebd = BitsNatural.getEntityBitsDataMap().get(et);
+		ebd = BitsNatural.getEntityBitsDataMap().get(et.name());
+		if (ebd == null) {
+			return;
+		}
 		issueKill();
 	}
 	

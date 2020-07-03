@@ -4,7 +4,7 @@
   <groupId>MCInteractive</groupId>
   <artifactId>MCInteractive</artifactId>
   <name>MC Interactive</name>
-  <version>b1.0.3</version>
+  <version>b1.0.4</version>
   <description>Enables Twitch interaction with customizable in-game features</description>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
@@ -56,24 +56,10 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>bukkit</artifactId>
-      <version>1.15.1-R0.1-SNAPSHOT</version>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot</artifactId>
+      <version>1.16.1-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-lang</artifactId>
-          <groupId>commons-lang</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gson</artifactId>
-          <groupId>com.google.code.gson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>snakeyaml</artifactId>
-          <groupId>org.yaml</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 </project>

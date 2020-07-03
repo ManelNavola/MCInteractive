@@ -56,6 +56,7 @@ import com.manelnavola.mcinteractive.command.MCITabCompleter;
 import com.manelnavola.mcinteractive.generic.ConfigGUI;
 import com.manelnavola.mcinteractive.generic.ConfigManager;
 import com.manelnavola.mcinteractive.generic.ConnectionManager;
+import com.manelnavola.mcinteractive.generic.PlayerData;
 import com.manelnavola.mcinteractive.generic.PlayerManager;
 import com.manelnavola.mcinteractive.utils.Log;
 import com.manelnavola.mcinteractive.utils.MessageSender;
@@ -66,7 +67,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static Plugin plugin;
 	private static boolean ON_1_13 = false;
 	public static String versionMismatch;
-	public static final String INTERNAL_NAME = "Beta-1.0.3";
+	public static final String INTERNAL_NAME = "Beta-1.0.4";
 
 	private static HashMap<Player, Integer> lastArrowSlot = new HashMap<>();
 
@@ -186,8 +187,12 @@ public class Main extends JavaPlugin implements Listener {
 
 		if (le.getKiller() != null) {
 			Player p = le.getKiller();
-			if (PlayerManager.getPlayerData(p).getConfig("bitdrops")) {
-				BitsNatural.killEvent(p, le.getType());
+			if (p == null) return;
+			PlayerData pd = PlayerManager.getPlayerData(p);
+			if (pd != null) {
+				if (pd.getConfig("bitdrops")) {
+					BitsNatural.killEvent(p, le.getType());
+				}
 			}
 		}
 
