@@ -38,12 +38,12 @@ public class BitsNatural {
 		entityBitsDataMap.put("PHANTOM",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Uncommon mobs
 		entityBitsDataMap.put("PIG_ZOMBIE",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
-		entityBitsDataMap.put("PIGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
-		entityBitsDataMap.put("ZOMBIFIED_PIGLIN",	new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
-		entityBitsDataMap.put("ZOGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
-		entityBitsDataMap.put("HOGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// 1.16
+		entityBitsDataMap.put("PIGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// >1.15
+		entityBitsDataMap.put("ZOMBIFIED_PIGLIN",	new EntityBitsData( 2,  8,  4,  20, 4,  200));		// >1.15
+		entityBitsDataMap.put("ZOGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// >1.15
+		entityBitsDataMap.put("HOGLIN",				new EntityBitsData( 2,  8,  4,  20, 4,  200));		// >1.15
 		entityBitsDataMap.put("DROWNED",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
-		entityBitsDataMap.put("PILLAGER",			new EntityBitsData( 2,  8,  4,  20, 4,  200)); 		// 1.13
+		entityBitsDataMap.put("PILLAGER",			new EntityBitsData( 2,  8,  4,  20, 4,  200)); 		// >1.13
 		entityBitsDataMap.put("VINDICATOR",			new EntityBitsData( 2,  8,  4,  20, 4,  200));
 		// Mid rare mobs
 		entityBitsDataMap.put("CREEPER",			new EntityBitsData( 2,  8,  4,  20, 4,  300));
@@ -60,7 +60,7 @@ public class BitsNatural {
 		entityBitsDataMap.put("GUARDIAN",			new EntityBitsData( 5, 30,  4,  20, 4,  300));
 		// Rare mobs
 		entityBitsDataMap.put("GHAST",				new EntityBitsData( 5, 30,  4, 100, 3,  500));
-		entityBitsDataMap.put("RAVAGER",			new EntityBitsData( 5, 30,  4, 100, 3,  500)); 	// 1.13
+		entityBitsDataMap.put("RAVAGER",			new EntityBitsData( 5, 30,  4, 100, 3,  500)); 	// >1.13
 		
 		entityBitsDataMap.put("EVOKER",				new EntityBitsData(50, 120,  8, 600, 2,  500));
 		

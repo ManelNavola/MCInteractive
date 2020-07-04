@@ -65,10 +65,10 @@
 		    <version>5.3.1</version>
 		    <scope>compile</scope>
 		</dependency>
-    	<!-- Spigot API, ONLY USE BUKKIT API THOUGH -->
+    	<!-- Bukkit API -->
 		<dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
             <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
     	</dependency>
